@@ -1,0 +1,37 @@
+[package]
+name        = "soupxcell"
+version     = "1.0.0"
+authors     = ["Jahidul Arafat <jarotball@gmail.com>"]
+edition     = "2021"
+description = "Ambient RNA correction for genotype demultiplexing — post-processor for souporcell"
+
+[dependencies]
+# ── Reused patterns from souporcell ──────────────────────────────────────────
+clap        = { version = "~2.27.0", features = ["yaml"] }
+hashbrown   = "0.14"
+rand        = "0.8"
+rayon       = "*"
+statrs      = "*"
+flate2      = "*"
+itertools   = "*"
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+
+# ── Sparse matrix I/O (MatrixMarket .mtx) ────────────────────────────────────
+sprs        = { version = "0.11", features = ["serde"] }
+
+# ── Dense array + statistics ──────────────────────────────────────────────────
+ndarray         = { version = "0.15", features = ["rayon"] }
+ndarray-stats   = "0.5"
+ndarray-rand    = "0.14"
+
+# ── Dimensionality reduction ──────────────────────────────────────────────────
+linfa           = "0.7"
+linfa-reduction = "0.7"
+linfa-tsne      = "0.7"
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+csv           = "1"
+ordered-float = "3"
+rand_distr     = "0.4"
+dirs-next      = "2"

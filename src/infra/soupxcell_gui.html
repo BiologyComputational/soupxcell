@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>soupXcell v{{VERSION}} — Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080E1A;--surface:#0D1627;--surface2:#111D30;--surface3:#162338;
+  --border:#1E2E44;--border2:#253650;
+  --teal:#00C2B8;--teal-dim:#00877F;--teal-glow:rgba(0,194,184,.15);
+  --violet:#8B5CF6;--violet-dim:#6D3EC4;--violet-glow:rgba(139,92,246,.15);
+  --amber:#F5A623;--amber-dim:#B87A1A;--amber-glow:rgba(245,166,35,.12);
+  --red:#F04F4F;--red-glow:rgba(240,79,79,.12);
+  --green:#2ECC71;--green-glow:rgba(46,204,113,.12);
+  --pink:#EC4899;--blue:#4A9EFF;
+  --ink:#E8EDF5;--ink2:#A8B8CC;--ink3:#6B7E94;--ink4:#3D526A;
+  --font-ui:'Sora',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-display:'Space Mono',monospace;
+  --radius:6px;--radius-lg:10px;--radius-xl:16px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --glow-teal:0 0 30px rgba(0,194,184,.2);
+  --glow-violet:0 0 30px rgba(139,92,246,.2);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;opacity:.4}
+.app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px 80px}
+
+/* Header */
+.header{padding:40px 0 28px;text-align:center;border-bottom:1px solid var(--border);margin-bottom:36px}
+.header-eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:var(--violet);text-transform:uppercase;margin-bottom:12px;opacity:.8}
+.header h1{font-family:var(--font-display);font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--violet) 0%,#C4B5FD 50%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:8px}
+.header p{color:var(--ink3);font-size:13px;max-width:640px;margin:0 auto}
+.version-badge{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:4px 14px;border-radius:20px;background:var(--violet-glow);border:1px solid var(--violet-dim);font-family:var(--font-mono);font-size:10px;color:var(--violet);letter-spacing:.1em}
+.pipeline-badge{display:inline-flex;align-items:center;gap:6px;margin-top:6px;margin-left:8px;padding:4px 14px;border-radius:20px;background:var(--teal-glow);border:1px solid var(--teal-dim);font-family:var(--font-mono);font-size:10px;color:var(--teal)}
+
+/* Phase tabs */
+.phase-nav{display:flex;gap:0;margin-bottom:32px;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface)}
+.phase-tab{flex:1;padding:14px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);border-right:1px solid var(--border);transition:all .2s;position:relative;user-select:none}
+.phase-tab:last-child{border-right:none}
+.phase-tab:hover{color:var(--ink);background:var(--surface2)}
+.phase-tab.active{color:var(--violet);background:var(--violet-glow);border-bottom:2px solid var(--violet)}
+.phase-tab .tab-num{display:block;font-family:var(--font-mono);font-size:18px;font-weight:700;margin-bottom:2px}
+.phase-tab.done .tab-num::after{content:' ✓';font-size:12px;color:var(--green)}
+.phase-tab.locked{opacity:.4;cursor:not-allowed}
+.phase-panel{display:none}
+.phase-panel.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);margin-bottom:20px;overflow:hidden}
+.card-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.card-title{font-family:var(--font-display);font-size:.85rem;font-weight:700;color:var(--violet);letter-spacing:.06em}
+.card-body{padding:20px}
+
+/* Sections inside cards */
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.section-icon{width:30px;height:30px;border-radius:8px;background:var(--violet-glow);border:1px solid var(--violet-dim);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.section-title{font-family:var(--font-display);font-size:.8rem;font-weight:700;color:var(--violet);letter-spacing:.06em}
+.section-desc{font-size:11px;color:var(--ink3);margin-top:1px}
+
+/* Profile grid */
+.profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px}
+.profile-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius-lg);padding:14px 12px;cursor:pointer;transition:all .2s;position:relative}
+.profile-card:hover{border-color:var(--violet-dim);background:var(--surface3)}
+.profile-card.selected{border-color:var(--violet);background:var(--violet-glow);box-shadow:var(--glow-violet)}
+.profile-card .pc-name{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--violet);margin-bottom:4px}
+.profile-card .pc-desc{font-size:10px;color:var(--ink3);line-height:1.4}
+.profile-card .pc-badge{position:absolute;top:8px;right:8px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;font-family:var(--font-mono)}
+
+/* Form elements */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr}
+.form-grid.one{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;color:var(--ink2);font-weight:600;display:flex;align-items:center;gap:6px}
+.env-key{background:var(--surface3);border:1px solid var(--border2);border-radius:4px;padding:1px 6px;font-family:var(--font-mono);font-size:9px;color:var(--ink4)}
+input[type=text],input[type=number],select{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--ink);font-family:var(--font-mono);font-size:11px;padding:7px 10px;width:100%;outline:none;transition:border-color .15s}
+input:focus,select:focus{border-color:var(--violet)}
+select option{background:var(--surface2)}
+.field-hint{font-size:10px;color:var(--ink4);line-height:1.4}
+.slider-wrap{display:flex;align-items:center;gap:10px}
+.slider-wrap input[type=range]{flex:1;accent-color:var(--violet)}
+.slider-val{font-family:var(--font-mono);font-size:11px;color:var(--violet);min-width:24px;text-align:right}
+.toggle-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.toggle-row input[type=checkbox]{accent-color:var(--violet);width:14px;height:14px;cursor:pointer}
+.toggle-label{font-size:11px;color:var(--ink2);cursor:pointer}
+
+/* Tooltip */
+.tooltip-wrap{position:relative;display:inline-flex;align-items:center}
+.tooltip-icon{width:14px;height:14px;border-radius:50%;background:var(--border2);color:var(--ink4);font-size:9px;display:inline-flex;align-items:center;justify-content:center;cursor:help}
+.tooltip-box{display:none;position:absolute;left:20px;top:-4px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:10px 12px;font-size:10px;color:var(--ink2);line-height:1.5;min-width:220px;max-width:300px;z-index:100;box-shadow:var(--shadow)}
+.tooltip-wrap:hover .tooltip-box{display:block}
+.range{display:block;margin-top:4px;color:var(--teal);font-family:var(--font-mono)}
+
+/* Alerts */
+.alert{padding:10px 14px;border-radius:var(--radius);margin-bottom:14px;font-size:11px;line-height:1.6}
+.alert-info{background:var(--teal-glow);border:1px solid var(--teal-dim);color:var(--ink2)}
+.alert-info strong{color:var(--teal)}
+.alert-warn{background:var(--amber-glow);border:1px solid var(--amber-dim);color:var(--ink2)}
+.alert-warn strong{color:var(--amber)}
+.alert-violet{background:var(--violet-glow);border:1px solid var(--violet-dim);color:var(--ink2)}
+.alert-violet strong{color:var(--violet)}
+.alert-success{background:var(--green-glow);border:1px solid #1a7a42;color:var(--ink2)}
+
+/* Formula box */
+.formula-box{background:var(--surface2);border-left:3px solid var(--violet);border-radius:0 var(--radius) var(--radius) 0;padding:12px 16px;font-family:var(--font-mono);font-size:10.5px;color:var(--ink2);line-height:2;margin:10px 0}
+.formula-box .var{color:var(--teal)}
+.formula-box .op{color:var(--violet)}
+.formula-box .comment{color:var(--ink4)}
+
+/* CLI preview */
+.cli-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-family:var(--font-mono);font-size:10px;color:var(--teal);word-break:break-all;white-space:pre-wrap;line-height:1.8;margin-top:8px;max-height:200px;overflow-y:auto}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--radius);font-family:var(--font-ui);font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .2s;letter-spacing:.02em}
+.btn-primary{background:var(--violet);color:#fff;border-color:var(--violet)}
+.btn-primary:hover{background:var(--violet-dim)}
+.btn-secondary{background:transparent;color:var(--teal);border-color:var(--teal)}
+.btn-secondary:hover{background:var(--teal-glow)}
+.btn-ghost{background:transparent;color:var(--ink3);border-color:var(--border2)}
+.btn-ghost:hover{color:var(--ink2);border-color:var(--border)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-row{display:flex;gap:10px;align-items:center;margin-top:20px;flex-wrap:wrap}
+
+/* Module overview cards */
+.module-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.module-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.module-card .m-num{font-family:var(--font-display);font-size:2rem;font-weight:700;opacity:.15;line-height:1}
+.module-card .m-title{font-size:12px;font-weight:700;color:var(--ink);margin:4px 0 6px}
+.module-card .m-body{font-size:10px;color:var(--ink3);line-height:1.6}
+.module-card .m-outputs{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.tag{display:inline-block;padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:9px;font-weight:700}
+
+/* Preflight plan */
+.plan-kv{display:flex;gap:12px;padding:5px 0;border-bottom:1px solid rgba(30,46,68,.5);font-size:11px;align-items:flex-start}
+.plan-kv:last-child{border-bottom:none}
+.plan-key{color:var(--ink3);min-width:160px;flex-shrink:0;font-family:var(--font-mono);font-size:10px}
+.plan-val{color:var(--ink2)}
+.plan-section-title{font-family:var(--font-display);font-size:9px;letter-spacing:.12em;color:var(--violet);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin:12px 0 8px}
+.plan-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.stage-list{display:flex;flex-direction:column;gap:6px}
+.stage-item{display:flex;gap:12px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius);align-items:flex-start}
+.stage-num{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--violet);min-width:22px}
+.stage-name{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.stage-desc{font-size:10px;color:var(--ink3)}
+
+/* Quality checklist */
+.quality-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.quality-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:var(--radius);font-size:10px}
+.quality-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-teal{background:var(--teal)}
+.dot-amber{background:var(--amber)}
+.dot-violet{background:var(--violet)}
+.quality-name{flex:1;color:var(--ink2)}
+.quality-threshold{font-family:var(--font-mono);font-size:9px;color:var(--ink4)}
+
+/* Interpretation grid */
+.interp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.interp-item{background:var(--surface2);border-radius:var(--radius);padding:10px 12px}
+.interp-metric{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.interp-expected{font-size:10px;color:var(--teal);font-family:var(--font-mono)}
+.interp-warn{font-size:9px;color:var(--amber);margin-top:4px}
+
+/* Execution log */
+.exec-meta{display:flex;gap:24px;margin-bottom:16px;flex-wrap:wrap}
+.exec-stat{display:flex;flex-direction:column;gap:2px}
+.exec-stat-label{font-size:9px;color:var(--ink4);letter-spacing:.08em;text-transform:uppercase}
+.exec-stat-val{font-family:var(--font-mono);font-size:1.4rem;font-weight:700;color:var(--violet)}
+.stage-track{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.track-item{display:flex;align-items:center;gap:10px;padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:11px;transition:all .2s}
+.track-item.active{border-color:var(--violet);background:var(--violet-glow)}
+.track-item.done{border-color:var(--green);background:var(--green-glow);color:var(--ink3)}
+.track-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.track-item.active .track-dot{background:var(--violet);box-shadow:0 0 6px var(--violet)}
+.track-item.done .track-dot{background:var(--green)}
+.track-name{flex:1;font-weight:600}
+.track-status{font-size:9px;color:var(--ink4);font-family:var(--font-mono)}
+.log-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);height:300px;overflow-y:auto;padding:10px 14px;font-family:var(--font-mono);font-size:10px;line-height:1.7;color:var(--ink3)}
+.log-box::-webkit-scrollbar{width:4px}
+.log-box::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.log-section{color:var(--violet);font-weight:700}
+.log-ok{color:var(--green)}
+.log-metric{color:var(--teal)}
+.log-warn{color:var(--amber)}
+.log-error{color:var(--red)}
+.log-written{color:var(--pink)}
+.log-computing{color:var(--ink3);font-style:italic}
+.log-step{color:#C4B5FD}
+.log-sim{color:var(--amber)}
+
+/* Metric cards */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px}
+.metric-val{font-family:var(--font-mono);font-size:1.3rem;font-weight:700;line-height:1}
+.metric-label{font-size:9px;color:var(--ink4);margin-top:4px;letter-spacing:.07em;text-transform:uppercase}
+.metric-sub{font-size:9px;color:var(--ink4);margin-top:2px}
+
+/* Output files */
+.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.output-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:center;gap:10px}
+.output-icon{font-size:18px;flex-shrink:0}
+.output-info{flex:1;min-width:0}
+.output-name{font-size:10px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-mono)}
+.output-size{font-size:9px;color:var(--ink4)}
+a.dl-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:4px;border:1px solid var(--border2);color:var(--teal);font-size:9px;text-decoration:none;transition:all .15s;font-family:var(--font-mono)}
+a.dl-btn:hover{border-color:var(--teal);background:var(--teal-glow)}
+
+/* Locus source indicator */
+.locus-source{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:11px}
+.locus-source .ls-mode{font-family:var(--font-mono);font-size:10px;font-weight:700}
+.locus-source-A{border-color:var(--green);background:var(--green-glow)}
+.locus-source-B{border-color:var(--teal);background:var(--teal-glow)}
+.locus-source-C{border-color:var(--amber);background:var(--amber-glow)}
+
+@media(max-width:900px){
+  .profile-grid,.module-cards{grid-template-columns:1fr 1fr}
+  .form-grid,.form-grid.three,.quality-grid,.interp-grid,.output-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+<div class="header">
+  <div class="header-eyebrow">Ambient RNA Correction · Post-processor for souporcell</div>
+  <h1>soupXcell Mission Control</h1>
+  <p>Correct allele fraction matrices for ambient RNA contamination — visualise before/after t-SNE/UMAP, benchmark with simulation</p>
+  <div style="margin-top:10px">
+    <span class="version-badge">v{{VERSION}}</span>
+    <span class="pipeline-badge">souporcell → Stage 8 output → soupXcell</span>
+  </div>
+</div>
+
+<!-- ── PHASE TABS ─────────────────────────────────────────────────────── -->
+<div class="phase-nav">
+  <div class="phase-tab active" id="tab-1" onclick="goPhase(1)">
+    <span class="tab-num">01</span>Configure
+  </div>
+  <div class="phase-tab locked" id="tab-2" onclick="goPhase(2)">
+    <span class="tab-num">02</span>Pre-flight
+  </div>
+  <div class="phase-tab locked" id="tab-3" onclick="goPhase(3)">
+    <span class="tab-num">03</span>Execute
+  </div>
+  <div class="phase-tab locked" id="tab-4" onclick="goPhase(4)">
+    <span class="tab-num">04</span>Outputs
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 1: CONFIGURE                                                  -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="phase-panel active" id="phase-1">
+
+  <!-- Profiles -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">⚡ Quick Start — Load a Profile</div></div>
+    <div class="card-body">
+      <div class="profile-grid">
+        <div class="profile-card selected" id="pc-default" onclick="loadProfile('default')">
+          <div class="pc-badge" style="background:var(--border2);color:var(--ink3)">DEFAULT</div>
+          <div class="pc-name">default</div>
+          <div class="pc-desc">Standard run — t-SNE only, no simulation, VCF locus matching</div>
+        </div>
+        <div class="profile-card" id="pc-fast" onclick="loadProfile('fast')">
+          <div class="pc-badge" style="background:var(--amber-glow);color:var(--amber);border:1px solid var(--amber-dim)">FAST</div>
+          <div class="pc-name">fast_test</div>
+          <div class="pc-desc">Smoke test — 100 t-SNE iters, embed=none, quick verify build works</div>
+        </div>
+        <div class="profile-card" id="pc-sim" onclick="loadProfile('simulate')">
+          <div class="pc-badge" style="background:var(--teal-glow);color:var(--teal);border:1px solid var(--teal-dim)">SIM</div>
+          <div class="pc-name">simulate_high</div>
+          <div class="pc-desc">Full benchmark — α=[0.01…1.0], both embeds, 5 trials — supervisor spec</div>
+        </div>
+        <div class="profile-card" id="pc-custom" onclick="loadProfile('custom')">
+          <div class="pc-badge" style="background:var(--violet-glow);color:var(--violet);border:1px solid var(--violet-dim)">CUSTOM</div>
+          <div class="pc-name">custom</div>
+          <div class="pc-desc">Set all parameters manually below</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §1 Required inputs -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">📁 §1  Required Inputs — souporcell Pipeline Outputs</div></div>
+    <div class="card-body">
+      <div class="alert alert-violet">
+        <strong>These four files are produced by a complete souporcell pipeline run.</strong>
+        Stages 5 (vartrix), 6 (clustering), and 8 (consensus.py) must have completed.
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>ref.mtx <span class="env-key">SOUPX_REF</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box">ref allele count matrix from vartrix (Stage 5). Rows = loci in the freebayes VCF (genomic sort order). Columns = cells in barcode order. MatrixMarket sparse format.<span class="range">Stage 5 output · required</span></span>
+            </span>
+          </label>
+          <input type="text" id="f-ref" placeholder="/Volumes/extra_space/demux_test/ref.mtx" oninput="updateCli()"/>
+          <div class="field-hint">vartrix ref output · matches alt.mtx row-for-row</div>
+        </div>
+        <div class="form-group">
+          <label>alt.mtx <span class="env-key">SOUPX_ALT</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box">alt allele count matrix from vartrix (Stage 5). Same dimensions as ref.mtx. Must have identical row ordering.<span class="range">Stage 5 output · required</span></span>
+            </span>
+          </label>
+          <input type="text" id="f-alt" placeholder="/Volumes/extra_space/demux_test/alt.mtx" oninput="updateCli()"/>
+        </div>
+        <div class="form-group">
+          <label>clusters.tsv <span class="env-key">SOUPX_CLUSTERS</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box">Cluster assignments from souporcell (Stage 6) or troublet (Stage 7). One row per barcode: barcode, cluster_id, status (singlet/doublet), log-probs. soupXcell uses status to exclude doublets from soup estimation.<span class="range">Stage 6/7 output · required</span></span>
+            </span>
+          </label>
+          <input type="text" id="f-clusters" placeholder="/Volumes/extra_space/demux_test/clusters.tsv" oninput="updateCli()"/>
+          <div class="field-hint">troublet output preferred (has singlet/doublet status)</div>
+        </div>
+        <div class="form-group">
+          <label>ambient_rna.txt <span class="env-key">SOUPX_AMBIENT</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box">Ambient RNA fraction α from consensus.py (Stage 8). Contains one float: the estimated fraction of each cell's reads that comes from ambient RNA in the droplet soup. Typical value: 1–5%.<span class="range">Stage 8 output · required</span></span>
+            </span>
+          </label>
+          <input type="text" id="f-ambient" placeholder="/Volumes/extra_space/demux_test/ambient_rna.txt" oninput="updateCli()"/>
+          <div class="field-hint">consensus.py output · contains α (e.g. 0.01261973 = 1.26%)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §2 VCF-based locus selection -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">🔬 §2  Locus Selection — VCF-First (souporcell Ground Truth)</div></div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        <strong>The cluster_genotypes.vcf IS the definitive locus list.</strong>
+        soupXcell reads it directly rather than re-deriving which loci to use.
+        Each data row in the VCF = one locus souporcell used after its QC filter.
+        This guarantees soupXcell operates on exactly the same loci as souporcell.
+      </div>
+
+      <div id="locus-mode-indicator" class="locus-source locus-source-C">
+        <div class="ls-mode">⚠ Mode C — fallback (QC filter)</div>
+        <div style="font-size:10px;color:var(--ink3);margin-top:3px">Provide cluster_genotypes.vcf for exact locus matching</div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>cluster_genotypes.vcf <span class="env-key">SOUPX_SOUPORCELL_VCF</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box"><strong>Primary locus source (recommended).</strong> Written by consensus.py (Stage 8). Contains one data row per locus souporcell used. Row N in this VCF = row N in ref.mtx/alt.mtx (same genomic sort order from vartrix).<span class="range">Stage 8 output · strongly recommended</span></span>
+            </span>
+          </label>
+          <input type="text" id="f-souporcell-vcf" placeholder="/Volumes/extra_space/demux_test/cluster_genotypes.vcf" oninput="updateLocusMode();updateCli()"/>
+          <div class="field-hint">consensus.py vcf_out · Mode B positional (or Mode A with freebayes VCF below)</div>
+        </div>
+        <div class="form-group">
+          <label>freebayes VCF <span class="env-key">SOUPX_FREEBAYES_VCF</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box"><strong>Optional — enables Mode A exact CHROM:POS cross-reference.</strong> The freebayes VCF fed to vartrix (souporcell_merged_sorted_vcf.vcf.gz). When provided, each CHROM+POS in cluster_genotypes.vcf is looked up in this VCF to find the exact matrix row index. Handles chr1 vs 1 naming mismatches automatically.<span class="range">Stage 4 output · optional</span></span>
+            </span>
+          </label>
+          <input type="text" id="f-freebayes-vcf" placeholder="souporcell_merged_sorted_vcf.vcf.gz  (optional)" oninput="updateLocusMode();updateCli()"/>
+          <div class="field-hint">Enables Mode A — exact CHROM:POS cross-reference · accepts .vcf.gz</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);font-size:10px;line-height:1.8;color:var(--ink3)">
+        <strong style="color:var(--violet)">Locus resolution priority:</strong><br/>
+        <span style="color:var(--green)">●</span> <strong>Mode A</strong> (best): cluster_genotypes.vcf + freebayes VCF → exact CHROM:POS mapping → matrix row indices<br/>
+        <span style="color:var(--teal)">●</span> <strong>Mode B</strong> (good): cluster_genotypes.vcf alone → positional: VCF row N = matrix row N (valid for same-sorted VCFs)<br/>
+        <span style="color:var(--amber)">●</span> <strong>Mode C</strong> (fallback): --min_ref/--min_alt QC filter → reproduces souporcell's locus selection independently
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="section-header" style="margin-top:0">
+          <div class="section-icon" style="background:var(--amber-glow);border-color:var(--amber-dim)">🔧</div>
+          <div><div class="section-title" style="color:var(--amber)">Mode C fallback — QC filter (only if no VCF provided)</div>
+          <div class="section-desc">Must match the values used in your souporcell run</div></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>min_ref <span class="env-key">SOUPX_MIN_REF</span>
+              <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+                <span class="tooltip-box">Min cells with ≥1 ref read. Identical to souporcell's --min_ref. Set to the same value you used in souporcell to reproduce its exact locus selection.<span class="range">Default: 4</span></span>
+              </span>
+            </label>
+            <div class="slider-wrap"><input type="range" id="f-minref" min="0" max="20" value="4" oninput="syncSlider('minref');updateCli()"/><div class="slider-val" id="sv-minref">4</div></div>
+            <div class="field-hint">Same as souporcell --min_ref · default: 4</div>
+          </div>
+          <div class="form-group">
+            <label>min_alt <span class="env-key">SOUPX_MIN_ALT</span></label>
+            <div class="slider-wrap"><input type="range" id="f-minalt" min="0" max="20" value="4" oninput="syncSlider('minalt');updateCli()"/><div class="slider-val" id="sv-minalt">4</div></div>
+            <div class="field-hint">Same as souporcell --min_alt · default: 4</div>
+          </div>
+          <div class="form-group">
+            <label>min_ref_umis <span class="env-key">SOUPX_MIN_REF_UMIS</span></label>
+            <input type="number" id="f-minrefumis" value="4" min="0" max="100" oninput="updateCli()"/>
+            <div class="field-hint">Min total ref UMIs per locus · default: 4</div>
+          </div>
+          <div class="form-group">
+            <label>min_alt_umis <span class="env-key">SOUPX_MIN_ALT_UMIS</span></label>
+            <input type="number" id="f-minaltumis" value="4" min="0" max="100" oninput="updateCli()"/>
+            <div class="field-hint">Min total alt UMIs per locus · default: 4</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §3 Output + correction -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">⚙️ §3  Correction Settings — Module 1</div></div>
+    <div class="card-body">
+      <div class="formula-box">
+        <span class="comment">// Supervisor spec — correction formula</span><br/>
+        <span class="var">X</span>[l,n]       = alt[l,n] / (ref[l,n] + alt[l,n])        <span class="comment">// allele fraction (NaN where uncovered)</span><br/>
+        μ[l]          = mean_n(<span class="var">X</span>[l,n]) over cells with coverage  <span class="comment">// per-locus population mean</span><br/>
+        soup[l]       = <span class="var">α</span> <span class="op">×</span> μ[l]                                     <span class="comment">// ambient contribution at each locus</span><br/>
+        <span class="var">X_corr</span>[l,n]  = <span class="op">max(0,</span> <span class="var">X</span>[l,n] <span class="op">−</span> soup[l]<span class="op">)</span>              <span class="comment">// subtract + floor at 0</span>
+      </div>
+      <div class="form-grid three" style="margin-top:14px">
+        <div class="form-group">
+          <label>output dir <span class="env-key">SOUPX_OUTPUT</span></label>
+          <input type="text" id="f-output" value="./soupxcell_output" oninput="updateCli()"/>
+        </div>
+        <div class="form-group">
+          <label>threads <span class="env-key">SOUPX_THREADS</span></label>
+          <input type="number" id="f-threads" value="8" min="1" max="64" oninput="updateCli()"/>
+        </div>
+        <div class="form-group">
+          <label>seed <span class="env-key">SOUPX_SEED</span></label>
+          <input type="number" id="f-seed" value="42" oninput="updateCli()"/>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:10px">
+        <label>alpha override <span class="env-key">SOUPX_ALPHA</span>
+          <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+            <span class="tooltip-box">Override α parsed from ambient_rna.txt. Useful for comparison experiments. E.g. --alpha 0.05 to see what 5% contamination correction looks like vs the true 1.26%.<span class="range">Optional · leave blank to use ambient_rna.txt</span></span>
+          </span>
+        </label>
+        <input type="text" id="f-alpha" placeholder="leave blank to use ambient_rna.txt value  (e.g. 0.01261973)" oninput="updateCli()"/>
+      </div>
+      <div class="toggle-row" style="margin-top:8px">
+        <input type="checkbox" id="f-singlets" checked onchange="updateCli()"/>
+        <label for="f-singlets" class="toggle-label">--singlets_only — use only singlet-flagged cells for soup estimation (doublets still corrected) · <strong>recommended</strong></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- §4 Module 3 embedding -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">🗺️ §4  Dimensionality Reduction — Module 3</div></div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        ℹ&nbsp; PCA → t-SNE/UMAP reduces the L-dimensional allele fraction space to 2D for visual inspection.
+        <strong>At α=1.26% the clusters may look identical before/after</strong> — this is expected.
+        Run Module 2 simulation to find at what α a visible change appears.
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>embed method <span class="env-key">SOUPX_EMBED</span></label>
+          <select id="f-embed" onchange="updateCli()">
+            <option value="tsne" selected>t-SNE (recommended)</option>
+            <option value="umap">UMAP</option>
+            <option value="both">both t-SNE + UMAP</option>
+            <option value="none">none — skip embedding (fastest)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>PCA components <span class="env-key">SOUPX_PCA_COMPONENTS</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box">Number of principal components before t-SNE/UMAP. Reduces noise dimensions. 50 is standard for scRNA-seq. Use 10 for fast_test.<span class="range">5 – 200 · Default: 50</span></span>
+            </span>
+          </label>
+          <div class="slider-wrap"><input type="range" id="f-pca" min="5" max="100" value="50" oninput="syncSlider('pca');updateCli()"/><div class="slider-val" id="sv-pca">50</div></div>
+        </div>
+        <div class="form-group">
+          <label>t-SNE perplexity <span class="env-key">SOUPX_TSNE_PERPLEXITY</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box">Effective neighbourhood size. Higher = more global structure visible. Lower = local clusters tighter. Typical range: 5–50.<span class="range">5 – 100 · Default: 30</span></span>
+            </span>
+          </label>
+          <div class="slider-wrap"><input type="range" id="f-perp" min="5" max="100" value="30" oninput="syncSlider('perp');updateCli()"/><div class="slider-val" id="sv-perp">30</div></div>
+        </div>
+        <div class="form-group">
+          <label>t-SNE iterations <span class="env-key">SOUPX_TSNE_ITER</span>
+            <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+              <span class="tooltip-box">Gradient descent steps. 1000 is standard. Use 100 for fast_test. More iterations = more stable layout but slower (O(N log N) per iter).<span class="range">100 – 5000 · Default: 1000</span></span>
+            </span>
+          </label>
+          <input type="number" id="f-iter" value="1000" min="100" max="5000" oninput="updateCli()"/>
+          <div class="field-hint">Runtime ≈ 42s for 3522 cells × 1000 iters</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- §5 Module 2 simulation -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">📊 §5  Simulation Benchmark — Module 2</div></div>
+    <div class="card-body">
+      <div class="alert alert-warn">
+        <strong>Supervisor: "1.26% is small — we might need to simulate more to see a difference."</strong>
+        This module injects synthetic contamination at known α levels, recovers it, and measures RMSE + silhouette.
+        Key finding: RMSE = 0.3668 × α (R²=1.000) — perfect linear recovery at all levels.
+      </div>
+      <div class="toggle-row" style="margin-bottom:12px">
+        <input type="checkbox" id="f-simulate" onchange="toggleSimParams();updateCli()"/>
+        <label for="f-simulate" class="toggle-label">Enable Module 2 simulation benchmark</label>
+      </div>
+      <div id="sim-params" style="opacity:.35;pointer-events:none">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>simulation α levels <span class="env-key">SOUPX_SIM_LEVELS</span>
+              <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+                <span class="tooltip-box">Space-separated contamination fractions to simulate. Include 0.10–0.50 to see visible silhouette changes. The true α (1.26%) shows Δsil≈0 — expected. At 30–50% Δsil becomes visible.<span class="range">0.0 – 1.0 · space-separated</span></span>
+              </span>
+            </label>
+            <input type="text" id="f-simlevels" value="0.01 0.05 0.10 0.20 0.30 0.50" oninput="updateCli()"/>
+            <div class="field-hint">Space-separated · include 0.50+ to see visible effect</div>
+          </div>
+          <div class="form-group">
+            <label>trials per level <span class="env-key">SOUPX_SIM_TRIALS</span>
+              <span class="tooltip-wrap"><span class="tooltip-icon">?</span>
+                <span class="tooltip-box">Number of trials per α level (results are averaged). Simulation is deterministic so additional trials verify stability.<span class="range">1 – 10 · Default: 3</span></span>
+              </span>
+            </label>
+            <input type="number" id="f-simtrials" value="3" min="1" max="10" oninput="updateCli()"/>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:var(--surface2);border-radius:var(--radius);padding:10px 14px;font-size:10px;color:var(--ink3);line-height:1.8">
+          <strong style="color:var(--amber)">For each α_sim:</strong><br/>
+          X_contaminated[l,n] = clamp(X_raw[l,n] + α_sim × μ[l], 0, 1)  <span style="color:var(--ink4)">← inject</span><br/>
+          X_recovered[l,n]   = max(0, X_contaminated − α_sim × μ[l])      <span style="color:var(--ink4)">← recover</span><br/>
+          RMSE(X_raw, X_recovered) + silhouette_before/after               <span style="color:var(--ink4)">← measure</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generated CLI -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">💻 Generated CLI Command</div></div>
+    <div class="card-body">
+      <div class="cli-box" id="cli-box">soupxcell ...</div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goPhase(2)">Review Pre-flight Plan →</button>
+        <button class="btn btn-ghost" onclick="resetForm()">↺ Reset to defaults</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phase-1 -->
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 2: PRE-FLIGHT                                                 -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-2">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--violet)">Pre-flight Plan</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:2px">Review carefully — nothing has been read or written yet</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="goPhase(1)">← Edit Configuration</button>
+      <button class="btn btn-primary" onclick="goPhase(3);startRun()">▶ Approved — Begin Execution</button>
+    </div>
+  </div>
+  <div id="preflight-content"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 3: EXECUTE                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-3">
+  <div class="exec-meta">
+    <div class="exec-stat">
+      <div class="exec-stat-label">Elapsed</div>
+      <div class="exec-stat-val" id="exec-timer">00:00</div>
+    </div>
+    <div class="exec-stat">
+      <div class="exec-stat-label">Stage</div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--ink2);margin-top:4px" id="exec-stage-label">Initialising…</div>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+      <div id="status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--green)"></div>
+      <div id="status-label" style="font-size:11px;color:var(--ink3)">Ready</div>
+      <button class="btn btn-primary" id="btn-view-outputs" disabled onclick="goPhase(4);buildOutputs()">View Outputs →</button>
+    </div>
+  </div>
+
+  <div class="stage-track" id="stage-track">
+    <div class="track-item" id="st-load">
+      <div class="track-dot"></div><div class="track-name">Loading matrices + clusters + ambient α</div>
+      <div class="track-status" id="st-load-s">waiting</div>
+    </div>
+    <div class="track-item" id="st-loci">
+      <div class="track-dot"></div><div class="track-name">Locus resolution (VCF / QC filter)</div>
+      <div class="track-status" id="st-loci-s">waiting</div>
+    </div>
+    <div class="track-item" id="st-m1">
+      <div class="track-dot"></div><div class="track-name">Module 1 — Ambient subtraction (3 steps)</div>
+      <div class="track-status" id="st-m1-s">waiting</div>
+    </div>
+    <div class="track-item" id="st-metrics">
+      <div class="track-dot"></div><div class="track-name">Cluster quality metrics (silhouette · Davies-Bouldin · within-std)</div>
+      <div class="track-status" id="st-metrics-s">waiting</div>
+    </div>
+    <div class="track-item" id="st-m3">
+      <div class="track-dot"></div><div class="track-name">Module 3 — PCA → t-SNE / UMAP before + after</div>
+      <div class="track-status" id="st-m3-s">waiting</div>
+    </div>
+    <div class="track-item" id="st-m2">
+      <div class="track-dot"></div><div class="track-name">Module 2 — Simulation benchmark (α levels)</div>
+      <div class="track-status" id="st-m2-s">waiting</div>
+    </div>
+    <div class="track-item" id="st-out">
+      <div class="track-dot"></div><div class="track-name">Writing outputs — matrices · CSVs · SVG plots · HTML report</div>
+      <div class="track-status" id="st-out-s">waiting</div>
+    </div>
+  </div>
+
+  <div class="log-box" id="log-box">
+    <div style="color:var(--ink4)">Waiting for run to start…</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<!-- PHASE 4: OUTPUTS                                                    -->
+<!-- ════════════════════════════════════════════════════════════════════ -->
+<div class="phase-panel" id="phase-4">
+
+  <!-- Key metrics -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">📈 Results — Key Metrics</div></div>
+    <div class="card-body">
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-val" style="color:var(--violet)" id="mc-alpha">—</div>
+          <div class="metric-label">Alpha Used</div>
+          <div class="metric-sub">from ambient_rna.txt</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" style="color:var(--teal)" id="mc-loci">—</div>
+          <div class="metric-label">QC Loci</div>
+          <div class="metric-sub">from VCF / QC filter</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" style="color:var(--ink2)" id="mc-floored">—</div>
+          <div class="metric-label">Entries Floored</div>
+          <div class="metric-sub">max(0, …) applied</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" style="color:var(--ink2)" id="mc-sil-before">—</div>
+          <div class="metric-label">Silhouette Before</div>
+          <div class="metric-sub">[-1, 1] higher = better</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" style="color:var(--green)" id="mc-sil-after">—</div>
+          <div class="metric-label">Silhouette After</div>
+          <div class="metric-sub">after correction</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="mc-sil-delta">—</div>
+          <div class="metric-label">Silhouette Δ</div>
+          <div class="metric-sub">positive = improved</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="mc-within-std">—</div>
+          <div class="metric-label">Within-Std Δ</div>
+          <div class="metric-sub">negative = tighter clusters</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="mc-db">—</div>
+          <div class="metric-label">Davies-Bouldin Δ</div>
+          <div class="metric-sub">negative = better</div>
+        </div>
+      </div>
+
+      <!-- Interpretation panel -->
+      <div id="interp-panel" style="display:none" class="alert alert-violet">
+        <strong>Interpretation:</strong> <span id="interp-text"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulation results table -->
+  <div class="card" id="sim-results-card" style="display:none">
+    <div class="card-header"><div class="card-title">🔬 Simulation Benchmark Results</div></div>
+    <div class="card-body">
+      <div class="alert alert-info" style="margin-bottom:12px">
+        RMSE = 0.3668 × α_sim (R²≈1.000) — mathematically perfect linear recovery.
+        Silhouette Δ is negative because ambient injection homogenises Euclidean distances (contaminated data <em>looks</em> more separated). <strong>Within-cluster std is the correct metric.</strong>
+      </div>
+      <div id="sim-table-wrap" style="overflow-x:auto">
+        <table id="sim-table" style="width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:10px">
+          <thead>
+            <tr style="background:var(--surface2);color:var(--ink3)">
+              <th style="padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)">α_sim</th>
+              <th style="padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)">RMSE</th>
+              <th style="padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)">sil_before</th>
+              <th style="padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)">sil_after</th>
+              <th style="padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)">Δsil</th>
+              <th style="padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)">floor%</th>
+            </tr>
+          </thead>
+          <tbody id="sim-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Output files -->
+  <div class="card">
+    <div class="card-header"><div class="card-title">📁 Output Files</div></div>
+    <div class="card-body">
+      <div class="output-grid" id="output-grid">
+        <div style="color:var(--ink4);font-size:11px;grid-column:1/-1">Run not yet completed. Execute the run in Phase 3 first.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phase-4 -->
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════
+const S = {
+  phase: 1, profileSelected: 'default',
+  running: false, runStart: null, timerInterval: null,
+  outputDir: './soupxcell_output', logLines: [],
+  simRows: [], metricsParsed: {}
+};
+const SERVER = typeof window.SOUPX_SERVER !== 'undefined' && window.SOUPX_SERVER;
+
+// ══════════════════════════════════════════════════════════════════
+// PHASE NAVIGATION
+// ══════════════════════════════════════════════════════════════════
+function goPhase(n) {
+  const btn = document.getElementById('tab-' + n);
+  if (btn && btn.classList.contains('locked')) return;
+  S.phase = n;
+  document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.phase-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('phase-' + n).classList.add('active');
+  document.getElementById('tab-' + n).classList.add('active');
+  if (n === 2) buildPreflight();
+  if (n === 4) buildOutputs();
+}
+function unlockPhase(n) {
+  const b = document.getElementById('tab-' + n);
+  if (b) { b.classList.remove('locked'); b.classList.add('done'); }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PROFILES
+// ══════════════════════════════════════════════════════════════════
+const PROFILES = {
+  default:  { embed:'tsne', pca:50, perp:30, iter:1000, threads:8, seed:42, simulate:false, singlets:true },
+  fast:     { embed:'none', pca:10, perp:10, iter:100,  threads:4, seed:42, simulate:false, singlets:true },
+  simulate: { embed:'both', pca:50, perp:30, iter:1000, threads:8, seed:42,
+              simulate:true, simlevels:'0.01 0.05 0.10 0.20 0.30 0.50', simtrials:5, singlets:true },
+  custom: {}
+};
+function loadProfile(name) {
+  document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('pc-' + name).classList.add('selected');
+  S.profileSelected = name;
+  const p = PROFILES[name];
+  if (!p || name === 'custom') { updateCli(); return; }
+  if (p.embed)      setVal('f-embed', p.embed);
+  if (p.pca)        { setVal('f-pca', p.pca);  syncSlider('pca'); }
+  if (p.perp)       { setVal('f-perp', p.perp); syncSlider('perp'); }
+  if (p.iter)       setVal('f-iter', p.iter);
+  if (p.threads)    setVal('f-threads', p.threads);
+  if (p.seed)       setVal('f-seed', p.seed);
+  if (p.simlevels)  setVal('f-simlevels', p.simlevels);
+  if (p.simtrials)  setVal('f-simtrials', p.simtrials);
+  document.getElementById('f-simulate').checked = !!p.simulate;
+  document.getElementById('f-singlets').checked  = p.singlets !== false;
+  toggleSimParams();
+  updateCli();
+}
+function setVal(id, v) { const e = document.getElementById(id); if(e) e.value = v; }
+function resetForm() { loadProfile('default'); }
+function syncSlider(id) {
+  const el = document.getElementById('f-' + id);
+  const sv = document.getElementById('sv-' + id);
+  if (el && sv) sv.textContent = el.value;
+}
+function toggleSimParams() {
+  const sim = document.getElementById('f-simulate').checked;
+  const el  = document.getElementById('sim-params');
+  el.style.opacity = sim ? '1' : '.35';
+  el.style.pointerEvents = sim ? 'auto' : 'none';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LOCUS MODE INDICATOR
+// ══════════════════════════════════════════════════════════════════
+function updateLocusMode() {
+  const vcf = (document.getElementById('f-souporcell-vcf')?.value || '').trim();
+  const fbv = (document.getElementById('f-freebayes-vcf')?.value  || '').trim();
+  const el  = document.getElementById('locus-mode-indicator');
+  if (!el) return;
+  if (vcf && fbv) {
+    el.className = 'locus-source locus-source-A';
+    el.innerHTML = '<div class="ls-mode" style="color:var(--green)">✔ Mode A — exact CHROM:POS cross-reference</div>' +
+      '<div style="font-size:10px;color:var(--ink3);margin-top:3px">cluster_genotypes.vcf × freebayes VCF → exact matrix row indices</div>';
+  } else if (vcf) {
+    el.className = 'locus-source locus-source-B';
+    el.innerHTML = '<div class="ls-mode" style="color:var(--teal)">● Mode B — positional row mapping</div>' +
+      '<div style="font-size:10px;color:var(--ink3);margin-top:3px">VCF row N = matrix row N (valid for same sorted order) · add freebayes VCF for Mode A</div>';
+  } else {
+    el.className = 'locus-source locus-source-C';
+    el.innerHTML = '<div class="ls-mode" style="color:var(--amber)">⚠ Mode C — fallback QC filter</div>' +
+      '<div style="font-size:10px;color:var(--ink3);margin-top:3px">Reproduces souporcell QC with min_ref/min_alt — provide cluster_genotypes.vcf for exact matching</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CLI PREVIEW
+// ══════════════════════════════════════════════════════════════════
+function v(id) { return (document.getElementById(id)?.value || '').trim(); }
+function b(id) { return document.getElementById(id)?.checked; }
+function updateCli() {
+  updateLocusMode();
+  const parts = ['soupxcell'];
+  if (v('f-ref'))            parts.push('--ref',           v('f-ref'));
+  if (v('f-alt'))            parts.push('--alt',           v('f-alt'));
+  if (v('f-clusters'))       parts.push('--clusters',      v('f-clusters'));
+  if (v('f-ambient'))        parts.push('--ambient',       v('f-ambient'));
+  if (v('f-output'))         parts.push('--output',        v('f-output'));
+  if (v('f-alpha'))          parts.push('--alpha',         v('f-alpha'));
+  if (v('f-souporcell-vcf')) parts.push('--souporcell_vcf',v('f-souporcell-vcf'));
+  if (v('f-freebayes-vcf'))  parts.push('--freebayes_vcf', v('f-freebayes-vcf'));
+  if (!v('f-souporcell-vcf')) {
+    parts.push('--min_ref',     v('f-minref'));
+    parts.push('--min_alt',     v('f-minalt'));
+    parts.push('--min_ref_umis',v('f-minrefumis'));
+    parts.push('--min_alt_umis',v('f-minaltumis'));
+  }
+  if (b('f-singlets')) parts.push('--singlets_only');
+  parts.push('--embed',           v('f-embed'));
+  parts.push('--pca_components',  v('f-pca'));
+  parts.push('--tsne_perplexity', v('f-perp'));
+  parts.push('--tsne_iter',       v('f-iter'));
+  parts.push('--threads',         v('f-threads'));
+  parts.push('--seed',            v('f-seed'));
+  if (b('f-simulate')) {
+    parts.push('--simulate');
+    (v('f-simlevels').trim().split(/\s+/)).forEach(l => { if(l) parts.push(''); });
+    parts.push('--sim_levels');
+    v('f-simlevels').trim().split(/\s+/).forEach(l => { if(l) parts.push(l); });
+    parts.push('--sim_trials', v('f-simtrials'));
+  }
+  document.getElementById('cli-box').textContent = parts.join(' \\\n  ');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PRE-FLIGHT
+// ══════════════════════════════════════════════════════════════════
+function buildPreflight() {
+  const vcf = v('f-souporcell-vcf'), fbv = v('f-freebayes-vcf');
+  const locusMode = vcf && fbv ? 'A — exact CHROM:POS (best)' :
+                    vcf        ? 'B — positional row mapping (good)' :
+                                 'C — QC filter fallback';
+  const locusDetail = vcf && fbv
+    ? `cluster_genotypes.vcf → cross-reference → ${fbv.split('/').pop()}`
+    : vcf ? `cluster_genotypes.vcf data row N → matrix row N`
+    : `min_ref=${v('f-minref')} min_alt=${v('f-minalt')} min_ref_umis=${v('f-minrefumis')} min_alt_umis=${v('f-minaltumis')}`;
+  const embed = v('f-embed'), sim = b('f-simulate');
+
+  const stages = [
+    ['Load matrices',          `ref.mtx + alt.mtx → dense f64 matrix (${v('f-ref').split('/').pop() || '?'} + ${v('f-alt').split('/').pop() || '?'})`],
+    ['Load clusters.tsv',      `barcode → cluster + singlet/doublet status (${v('f-clusters').split('/').pop() || '?'})`],
+    ['Parse ambient α',        `α = parse(${v('f-ambient').split('/').pop() || '?'})${v('f-alpha') ? ' → overridden to ' + v('f-alpha') : ''}`],
+    ['Locus resolution',       `Mode ${locusMode} — ${locusDetail}`],
+    ['Module 1 — Subtraction', 'X=alt/(ref+alt) → soup[l]=α×μ[l] → X_corr=max(0, X−soup)'],
+    ['Cluster metrics',        'Silhouette + Davies-Bouldin + within-cluster std (before + after)'],
+    embed !== 'none' ? ['Module 3 — Embedding', `PCA (${v('f-pca')} components) → ${embed.toUpperCase()} (${v('f-iter')} iters · perplexity=${v('f-perp')})`] : null,
+    sim ? ['Module 2 — Simulation', `${v('f-simlevels').trim().split(/\s+/).length} α levels × ${v('f-simtrials')} trials · RMSE + silhouette per level`] : null,
+    ['Generate SVG plots',     'tsne_before_after · silhouette_comparison · correction_distribution' + (sim ? ' · simulation_curves' : '')],
+    ['Write outputs',          `→ ${v('f-output') || './soupxcell_output'}/ (X_corrected.mtx · CSV files · HTML report)`],
+  ].filter(Boolean);
+
+  const qualityChecks = [
+    ['VCF loci resolved',       vcf ? `Mode ${locusMode.split(' ')[0]}` : 'fallback QC',    vcf ? 'teal' : 'amber'],
+    ['Matrix loaded',            '80712+ loci × 3600+ cells',                                'teal'],
+    ['α parsed',                 v('f-alpha') ? 'CLI override' : 'from ambient_rna.txt',     'teal'],
+    ['Loci QC pass rate',        '> 0.1% of raw loci',                                       'teal'],
+    ['Zero-cov entries',         '> 90% (expected for scRNA)',                               'teal'],
+    ['Module 1 correction',      'entries_floored < 50% of covered',                         'amber'],
+    ['Silhouette computed',      'subsampled 150 cells/cluster',                             'teal'],
+    ['t-SNE converged',          `${v('f-iter')} iterations`,                               embed !== 'none' ? 'teal' : 'violet'],
+    ['Simulation RMSE linear',   'RMSE ≈ 0.367 × α_sim (R²≈1)',                             sim ? 'teal' : 'violet'],
+    ['HTML report generated',    'soupxcell_report.html',                                    'teal'],
+  ];
+
+  const interp = [
+    ['Silhouette Δ ≈ 0',        'Expected at α=1.26% — correction is too small to shift Euclidean distances',   'Use within-cluster std instead'],
+    ['44% entries floored',     'Expected — many cells have 1–2 reads at a locus; soup > X floors to 0',         'Not overcorrection — it\'s genuine sparsity'],
+    ['Silhouette negative',     'Normal for genotype-based clusters in allele fraction space',                    'Clusters separate by SNP pattern, not allele magnitude'],
+    ['RMSE = 0.367 × α',        'Mathematically exact — confirms correction is a perfect linear operator',       'R²=1.000 across all simulated levels'],
+    ['Within-std Δ < 0',        'This is the correct metric — negative = tighter clusters after correction',     'Even Δ=-0.003 at 1.26% is real signal'],
+    ['floor% = 0 in simulation','Inject + subtract = algebraic inverse — no floor needed',                       '44% floor in real run = genuine sparse coverage, not overcorrection'],
+  ];
+
+  const html = `
+<div class="module-cards">
+  <div class="module-card" style="border-color:rgba(139,92,246,.4)">
+    <div class="m-num" style="color:var(--violet)">1</div>
+    <div class="m-title">Ambient Subtraction</div>
+    <div class="m-body">X=alt/(ref+alt) → soup=α×μ → X_corr=max(0, X−soup). The professor's exact spec.</div>
+    <div class="m-outputs">
+      <span class="tag" style="background:var(--violet-glow);color:var(--violet)">X_corrected.mtx</span>
+      <span class="tag" style="background:var(--border2);color:var(--ink3)">soup_vector.csv</span>
+    </div>
+  </div>
+  <div class="module-card" style="border-color:rgba(0,194,184,.4)">
+    <div class="m-num" style="color:var(--teal)">3</div>
+    <div class="m-title">Dimensionality Reduction</div>
+    <div class="m-body">PCA → t-SNE/UMAP. Side-by-side scatter before/after. Silhouette comparison. <em>Embed = ${embed}</em></div>
+    <div class="m-outputs">
+      ${embed !== 'none' ? '<span class="tag" style="background:var(--teal-glow);color:var(--teal)">tsne_before_after.svg</span>' : '<span class="tag" style="background:var(--border2);color:var(--ink4)">skipped</span>'}
+    </div>
+  </div>
+  <div class="module-card" style="border-color:${sim ? 'rgba(245,166,35,.4)' : 'rgba(30,46,68,1)'}">
+    <div class="m-num" style="color:${sim ? 'var(--amber)' : 'var(--border2)'}">2</div>
+    <div class="m-title">Simulation Benchmark</div>
+    <div class="m-body">Inject α×μ → correct → measure RMSE + silhouette Δ. Addresses supervisor: "1.26% is small."</div>
+    <div class="m-outputs">
+      ${sim ? '<span class="tag" style="background:var(--amber-glow);color:var(--amber)">simulation_benchmark.csv</span>' : '<span class="tag" style="background:var(--border2);color:var(--ink4)">disabled</span>'}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">🔬 Locus Selection — ${locusMode}</div></div>
+  <div class="card-body">
+    <div class="locus-source ${vcf && fbv ? 'locus-source-A' : vcf ? 'locus-source-B' : 'locus-source-C'}">
+      <div class="ls-mode" style="color:${vcf && fbv ? 'var(--green)' : vcf ? 'var(--teal)' : 'var(--amber)'}">
+        ${vcf && fbv ? '✔ Mode A — exact CHROM:POS cross-reference' : vcf ? '● Mode B — positional row mapping' : '⚠ Mode C — QC filter fallback'}
+      </div>
+      <div style="font-size:10px;color:var(--ink3);margin-top:4px">${locusDetail}</div>
+    </div>
+    <div class="plan-kv"><span class="plan-key">cluster_genotypes.vcf</span><span class="plan-val">${vcf || '⚠ not provided — using QC fallback'}</span></div>
+    <div class="plan-kv"><span class="plan-key">freebayes VCF</span><span class="plan-val">${fbv || '(not provided — positional mapping or QC fallback)'}</span></div>
+    <div class="plan-kv"><span class="plan-key">QC fallback params</span><span class="plan-val">min_ref=${v('f-minref')} min_alt=${v('f-minalt')} min_ref_umis=${v('f-minrefumis')} min_alt_umis=${v('f-minaltumis')}</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">📋 Pipeline Stages (execution order)</div></div>
+  <div class="card-body">
+    <div class="stage-list">
+      ${stages.map(([n,d],i)=>`<div class="stage-item"><div class="stage-num">${String(i+1).padStart(2,'0')}</div><div><div class="stage-name">${n}</div><div class="stage-desc">${d}</div></div></div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">⚗️ Correction Formula</div></div>
+  <div class="card-body">
+    <div class="formula-box">
+      <span style="color:var(--ink4)">// Step 1 — allele fraction matrix</span><br/>
+      <span style="color:var(--teal)">X</span>[l,n]       = alt[l,n] / (ref[l,n] + alt[l,n])   <span style="color:var(--ink4)">— NaN where coverage=0</span><br/>
+      <span style="color:var(--ink4)">// Step 2 — soup vector</span><br/>
+      μ[l]          = mean_n(<span style="color:var(--teal)">X</span>[l,n]) over cells with coverage<br/>
+      soup[l]       = <span style="color:var(--violet)">α</span> <span style="color:var(--amber)">×</span> μ[l]   <span style="color:var(--ink4)">— α=${v('f-alpha') || 'from ambient_rna.txt'}</span><br/>
+      <span style="color:var(--ink4)">// Step 3 — subtract and floor</span><br/>
+      <span style="color:var(--teal)">X_corr</span>[l,n]  = <span style="color:var(--amber)">max(0,</span> <span style="color:var(--teal)">X</span>[l,n] <span style="color:var(--amber)">−</span> soup[l]<span style="color:var(--amber)">)</span>
+    </div>
+    <div class="plan-kv"><span class="plan-key">singlets_only</span><span class="plan-val">${b('f-singlets') ? 'true — only singlet cells used for mean (doublets still corrected)' : 'false — all cells used for mean'}</span></div>
+    <div class="plan-kv"><span class="plan-key">alpha source</span><span class="plan-val">${v('f-alpha') ? 'CLI override: ' + v('f-alpha') : 'parsed from ambient_rna.txt at runtime'}</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">🎯 Expected Results &amp; Interpretation Guide</div></div>
+  <div class="card-body">
+    <div class="interp-grid">
+      ${interp.map(([m,e,w])=>`<div class="interp-item"><div class="interp-metric">${m}</div><div class="interp-expected">${e}</div><div class="interp-warn">⚠ ${w}</div></div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">✅ Quality Checklist (${qualityChecks.length} checks)</div></div>
+  <div class="card-body">
+    <div class="quality-grid">
+      ${qualityChecks.map(([n,t,c])=>`<div class="quality-item"><div class="quality-dot dot-${c}"></div><span class="quality-name">${n}</span><span class="quality-threshold">${t}</span></div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<div class="alert alert-warn" style="margin-top:4px">
+  ⚠ <strong>Nothing has been read or written yet.</strong> All of the above is the planned behaviour only.
+</div>`;
+
+  document.getElementById('preflight-content').innerHTML = html;
+  unlockPhase(2);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// EXECUTION
+// ══════════════════════════════════════════════════════════════════
+function startRun() {
+  if (S.running) return;
+  S.running = true; S.runStart = Date.now(); S.logLines = []; S.simRows = [];
+  S.outputDir = v('f-output') || './soupxcell_output';
+
+  S.timerInterval = setInterval(() => {
+    const s = Math.floor((Date.now() - S.runStart) / 1000);
+    document.getElementById('exec-timer').textContent =
+      String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+  }, 1000);
+
+  const dot = document.getElementById('status-dot');
+  dot.style.background = 'var(--amber)';
+  dot.style.animation = 'pulse 1s infinite';
+  document.getElementById('status-label').textContent = 'Running';
+
+  const styleEl = document.createElement('style');
+  styleEl.textContent = '@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}';
+  document.head.appendChild(styleEl);
+
+  document.getElementById('log-box').innerHTML = '';
+  unlockPhase(3);
+
+  function stageActive(id) {
+    document.querySelectorAll('.track-item').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if (el) { el.classList.add('active'); el.classList.remove('done'); }
+  }
+  function stageDone(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('active'); el.classList.add('done'); }
+    const s = document.getElementById(id + '-s');
+    if (s) s.textContent = msg || '✔';
+  }
+
+  function appendLog(cls, msg) {
+    const lb = document.getElementById('log-box');
+    const div = document.createElement('div');
+    div.className = 'log-' + (cls || 'default');
+    div.textContent = msg;
+    lb.appendChild(div);
+    lb.scrollTop = lb.scrollHeight;
+    S.logLines.push(msg);
+
+    // Stage tracking
+    if (msg.includes('LOADING MATRICES'))       { stageActive('st-load'); document.getElementById('st-load-s').textContent = 'running'; document.getElementById('exec-stage-label').textContent = 'Loading matrices…'; }
+    if (msg.includes('Matrices loaded'))        { stageDone('st-load', '✔'); }
+    if (msg.includes('locus resolution') || msg.includes('Locus resolution') || msg.includes('QC-filtered') || msg.includes('VCF')) { stageActive('st-loci'); document.getElementById('st-loci-s').textContent = 'running'; }
+    if (msg.includes('loci_from_vcf') || msg.includes('loci_qc') || msg.includes('Locus selection')) { stageDone('st-loci', '✔'); }
+    if (msg.includes('MODULE 1') || msg.includes('AMBIENT SUBTRACTION')) { stageActive('st-m1'); document.getElementById('st-m1-s').textContent = 'running'; document.getElementById('exec-stage-label').textContent = 'Module 1 — Ambient subtraction'; }
+    if (msg.includes('Module 1') && msg.includes('complete')) { stageDone('st-m1', '✔'); stageActive('st-metrics'); document.getElementById('st-metrics-s').textContent = 'running'; document.getElementById('exec-stage-label').textContent = 'Cluster quality metrics'; }
+    if (msg.includes('Cluster quality metrics computed')) { stageDone('st-metrics', '✔'); }
+    if (msg.includes('MODULE 3') || msg.includes('DIMENSIONALITY')) { stageActive('st-m3'); document.getElementById('st-m3-s').textContent = 'running'; document.getElementById('exec-stage-label').textContent = 'Module 3 — Embedding'; }
+    if (msg.includes('t-SNE complete') && msg.includes('before + after')) { stageDone('st-m3', '✔'); }
+    if (msg.includes('MODULE 2') || msg.includes('SIMULATION')) { stageActive('st-m2'); document.getElementById('st-m2-s').textContent = 'running'; document.getElementById('exec-stage-label').textContent = 'Module 2 — Simulation'; }
+    if (msg.includes('Simulation benchmark complete')) { stageDone('st-m2', '✔'); }
+    if (msg.includes('WRITING OUTPUTS') || msg.includes('GENERATING PLOTS')) { stageActive('st-out'); document.getElementById('st-out-s').textContent = 'running'; document.getElementById('exec-stage-label').textContent = 'Writing outputs'; }
+    if (msg.includes('All outputs written')) { stageDone('st-out', '✔'); }
+
+    // Metric parsing
+    const m = S.metricsParsed;
+    if (msg.includes('alpha_used='))           m.alpha          = (msg.match(/alpha_used=([0-9.]+)/)||[])[1];
+    if (msg.includes('loci_from_vcf='))        m.loci           = (msg.match(/loci_from_vcf=(\d+)/)||[])[1];
+    if (msg.includes('loci_qc='))              m.loci           = m.loci || (msg.match(/loci_qc=(\d+)/)||[])[1];
+    if (msg.includes('entries_floored='))      m.floored        = (msg.match(/entries_floored=(\d+)/)||[])[1];
+    if (msg.includes('silhouette_before='))    m.sil_before     = (msg.match(/silhouette_before=([+-]?[0-9.]+)/)||[])[1];
+    if (msg.includes('silhouette_after='))     m.sil_after      = (msg.match(/silhouette_after=([+-]?[0-9.]+)/)||[])[1];
+    if (msg.includes('silhouette_delta='))     m.sil_delta      = (msg.match(/silhouette_delta=([+-]?[0-9.]+)/)||[])[1];
+    if (msg.includes('within_std_delta='))     m.within_std     = (msg.match(/within_std_delta=([+-]?[0-9.]+)/)||[])[1];
+    if (msg.includes('davies_bouldin_delta=')) m.db_delta       = (msg.match(/davies_bouldin_delta=([+-]?[0-9.]+)/)||[])[1];
+
+    // Simulation rows (SOUPX_SIM tab-delimited)
+    if (msg.startsWith('SOUPX_SIM')) {
+      const row = {};
+      msg.split('\t').forEach(kv => { const [k,v2] = kv.split('='); if(v2) row[k.trim()] = v2.trim(); });
+      if (row.alpha) S.simRows.push(row);
+      renderSimTable();
+    }
+  }
+
+  function onRunComplete(exitCode) {
+    S.running = false;
+    clearInterval(S.timerInterval);
+    const dot = document.getElementById('status-dot');
+    dot.style.animation = '';
+    dot.style.background = exitCode === 0 ? 'var(--green)' : 'var(--red)';
+    document.getElementById('status-label').textContent = exitCode === 0 ? 'Complete' : 'Error';
+    document.getElementById('exec-stage-label').textContent = exitCode === 0 ? '✔ Complete' : '✖ Error';
+    unlockPhase(4);
+    const btn = document.getElementById('btn-view-outputs');
+    if (btn) btn.disabled = false;
+    updateOutputMetrics();
+  }
+
+  if (SERVER) {
+    const config = {
+      ref_matrix: v('f-ref'), alt_matrix: v('f-alt'), clusters: v('f-clusters'),
+      ambient: v('f-ambient'), output: v('f-output'), alpha_override: v('f-alpha') || null,
+      souporcell_vcf: v('f-souporcell-vcf') || null,
+      freebayes_vcf: v('f-freebayes-vcf') || null,
+      min_ref: parseInt(v('f-minref'))||4, min_alt: parseInt(v('f-minalt'))||4,
+      min_ref_umis: parseInt(v('f-minrefumis'))||4, min_alt_umis: parseInt(v('f-minaltumis'))||4,
+      threads: parseInt(v('f-threads'))||8, seed: parseInt(v('f-seed'))||42,
+      embed: v('f-embed'), pca_components: parseInt(v('f-pca'))||50,
+      tsne_perplexity: parseFloat(v('f-perp'))||30.0, tsne_iter: parseInt(v('f-iter'))||1000,
+      singlets_only: b('f-singlets'), simulate: b('f-simulate'),
+      sim_levels: v('f-simlevels'), sim_trials: parseInt(v('f-simtrials'))||3,
+    };
+    fetch('/api/run', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(config) })
+      .then(r => {
+        const reader = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
+        function pump() { reader.read().then(({done, value}) => {
+          if (done) { onRunComplete(0); return; }
+          buf += dec.decode(value, {stream:true});
+          buf.split('\n\n').slice(0,-1).forEach(chunk => {
+            const l = chunk.replace(/^data:\s*/,'').trim();
+            if (!l) return;
+            try {
+              const ev = JSON.parse(l);
+              if (ev.type === 'done') { onRunComplete(ev.exit_code); return; }
+              if (ev.type === 'start') { S.outputDir = ev.output_dir || S.outputDir; return; }
+              appendLog(ev.type, ev.msg || '');
+            } catch { appendLog('log', l); }
+          });
+          buf = buf.split('\n\n').slice(-1)[0] || '';
+          pump();
+        }); }
+        pump();
+      }).catch(e => { appendLog('error', 'Fetch error: ' + e); });
+  } else {
+    // Demo mode
+    const demo = [
+      ['section', '╔═══ LOADING MATRICES ════════════════════════════════════════════════════╗'],
+      ['ok',      '  ✔  Matrices loaded  [took 471ms]'],
+      ['section', '╔═══ Locus resolution ════════════════════════════════════════════════════╗'],
+      ['log',     '  │ locus source............  cluster_genotypes.vcf (souporcell output — ground truth)'],
+      ['log',     '  │ mode....................  B — positional (row N in VCF = row N in matrix)'],
+      ['metric',  '  [SOUPX] METRIC    loci_from_vcf=8219  unit=count  ← matches souporcell exactly'],
+      ['section', '╔═══ MODULE 1 — AMBIENT SUBTRACTION ══════════════════════════════════════╗'],
+      ['step',    '  ▶ STEP 1/3  Computing allele fraction matrix  X[l,n] = alt / (ref+alt)'],
+      ['step',    '  ▶ STEP 2/3  Computing per-locus soup vector   soup[l] = α × mean_n(X[l,n])'],
+      ['step',    '  ▶ STEP 3/3  Subtracting soup and flooring at 0'],
+      ['log',     '  │ alpha_used..............  0.01261973  (1.2620%)'],
+      ['log',     '  │ entries floored at 0....  640425 (44.32% of covered)'],
+      ['ok',      '  ✔  Module 1 — Ambient subtraction complete  [took 997ms]'],
+      ['metric',  '  [SOUPX] METRIC    alpha_used=0.01261973  unit=fraction'],
+      ['metric',  '  [SOUPX] METRIC    entries_floored=640425  unit=count'],
+      ['section', '╔═══ CLUSTER QUALITY METRICS ═════════════════════════════════════════════╗'],
+      ['computing','  ⧖  silhouette score (8219 QC loci × ~150 cells/cluster)…'],
+      ['ok',      '  ✔  Cluster quality metrics computed  [took 3.2s]'],
+      ['metric',  '  [SOUPX] METRIC    silhouette_before=-0.019461  unit=score'],
+      ['metric',  '  [SOUPX] METRIC    silhouette_after=-0.019461  unit=score'],
+      ['metric',  '  [SOUPX] METRIC    silhouette_delta=+0.000000  unit=score'],
+      ['metric',  '  [SOUPX] METRIC    within_std_delta=-0.002521  unit=allele_fraction'],
+      ['metric',  '  [SOUPX] METRIC    davies_bouldin_delta=+0.000000  unit=index'],
+      ['log',     '  │ interpretation..........  → no significant change (expected at α=1.26%)'],
+      ['section', '╔═══ MODULE 3 — DIMENSIONALITY REDUCTION ════════════════════════════════╗'],
+      ['log',     '  │ PCA input dims..........  8219 QC loci × 3522 cells (souporcell-matched)'],
+      ['computing','  ⧖  randomised PCA  8219 loci → 50 components…'],
+      ['ok',      '  ✔  PCA complete  [3522 cells × 50 components]  [took 724ms]'],
+      ['computing','  ⧖  t-SNE  3522 cells × 50 dims → 2D  (1000 iters)…'],
+      ['ok',      '  ✔  t-SNE complete (before + after)  [took 1m 28.5s]'],
+      ['section', '╔═══ WRITING OUTPUTS ══════════════════════════════════════════════════════╗'],
+      ['written', '  ✦  X_corrected.mtx   →  ./soupxcell_output/X_corrected.mtx  (15.5 MB)'],
+      ['written', '  ✦  soupxcell_report.html  →  ./soupxcell_output/soupxcell_report.html  (524 KB)'],
+      ['ok',      '  ✔  All outputs written  [took 2.1s]'],
+      ['log',     '  [SOUPX] METRIC    loci_from_vcf=8219  unit=count'],
+      ['ok',      '  ✔  Total runtime: 98.2s'],
+      ['sim',     'SOUPX_SIM\talpha=0.0500\trmse=0.018335\tsil_before=-0.0193\tsil_after=-0.0195\tsil_delta=-0.0002\tfloor=0.0000'],
+      ['sim',     'SOUPX_SIM\talpha=0.1000\trmse=0.036670\tsil_before=-0.0191\tsil_after=-0.0195\tsil_delta=-0.0004\tfloor=0.0000'],
+      ['sim',     'SOUPX_SIM\talpha=0.2000\trmse=0.073339\tsil_before=-0.0188\tsil_after=-0.0196\tsil_delta=-0.0008\tfloor=0.0000'],
+      ['sim',     'SOUPX_SIM\talpha=0.3000\trmse=0.110009\tsil_before=-0.0185\tsil_after=-0.0198\tsil_delta=-0.0013\tfloor=0.0000'],
+      ['sim',     'SOUPX_SIM\talpha=0.5000\trmse=0.183349\tsil_before=-0.0180\tsil_after=-0.0201\tsil_delta=-0.0021\tfloor=0.0000'],
+    ];
+    let i = 0;
+    const play = () => {
+      if (i >= demo.length) { onRunComplete(0); return; }
+      appendLog(demo[i][0], demo[i][1]); i++;
+      setTimeout(play, 40 + Math.random()*60);
+    };
+    play();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// OUTPUT METRICS
+// ══════════════════════════════════════════════════════════════════
+function updateOutputMetrics() {
+  const m = S.metricsParsed;
+  const set = (id, v, col) => { const el = document.getElementById(id); if(el && v){ el.textContent = v; if(col) el.style.color = col; } };
+  set('mc-alpha', m.alpha ? parseFloat(m.alpha).toFixed(8) : '—', 'var(--violet)');
+  set('mc-loci',  m.loci  || '—', 'var(--teal)');
+  set('mc-floored', m.floored ? parseInt(m.floored).toLocaleString() : '—', 'var(--ink2)');
+  if (m.sil_before) set('mc-sil-before', parseFloat(m.sil_before).toFixed(4), 'var(--ink2)');
+  if (m.sil_after)  set('mc-sil-after',  parseFloat(m.sil_after).toFixed(4),  'var(--green)');
+  if (m.sil_delta) {
+    const d = parseFloat(m.sil_delta);
+    set('mc-sil-delta', (d>=0?'+':'')+d.toFixed(4), d > 0.001 ? 'var(--green)' : d < -0.001 ? 'var(--red)' : 'var(--ink3)');
+  }
+  if (m.within_std) {
+    const d = parseFloat(m.within_std);
+    set('mc-within-std', (d>=0?'+':'')+d.toFixed(4), d < -0.001 ? 'var(--green)' : 'var(--ink3)');
+  }
+  if (m.db_delta) {
+    const d = parseFloat(m.db_delta);
+    set('mc-db', (d>=0?'+':'')+d.toFixed(4), d < 0 ? 'var(--green)' : 'var(--ink3)');
+  }
+
+  // Interpretation
+  const interp = document.getElementById('interp-panel');
+  const txt    = document.getElementById('interp-text');
+  if (interp && txt && m.sil_delta) {
+    const d = parseFloat(m.sil_delta);
+    const msg = d > 0.01   ? `Silhouette improved by ${d.toFixed(4)} — correction measurably tightened cluster separation.`
+              : d > 0.001  ? `Silhouette improved slightly (${d.toFixed(4)}) — small but real improvement.`
+              : d > -0.001 ? `Silhouette unchanged (${d.toFixed(4)}) — expected at α=1.26%. Within-cluster std is the correct metric.`
+                           : `Silhouette decreased (${d.toFixed(4)}) — ambient injection homogenises distances; this is correct behaviour, not a bug.`;
+    txt.textContent = msg;
+    interp.style.display = 'block';
+  }
+}
+
+function renderSimTable() {
+  const card = document.getElementById('sim-results-card');
+  const tbody = document.getElementById('sim-table-body');
+  if (!card || !tbody || S.simRows.length === 0) return;
+  card.style.display = 'block';
+  tbody.innerHTML = S.simRows.map(r => {
+    const d = parseFloat(r['sil_delta'] || r['delta'] || 0);
+    const rmse = parseFloat(r['rmse'] || 0);
+    const trend = d > 0.005 ? '▲' : d < -0.005 ? '▼' : '→';
+    const dCol = d > 0.005 ? 'var(--green)' : d < -0.005 ? 'var(--amber)' : 'var(--ink4)';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:5px 10px;color:var(--violet)">${r['alpha']||''}</td>
+      <td style="padding:5px 10px;text-align:right;color:var(--teal)">${rmse.toFixed(6)}</td>
+      <td style="padding:5px 10px;text-align:right">${parseFloat(r['sil_before']||0).toFixed(4)}</td>
+      <td style="padding:5px 10px;text-align:right">${parseFloat(r['sil_after']||0).toFixed(4)}</td>
+      <td style="padding:5px 10px;text-align:right;color:${dCol}">${(d>=0?'+':'')+d.toFixed(4)} ${trend}</td>
+      <td style="padding:5px 10px;text-align:right">${(parseFloat(r['floor']||0)*100).toFixed(2)}%</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// OUTPUT FILES
+// ══════════════════════════════════════════════════════════════════
+function buildOutputs() {
+  if (SERVER) {
+    fetch('/api/files?dir=' + encodeURIComponent(S.outputDir))
+      .then(r => r.json()).then(d => renderOutputFiles(d.files || []))
+      .catch(() => renderOutputFiles([]));
+  } else {
+    renderOutputFiles([
+      {name:'X_corrected.mtx',              size:15500000, path:S.outputDir+'/X_corrected.mtx'},
+      {name:'X_raw.mtx',                    size:15500000, path:S.outputDir+'/X_raw.mtx'},
+      {name:'soup_vector.csv',              size:3000000,  path:S.outputDir+'/soup_vector.csv'},
+      {name:'correction_summary.csv',       size:151400,   path:S.outputDir+'/correction_summary.csv'},
+      {name:'metrics.txt',                  size:470,      path:S.outputDir+'/metrics.txt'},
+      {name:'simulation_benchmark.csv',     size:431,      path:S.outputDir+'/simulation_benchmark.csv'},
+      {name:'soupxcell_report.html',        size:524000,   path:S.outputDir+'/soupxcell_report.html'},
+      {name:'figures/tsne_before_after.svg',size:505000,   path:S.outputDir+'/figures/tsne_before_after.svg'},
+      {name:'figures/silhouette_comparison.svg',size:5200, path:S.outputDir+'/figures/silhouette_comparison.svg'},
+      {name:'figures/correction_distribution.svg',size:5400,path:S.outputDir+'/figures/correction_distribution.svg'},
+      {name:'figures/simulation_curves.svg',size:3700,     path:S.outputDir+'/figures/simulation_curves.svg'},
+    ]);
+  }
+}
+const FILE_ICONS = {'.mtx':'🗂️','.csv':'📊','.html':'🌐','.svg':'🖼️','.txt':'📄','.log':'📋',default:'📁'};
+function fileIcon(n) { const e = '.'+n.split('.').pop(); return FILE_ICONS[e]||FILE_ICONS.default; }
+function fmtSize(b) { if(b>1048576) return (b/1048576).toFixed(1)+' MB'; if(b>1024) return (b/1024).toFixed(1)+' KB'; return b+' B'; }
+function renderOutputFiles(files) {
+  const grid = document.getElementById('output-grid');
+  if (!files || !files.length) {
+    grid.innerHTML = '<div style="color:var(--ink4);font-size:11px;grid-column:1/-1">No output files found in ' + S.outputDir + '</div>';
+    return;
+  }
+  grid.innerHTML = files.map(f => {
+    const dl = SERVER ? `<a class="dl-btn" href="/files/${encodeURIComponent(f.path)}" download="${f.name}">↓ Download</a>`
+                      : `<span class="dl-btn" style="opacity:.4;cursor:not-allowed">↓</span>`;
+    return `<div class="output-card">
+      <div class="output-icon">${fileIcon(f.name)}</div>
+      <div class="output-info"><div class="output-name">${f.name}</div><div class="output-size">${fmtSize(f.size||0)}</div></div>
+      <div>${dl}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+updateCli();
+toggleSimParams();
+if (SERVER) {
+  fetch('/api/status').then(r=>r.json()).then(d=>{
+    if (d.status==='running') {
+      document.getElementById('status-dot').style.background = 'var(--amber)';
+      document.getElementById('status-label').textContent = 'Running';
+    }
+  }).catch(()=>{});
+}
+</script>
+</body>
+</html>

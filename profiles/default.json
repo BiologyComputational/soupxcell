@@ -1,0 +1,16 @@
+{
+  "profile": "default",
+  "description": "General-purpose defaults — all parameters at their standard values.",
+  "params": {
+    "singlets_only":   true,
+    "embed":           "tsne",
+    "pca_components":  50,
+    "tsne_perplexity": 30.0,
+    "tsne_iter":       1000,
+    "seed":            42,
+    "simulate":        false,
+    "sim_levels":      "0.01,0.05,0.10,0.20,0.30,0.50",
+    "sim_trials":      3,
+    "threads":         1
+  }
+}

@@ -1,0 +1,221 @@
+name: soupxcell
+version: "1.0.0"
+author: Jahidul Arafat <jarotball@gmail.com>
+about: >
+  Ambient RNA correction for genotype demultiplexing.
+  Post-processes souporcell pipeline outputs (ref.mtx, alt.mtx, clusters.tsv,
+  ambient_rna.txt) to subtract ambient RNA contamination from allele fraction
+  matrices, then visualises the effect via t-SNE / UMAP embeddings.
+  Three modules: (1) Ambient subtraction, (2) Simulation benchmark,
+  (3) t-SNE/UMAP before-and-after embeddings with cluster quality metrics.
+args:
+    - ref_matrix:
+        long: ref
+        short: r
+        takes_value: true
+        required: false
+        help: "ref allele count matrix (ref.mtx) from souporcell pipeline. Also: SOUPX_REF in .soupxcell.env."
+
+    - alt_matrix:
+        long: alt
+        short: a
+        takes_value: true
+        required: false
+        help: "alt allele count matrix (alt.mtx) from souporcell pipeline. Also: SOUPX_ALT."
+
+    - clusters:
+        long: clusters
+        short: c
+        takes_value: true
+        required: false
+        help: "clusters.tsv from souporcell — provides barcode→cluster→singlet/doublet mapping. Also: SOUPX_CLUSTERS."
+
+    - ambient:
+        long: ambient
+        takes_value: true
+        required: false
+        help: "ambient_rna.txt from consensus.py — contains the global ambient RNA fraction α. Also: SOUPX_AMBIENT."
+
+    - output:
+        long: output
+        short: o
+        takes_value: true
+        required: false
+        help: "Output directory for all results (corrected matrix, figures, report). [default: ./soupxcell_output]"
+
+    - alpha_override:
+        long: alpha
+        takes_value: true
+        required: false
+        help: "Override the ambient RNA fraction α parsed from ambient_rna.txt. Useful for experiments. [default: from file]"
+
+    - threads:
+        long: threads
+        short: t
+        takes_value: true
+        required: false
+        help: "Number of parallel threads for matrix operations and embedding. [default: 1]"
+
+    - singlets_only:
+        long: singlets_only
+        takes_value: false
+        required: false
+        help: "Exclude doublet-flagged cells from all calculations (recommended). Uses status column from clusters.tsv. [default: true]"
+
+    - embed:
+        long: embed
+        takes_value: true
+        required: false
+        help: "Embedding method(s) for before/after visualisation: tsne | umap | both | none. [default: tsne]"
+
+    - pca_components:
+        long: pca_components
+        takes_value: true
+        required: false
+        help: "Number of PCA dimensions before t-SNE/UMAP. [default: 50]"
+
+    - tsne_perplexity:
+        long: tsne_perplexity
+        takes_value: true
+        required: false
+        help: "t-SNE perplexity (effective neighbourhood size). [default: 30.0]"
+
+    - tsne_iter:
+        long: tsne_iter
+        takes_value: true
+        required: false
+        help: "Number of t-SNE optimisation iterations. [default: 1000]"
+
+    - simulate:
+        long: simulate
+        takes_value: false
+        required: false
+        help: "Run Module 2: inject synthetic contamination at multiple levels and benchmark recovery."
+
+    - sim_levels:
+        long: sim_levels
+        takes_value: true
+        multiple: true
+        required: false
+        help: "Ambient fraction levels to simulate (space-separated floats). [default: 0.01 0.05 0.10 0.20 0.30 0.50]"
+
+    - sim_trials:
+        long: sim_trials
+        takes_value: true
+        required: false
+        help: "Number of independent trials per simulation level. [default: 3]"
+
+    - config:
+        long: config
+        takes_value: true
+        required: false
+        help: "Path to a JSON parameter profile. Fields not present fall through to .soupxcell.env then built-in defaults."
+
+    - env:
+        long: env
+        takes_value: true
+        required: false
+        help: "Explicit path to .soupxcell.env file. Auto-discovered in CWD then ~/.soupxcell.env if omitted."
+
+    - dry_run:
+        long: dry_run
+        takes_value: false
+        required: false
+        help: "Print the full run plan to stderr and prompt [Y/n] before reading or writing anything."
+
+    - dry_run_yes:
+        long: dry_run_yes
+        takes_value: false
+        required: false
+        help: "Requires --dry_run. Auto-approve without prompting (CI mode). Also: SOUPX_DRY_RUN_YES=true."
+
+    - plot_dir:
+        long: plot_dir
+        takes_value: true
+        required: false
+        help: "Override the figures subdirectory path. [default: <output>/figures]"
+
+    - seed:
+        long: seed
+        short: s
+        takes_value: true
+        required: false
+        help: "RNG seed for reproducible t-SNE/UMAP initialisation. [default: 42]"
+
+    - gui:
+        long: gui
+        takes_value: false
+        required: false
+        help: "Launch the built-in HTTP server and open the web GUI at http://localhost:<port>."
+
+    - gui_port:
+        long: gui_port
+        takes_value: true
+        required: false
+        help: "Port for the GUI server. [default: 7878]"
+
+    - metric_loci:
+        long: metric_loci
+        takes_value: true
+        required: false
+        help: "Max number of loci (by variance) used for silhouette/Davies-Bouldin metrics. 0 = use all covered loci. [default: 0 = all, professor spec: use whatever souporcell used ~2913]"
+
+    - metric_cells:
+        long: metric_cells
+        takes_value: true
+        required: false
+        help: "Max cells per cluster for silhouette subsampling. Higher = more accurate but slower (O(N²)). [default: 150]"
+
+    - min_locus_variance:
+        long: min_locus_variance
+        takes_value: true
+        required: false
+        help: "Minimum per-locus variance to include in metrics. 0.0 = use top --metric_loci by variance. [default: 0.0]"
+
+    - souporcell_vcf:
+        long: souporcell_vcf
+        takes_value: true
+        required: false
+        help: "Path to cluster_genotypes.vcf from souporcell (Stage 8 output). soupXcell will use ONLY the loci present in this VCF for metrics and embedding — exactly matching the loci souporcell used after QC. Takes priority over --souporcell_err and --n_qc_loci."
+
+    - souporcell_err:
+        long: souporcell_err
+        takes_value: true
+        required: false
+        help: "Path to clusters.err from souporcell. soupXcell will parse the 'Loci passing QC: N' line and use the top N loci by variance. Takes priority over --n_qc_loci."
+
+    - n_qc_loci:
+        long: n_qc_loci
+        takes_value: true
+        required: false
+        help: "Explicit number of QC-passing loci to use (read from souporcell's 'Loci passing QC: N' log line). Uses top N loci by variance. Overrides --metric_loci. Set to 0 to disable."
+
+    - min_ref:
+        long: min_ref
+        takes_value: true
+        required: false
+        help: "Minimum number of cells with at least one ref read for a locus to pass QC. Same parameter as souporcell's --min_ref. [default: 4]"
+
+    - min_alt:
+        long: min_alt
+        takes_value: true
+        required: false
+        help: "Minimum number of cells with at least one alt read for a locus to pass QC. Same parameter as souporcell's --min_alt. [default: 4]"
+
+    - min_ref_umis:
+        long: min_ref_umis
+        takes_value: true
+        required: false
+        help: "Minimum total ref UMIs summed across all cells for a locus to pass QC. Same parameter as souporcell's --min_ref_umis. [default: 4]"
+
+    - min_alt_umis:
+        long: min_alt_umis
+        takes_value: true
+        required: false
+        help: "Minimum total alt UMIs summed across all cells for a locus to pass QC. Same parameter as souporcell's --min_alt_umis. [default: 4]"
+
+    - freebayes_vcf:
+        long: freebayes_vcf
+        takes_value: true
+        required: false
+        help: "Path to the freebayes/common_variants VCF that was fed to vartrix (souporcell Stage 4 output — typically souporcell_merged_sorted_vcf.vcf.gz). When combined with --souporcell_vcf, enables exact CHROM:POS cross-referencing to map VCF rows to matrix rows. Without this, positional mapping is used (row N in VCF = row N in matrix)."

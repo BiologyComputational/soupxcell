@@ -1,0 +1,14 @@
+{
+  "profile": "fast_test",
+  "description": "Smoke test — verify the build works quickly. Not for real analysis.",
+  "params": {
+    "singlets_only":   true,
+    "embed":           "tsne",
+    "pca_components":  10,
+    "tsne_perplexity": 10.0,
+    "tsne_iter":       100,
+    "seed":            42,
+    "simulate":        false,
+    "threads":         1
+  }
+}

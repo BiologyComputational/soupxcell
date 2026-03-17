@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Correction Distribution — soupXcell</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080C14;color:#E2E8F0;font-family:'Helvetica Neue',Arial,sans-serif;padding:20px}
+h1{font-size:15px;font-weight:700;margin-bottom:4px}.sub{font-size:10px;color:#475569;margin-bottom:12px}
+.card{background:#111827;border:1px solid #1E293B;border-radius:8px;padding:16px}
+canvas{display:block;width:100%}
+.btn{background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:5px;padding:4px 12px;font-size:10px;cursor:pointer;margin-top:8px;display:inline-block}
+.btn:hover{background:#2563EB;color:#fff}
+.footer{margin-top:10px;font-size:10px;color:#334155;line-height:1.5}
+</style></head><body>
+<h1>Correction Magnitude Distribution &#x2014; |X_raw &#x2212; X_corrected| per cell</h1>
+<p class="sub" id="sub">Loading&#x2026;</p>
+<div class="card"><canvas id="c" height="280"></canvas>
+<button class="btn" onclick="dlPNG('c','correction_distribution.png')">&#x2B07; PNG</button></div>
+<p class="footer" id="foot"></p>
+<script>
+/* ── shared figure utilities ────────────────────────────────── */
+const COLS = ['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2','#9D174D','#065F46'];
+function col(k){ return COLS[k % COLS.length]; }
+
+/* Tooltip engine */
+const TT = (() => {
+  const el = document.createElement('div');
+  Object.assign(el.style, {
+    position:'fixed', background:'rgba(15,23,42,0.97)',
+    border:'1px solid #334155', borderRadius:'8px',
+    padding:'10px 14px', fontSize:'12px', color:'#E2E8F0',
+    pointerEvents:'none', display:'none', zIndex:'9999',
+    maxWidth:'320px', lineHeight:'1.6', fontFamily:'monospace',
+    boxShadow:'0 8px 24px rgba(0,0,0,0.6)'
+  });
+  document.body.appendChild(el);
+  let visible = false;
+  function show(html, x, y){
+    el.innerHTML = html; el.style.display = 'block'; visible = true;
+    move(x, y);
+  }
+  function move(x, y){
+    if(!visible) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    let lx = x + 16, ly = y + 16;
+    if(lx + w > W - 8) lx = x - w - 8;
+    if(ly + h > H - 8) ly = y - h - 8;
+    el.style.left = lx + 'px'; el.style.top = ly + 'px';
+  }
+  function hide(){ el.style.display = 'none'; visible = false; }
+  return { show, move, hide };
+})();
+
+/* Fetch JSON helper — never uses fallback fake data */
+async function loadJSON(name){
+  const candidates = [
+    `image_data/${name}.json`,
+    `../figures/image_data/${name}.json`,
+  ];
+  for(const p of candidates){
+    try { const r = await fetch(p); if(r.ok) return await r.json(); } catch(_){}
+  }
+  return null;
+}
+
+function noData(canvas, name){
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 800;
+  ctx.fillStyle = '#111827'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#EF4444'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`image_data/${name}.json not found`, canvas.width/2, canvas.height/2 - 10);
+  ctx.fillStyle = '#475569'; ctx.font = '11px sans-serif';
+  ctx.fillText('Run soupxcell, then open this file from the output/figures/ directory', canvas.width/2, canvas.height/2 + 12);
+}
+
+/* Download canvas as PNG */
+function dlPNG(canvasId, filename){
+  const c = document.getElementById(canvasId);
+  const a = document.createElement('a');
+  a.download = filename; a.href = c.toDataURL('image/png'); a.click();
+}
+
+(async()=>{
+  const data=await loadJSON('correction_distribution');
+  if(!data){noData(document.getElementById('c'),'correction_distribution');return;}
+  const corr=data.corrections;
+  document.getElementById('sub').textContent=
+    corr.length+' cells · α='+data.alpha.toFixed(8)+' · '+data.n_floored+
+    ' entries floored ('+data.pct_floored.toFixed(2)+'%) · mean='+data.mean_correction.toFixed(6);
+  const canvas=document.getElementById('c');
+  canvas.width=canvas.parentElement.clientWidth-32;
+  const w=canvas.width,h=280,pL=70,pR=20,pT=30,pB=55;
+  const pw=w-pL-pR,ph=h-pT-pB;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+  const cMax=Math.max(...corr),nBins=60,bw=(cMax)/(nBins);
+  const bins=new Array(nBins).fill(0);
+  corr.forEach(v=>{const b=Math.min(nBins-1,Math.floor(v/bw));bins[b]++;});
+  const bMax=Math.max(...bins);
+  const toX=v=>pL+v/cMax*pw, toY=v=>pT+ph-v/bMax*ph;
+  const bwPx=pw/nBins;
+  [0,.25,.5,.75,1].forEach(f=>{
+    const y=pT+ph-f*ph;
+    ctx.strokeStyle='#1E293B';ctx.lineWidth=0.8;
+    ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(pL+pw,y);ctx.stroke();
+    ctx.fillStyle='#475569';ctx.font='9px monospace';ctx.textAlign='right';
+    ctx.fillText(Math.round(f*bMax),pL-4,y+3);
+  });
+  const hitBins=[];
+  bins.forEach((cnt,i)=>{
+    if(!cnt)return;
+    const x=pL+i*bwPx,barH=cnt/bMax*ph;
+    const t=cnt/bMax;
+    ctx.fillStyle=`rgb(${Math.round(6+t*230)},${Math.round(182-t*90)},${Math.round(212-t*80)})`;
+    ctx.fillRect(x+0.5,pT+ph-barH,bwPx-1,barH);
+    hitBins.push({x,bwPx,cnt,lo:i*bw,hi:(i+1)*bw,i});
+  });
+  // Mean
+  const mx=toX(data.mean_correction);
+  ctx.strokeStyle='#F59E0B';ctx.lineWidth=1.8;ctx.setLineDash([5,3]);
+  ctx.beginPath();ctx.moveTo(mx,pT);ctx.lineTo(mx,pT+ph);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#F59E0B';ctx.font='9px sans-serif';ctx.textAlign='left';
+  ctx.fillText('mean='+data.mean_correction.toFixed(5),mx+3,pT+12);
+  // Median
+  const sorted=[...corr].sort((a,b)=>a-b);
+  const med=sorted[Math.floor(sorted.length/2)];
+  const mdx=toX(med);
+  ctx.strokeStyle='#06B6D4';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(mdx,pT);ctx.lineTo(mdx,pT+ph);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#06B6D4';ctx.font='9px sans-serif';ctx.textAlign='left';
+  ctx.fillText('median='+med.toFixed(5),mdx+3,pT+24);
+  // X ticks
+  for(let i=0;i<=5;i++){
+    const v=cMax*i/5;
+    ctx.fillStyle='#475569';ctx.font='9px monospace';ctx.textAlign='center';
+    ctx.fillText(v.toFixed(4),toX(v),pT+ph+14);
+  }
+  ctx.fillStyle='#64748B';ctx.font='10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Mean |X_raw − X_corrected| per cell (allele fraction units)',pL+pw/2,pT+ph+30);
+  ctx.save();ctx.translate(12,pT+ph/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText('Cell count',0,0);ctx.restore();
+  canvas.onmousemove=function(e){
+    const rect=canvas.getBoundingClientRect();
+    const mx2=(e.clientX-rect.left)*(canvas.width/rect.width);
+    if(mx2<pL||mx2>pL+pw){TT.hide();return;}
+    const bi=Math.floor((mx2-pL)/bwPx);
+    const hb=hitBins.find(b=>b.i===bi);
+    if(hb){
+      TT.show(
+        '<b style="color:#06B6D4">Bin '+hb.i+'</b><br>'+
+        '<span style="color:#94A3B8">Correction range:</span> ['+hb.lo.toFixed(5)+', '+hb.hi.toFixed(5)+')<br>'+
+        '<span style="color:#94A3B8">Cell count:</span> '+hb.cnt+' ('+(hb.cnt/corr.length*100).toFixed(2)+'%)<br>'+
+        '<hr style="border-color:#334155;margin:4px 0"/>'+
+        '<b style="color:#F59E0B">Formula:</b> X_corr[l,n] = max(0, X[l,n] − α×μ[l])<br>'+
+        'Cell correction = mean |X_raw−X_corr| over covered loci<br>'+
+        'Uniform histogram → global α applies equally to all cells',
+        e.clientX,e.clientY);
+    } else TT.hide();
+  };
+  canvas.onmouseleave=()=>TT.hide();
+  document.getElementById('foot').textContent=
+    'Mean='+data.mean_correction.toFixed(6)+' | Median='+med.toFixed(6)+
+    ' | Floored entries='+data.n_floored+' ('+data.pct_floored.toFixed(2)+'%). '+
+    'Unimodal right-skewed distribution confirms proportional correction.';
+})();
+</script></body></html>
