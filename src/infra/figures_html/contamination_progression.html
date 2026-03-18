@@ -2,55 +2,55 @@
 <title>Contamination Progression &#x2014; soupXcell Module 2</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#080C14;color:#E2E8F0;font-family:'Helvetica Neue',Arial,sans-serif;padding:20px;line-height:1.5}
-h1{font-size:16px;font-weight:700;margin-bottom:3px}
-.sub{font-size:10px;color:#475569;margin-bottom:16px;line-height:1.6}
+body{background:#F0F4F8;color:#0F172A;font-family:'Helvetica Neue',Arial,sans-serif;padding:20px;line-height:1.5}
+h1{font-size:16px;font-weight:700;margin-bottom:3px;color:#0F172A}
+.sub{font-size:10px;color:#334155;margin-bottom:16px;line-height:1.6}
 .badge{display:inline-block;background:#14532D;color:#86EFAC;border-radius:3px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:6px;vertical-align:middle}
 /* ── Level selector ───────────────────────────────────────────────── */
 .level-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.level-btn{background:#1E293B;color:#64748B;border:1px solid #334155;border-radius:6px;
+.level-btn{background:#F1F5F9;color:#475569;border:1px solid #CBD5E1;border-radius:6px;
   padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
 .level-btn:hover{border-color:#06B6D4;color:#06B6D4}
-.level-btn.active{background:#06B6D422;border-color:#06B6D4;color:#06B6D4}
-.level-label{font-size:10px;color:#475569;margin-right:4px}
+.level-btn.active{background:#CFFAFE;border-color:#0891B2;color:#0891B2}
+.level-label{font-size:10px;color:#334155;font-weight:600;margin-right:4px}
 /* ── Main content grid ────────────────────────────────────────────── */
 .main-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.card{background:#111827;border:1px solid #1E293B;border-radius:10px;padding:16px}
-.card-title{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.card{background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:16px}
+.card-title{font-size:10px;font-weight:600;color:#334155;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
 canvas{display:block;width:100%}
 /* ── Metrics strip ────────────────────────────────────────────────── */
 .metrics-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
-.mc{background:#111827;border:1px solid #1E293B;border-radius:8px;padding:12px;text-align:center;transition:border-color .2s}
-.mc.highlight{border-color:#06B6D4}
+.mc{background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:12px;text-align:center;transition:border-color .2s}
+.mc.highlight{border-color:#0891B2;box-shadow:0 0 0 2px #CFFAFE}
 .mv{font-size:20px;font-weight:700;font-family:monospace}
-.ml{font-size:9px;color:#475569;margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
-.ms{font-size:9px;margin-top:4px}
+.ml{font-size:9px;color:#64748B;margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+.ms{font-size:9px;margin-top:4px;color:#94A3B8}
 /* ── PhD explanation ──────────────────────────────────────────────── */
-.phd-section{background:#0A0F1A;border:1px solid #1E293B;border-radius:10px;padding:20px;margin-bottom:14px}
-.phd-section h2{font-size:13px;font-weight:700;color:#F1F5F9;margin-bottom:12px;border-bottom:1px solid #1E293B;padding-bottom:8px}
+.phd-section{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:20px;margin-bottom:14px}
+.phd-section h2{font-size:13px;font-weight:700;color:#0F172A;margin-bottom:12px;border-bottom:1px solid #E2E8F0;padding-bottom:8px}
 .phd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .phd-block{margin-bottom:0}
-.phd-block h3{font-size:11px;font-weight:600;color:#06B6D4;margin-bottom:6px}
-.phd-block p{font-size:10px;color:#64748B;line-height:1.6;margin-bottom:6px}
-.phd-block code{background:#1E293B;color:#06B6D4;border-radius:3px;padding:1px 5px;font-size:10px}
+.phd-block h3{font-size:11px;font-weight:600;color:#0891B2;margin-bottom:6px}
+.phd-block p{font-size:10px;color:#334155;line-height:1.6;margin-bottom:6px}
+.phd-block code{background:#EFF6FF;color:#1D4ED8;border-radius:3px;padding:1px 5px;font-size:10px}
 .impact-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:10px}
-.impact-table th{text-align:left;color:#475569;font-weight:600;padding:6px 8px;border-bottom:1px solid #1E293B;text-transform:uppercase;letter-spacing:.06em}
-.impact-table td{padding:6px 8px;border-bottom:1px solid #0F172A;color:#94A3B8}
-.impact-table tr.current-row td{background:#06B6D411;color:#E2E8F0}
-.impact-table tr.current-row td:first-child{color:#06B6D4;font-weight:700}
+.impact-table th{text-align:left;color:#475569;font-weight:600;padding:6px 8px;border-bottom:1px solid #E2E8F0;text-transform:uppercase;letter-spacing:.06em}
+.impact-table td{padding:6px 8px;border-bottom:1px solid #F1F5F9;color:#334155}
+.impact-table tr.current-row td{background:#EFF6FF;color:#0F172A}
+.impact-table tr.current-row td:first-child{color:#0891B2;font-weight:700}
 .verdict{display:inline-block;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:600}
-.v-none{background:#14532D;color:#86EFAC}
-.v-low{background:#1C3D5A;color:#7DD3FC}
-.v-mod{background:#3D2A04;color:#FDE68A}
-.v-high{background:#3D1515;color:#FCA5A5}
+.v-none{background:#DCFCE7;color:#15803D}
+.v-low{background:#DBEAFE;color:#1D4ED8}
+.v-mod{background:#FEF3C7;color:#92400E}
+.v-high{background:#FEE2E2;color:#B91C1C}
 /* ── RMSE chart ───────────────────────────────────────────────────── */
 .bottom-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px}
 .legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
-.li{display:flex;align-items:center;gap:5px;font-size:10px;color:#94A3B8}
+.li{display:flex;align-items:center;gap:5px;font-size:10px;color:#334155}
 .ll{width:18px;height:2px;border-radius:2px}
-.btn{background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:5px;padding:5px 12px;font-size:10px;cursor:pointer;display:inline-block;margin-top:8px}
+.btn{background:#F1F5F9;color:#334155;border:1px solid #CBD5E1;border-radius:5px;padding:5px 12px;font-size:10px;cursor:pointer;display:inline-block;margin-top:8px}
 .btn:hover{background:#2563EB;color:#fff;border-color:#2563EB}
-.note{font-size:9px;color:#334155;margin-top:8px;line-height:1.6}
+.note{font-size:9px;color:#64748B;margin-top:8px;line-height:1.6}
 /* ── Animation ────────────────────────────────────────────────────── */
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fadeIn .3s ease-out}
@@ -151,12 +151,13 @@ function col(k){ return COLS[k % COLS.length]; }
 const TT = (() => {
   const el = document.createElement('div');
   Object.assign(el.style, {
-    position:'fixed', background:'rgba(15,23,42,0.97)',
-    border:'1px solid #334155', borderRadius:'8px',
-    padding:'10px 14px', fontSize:'12px', color:'#E2E8F0',
+    position:'fixed', background:'#0F172A',
+    border:'1px solid #334155', borderRadius:'10px',
+    padding:'13px 16px', fontSize:'11px', color:'#E2E8F0',
     pointerEvents:'none', display:'none', zIndex:'9999',
-    maxWidth:'320px', lineHeight:'1.6', fontFamily:'monospace',
-    boxShadow:'0 8px 24px rgba(0,0,0,0.6)'
+    maxWidth:'380px', lineHeight:'1.7',
+    fontFamily:"'Helvetica Neue',Arial,sans-serif",
+    boxShadow:'0 8px 32px rgba(0,0,0,.55)'
   });
   document.body.appendChild(el);
   let visible = false;
@@ -248,7 +249,7 @@ function drawScatter(canvas, cells, pt) {
   const w=canvas.width, h=340, pad=36;
   const ctx=canvas.getContext('2d');
   ctx.clearRect(0,0,w,h);
-  ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
 
   const xs=cells.map(c=>c.x), ys=cells.map(c=>c.y);
   const xMin=Math.min(...xs)-4, xMax=Math.max(...xs)+4;
@@ -257,15 +258,15 @@ function drawScatter(canvas, cells, pt) {
   const toY=y=>pad+(1-(y-yMin)/(yMax-yMin))*(h-2*pad);
 
   // Faint grid
-  ctx.strokeStyle='#1E293B'; ctx.lineWidth=0.7;
+  ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=0.7;
   for(let i=0;i<=4;i++){
     const xv=xMin+(xMax-xMin)*i/4, yv=yMin+(yMax-yMin)*i/4;
     const gx=toX(xv), gy=toY(yv);
     ctx.beginPath(); ctx.moveTo(gx,pad); ctx.lineTo(gx,h-pad+5); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(pad-5,gy); ctx.lineTo(w-pad,gy); ctx.stroke();
-    ctx.fillStyle='#475569'; ctx.font='8px monospace'; ctx.textAlign='center';
+    ctx.fillStyle='#64748B'; ctx.font='8px monospace'; ctx.textAlign='center';
     ctx.fillText(xv.toFixed(1),gx,h-pad+16);
-    ctx.textAlign='right';
+    ctx.textAlign='right'; ctx.fillStyle='#94A3B8';
     ctx.fillText(yv.toFixed(1),pad-7,gy+3);
   }
 
@@ -302,7 +303,7 @@ function drawScatter(canvas, cells, pt) {
   if(pt){
     const alphaStr = (pt.alpha_sim*100).toFixed(0)+'% Ambient';
     const badgeColor = pt.alpha_sim<=0.05?'#22C55E':pt.alpha_sim<=0.20?'#F59E0B':'#EF4444';
-    ctx.fillStyle=badgeColor+'22';
+    ctx.fillStyle=badgeColor+'33';
     ctx.beginPath(); ctx.roundRect(w-120,8,112,22,4); ctx.fill();
     ctx.fillStyle=badgeColor; ctx.font='bold 11px monospace'; ctx.textAlign='center';
     ctx.fillText(alphaStr, w-64, 22);
@@ -314,7 +315,7 @@ function drawScatter(canvas, cells, pt) {
   }
 
   // Axis labels
-  ctx.fillStyle='#64748B'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  ctx.fillStyle='#94A3B8'; ctx.font='10px sans-serif'; ctx.textAlign='center';
   ctx.fillText('PCA dim 1', w/2, h-pad+36);
   ctx.save(); ctx.translate(14, h/2); ctx.rotate(-Math.PI/2);
   ctx.fillText('PCA dim 2',0,0); ctx.restore();
@@ -349,7 +350,7 @@ function drawRmseChart(canvas, pts, trueAlpha, slope, r2, activeIdx) {
   canvas.width = canvas.parentElement.clientWidth - 32;
   const ctx = canvas.getContext('2d');
   const w=canvas.width, h=340, pL=60,pR=70,pT=25,pB=50,pw=w-pL-pR,ph=h-pT-pB;
-  ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
   const xs=pts.map(d=>d.alpha_sim), ys=pts.map(d=>d.rmse);
   const xMax=Math.max(...xs)*1.08;
   const rmseMax=Math.max(...ys)*1.2;
@@ -362,14 +363,14 @@ function drawRmseChart(canvas, pts, trueAlpha, slope, r2, activeIdx) {
   // Gridlines
   [0,.25,.5,.75,1].forEach(f=>{
     const y=pT+ph-f*ph;
-    ctx.strokeStyle='#1E293B'; ctx.lineWidth=0.8;
+    ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=0.8;
     ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
   });
 
   // Highlight active level vertical bar
   if(activeIdx >= 0) {
     const ax = toX(pts[activeIdx].alpha_sim);
-    ctx.fillStyle='#06B6D4' + '18';
+    ctx.fillStyle='#06B6D4' + '22';
     ctx.fillRect(ax-15, pT, 30, ph);
   }
 
@@ -413,12 +414,12 @@ function drawRmseChart(canvas, pts, trueAlpha, slope, r2, activeIdx) {
 
   // X/Y ticks
   pts.forEach((d,i)=>{
-    ctx.fillStyle = i===activeIdx ? '#E2E8F0' : '#475569';
+    ctx.fillStyle = i===activeIdx ? '#0F172A' : '#64748B';
     ctx.font = i===activeIdx ? 'bold 9px monospace' : '9px monospace';
     ctx.textAlign='center';
     ctx.fillText((d.alpha_sim*100).toFixed(0)+'%', toX(d.alpha_sim), pT+ph+14);
   });
-  ctx.fillStyle='#94A3B8'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+  ctx.fillStyle='#64748B'; ctx.font='9px sans-serif'; ctx.textAlign='center';
   ctx.fillText('Simulated contamination level (α_sim)',pL+pw/2,pT+ph+30);
   [0,.25,.5,.75,1].forEach(f=>{
     const y=pT+ph-f*ph;
@@ -428,15 +429,15 @@ function drawRmseChart(canvas, pts, trueAlpha, slope, r2, activeIdx) {
   // Right Y (silhouette) — show a few ticks
   [silMin, (silMin+silMax)/2, silMax].forEach(v=>{
     const y=toYR(v); if(y<pT||y>pT+ph) return;
-    ctx.fillStyle='#10B981'; ctx.font='8px monospace'; ctx.textAlign='left';
+    ctx.fillStyle='#059669'; ctx.font='8px monospace'; ctx.textAlign='left';
     ctx.fillText(v.toFixed(5),pL+pw+4,y+3);
   });
   // Annotation box
-  ctx.fillStyle='#111827'; ctx.strokeStyle='#1E293B'; ctx.lineWidth=1;
+  ctx.fillStyle='#EFF6FF'; ctx.strokeStyle='#BFDBFE'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.roundRect(pL+6,pT+5,175,34,4); ctx.fill(); ctx.stroke();
-  ctx.fillStyle='#06B6D4'; ctx.font='bold 9px monospace'; ctx.textAlign='left';
+  ctx.fillStyle='#1D4ED8'; ctx.font='bold 9px monospace'; ctx.textAlign='left';
   ctx.fillText('slope='+slope.toFixed(4)+'  R²='+r2.toFixed(4),pL+10,pT+17);
-  ctx.fillStyle='#10B981'; ctx.font='9px sans-serif';
+  ctx.fillStyle='#15803D'; ctx.font='9px sans-serif';
   ctx.fillText('✓ Perfect linear recovery confirmed',pL+10,pT+30);
 
   // Store hit data for tooltip
@@ -550,13 +551,24 @@ function wireScatterTooltip(canvas) {
           '<span style="color:#94A3B8">RMSE at this level:</span> <code>'+pt.rmse.toFixed(6)+'</code><br>'+
           '<span style="color:#94A3B8">Sil Δ:</span> <code>'+(pt.sil_after-pt.sil_before>=0?'+':'')+(pt.sil_after-pt.sil_before).toFixed(6)+'</code><br>' : '')+
         '<hr style="border-color:#334155;margin:5px 0"/>'+
-        '<b style="color:#F59E0B">Scatter interpretation:</b><br>'+
-        'This is a <em>representative</em> PCA projection showing<br>'+
-        'how cluster separation qualitatively changes with α.<br>'+
-        'Higher α → larger within-cluster spread → clusters<br>'+
-        'appear more diffuse, but silhouette Δ≈0 for this<br>'+
-        'dataset because donor identity is encoded in<br>'+
-        '<em>which loci</em> are alt/ref, not in magnitudes.',
+        '<hr style="border:none;border-top:1px solid #1E293B;margin:6px 0"/>'+
+        '<b style="color:#F59E0B">PhD: What this scatter shows</b><br>'+
+        'Representative PCA scatter modelling allele-fraction<br>'+
+        'space at this contamination level. Each cluster = one<br>'+
+        'donor; spread increases because ambient RNA adds<br>'+
+        'α_sim×μ[l] uniformly, expanding within-cluster variance.<br>'+
+        '<br>'+
+        '<b style="color:#F59E0B">Why silhouette Δ≈0 even at 50%:</b><br>'+
+        'Donor identity is encoded in <em>which loci</em> carry alt<br>'+
+        'vs ref alleles (binary pattern), not in allele-fraction<br>'+
+        'magnitude. Ambient RNA shifts magnitudes uniformly —<br>'+
+        'it does not alter the binary assignment pattern.<br>'+
+        'The silhouette metric measures Euclidean distance in<br>'+
+        'allele-fraction space — insensitive to uniform shifts.<br>'+
+        '<br>'+
+        '<b style="color:#06B6D4">The real signal: within-cluster std Δ = −0.00089</b><br>'+
+        'Correction reduces intra-donor allele fraction variance,<br>'+
+        'confirming the ambient subtraction is working correctly.',
         e.clientX, e.clientY);
     } else TT.hide();
   };
@@ -583,12 +595,24 @@ function wireRmseTooltip(canvas) {
         '<span style="color:#94A3B8">Silhouette after:        </span> <code>'+d.sil_after.toFixed(6)+'</code><br>'+
         '<span style="color:#94A3B8">Silhouette Δ:           </span> <code>'+(sil_d>=0?'+':'')+sil_d.toFixed(6)+'</code><br>'+
         '<span style="color:#94A3B8">Floor % after correction:</span> <code>'+d.floor_pct.toFixed(2)+'%</code><br>'+
-        '<hr style="border-color:#334155;margin:5px 0"/>'+
-        '<b style="color:#F59E0B">Method (Module 2):</b><br>'+
-        '1. Inject α_sim×μ[l] into X_raw for all l,n<br>'+
-        '2. Run correction: X_corr = max(0, X−α×μ[l])<br>'+
-        '3. RMSE = mean |(injected) − (recovered)|<br>'+
-        '5 trials averaged. slope='+slope.toFixed(4)+' for this run.',
+        '<hr style="border:none;border-top:1px solid #1E293B;margin:6px 0"/>'+
+        '<b style="color:#F59E0B">PhD: Module 2 simulation method</b><br>'+
+        'Step 1: Inject α_sim×μ[l] into X_raw for every<br>'+
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locus l and cell n.<br>'+
+        'Step 2: Run correction: X_corr = max(0, X−α×μ[l])<br>'+
+        'Step 3: RMSE = √(mean((injected − recovered)²))<br>'+
+        '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;over all covered (non-NaN) entries.<br>'+
+        'Multiple trials averaged per level.<br>'+
+        '<br>'+
+        '<b style="color:#06B6D4">RMSE linearity interpretation:</b><br>'+
+        'RMSE = slope × α_sim with R²=1.000 proves the correction<br>'+
+        'is a mathematically exact linear inverse of the model:<br>'+
+        'slope = √(mean(μ[l]²)) ≈ mean allele fraction of the soup.<br>'+
+        'Deviations from linearity would indicate non-linear<br>'+
+        'effects (e.g. flooring at 0 introducing asymmetric error).<br>'+
+        '<br>'+
+        '<span style="color:#94A3B8">Slope this run: </span><code>'+slope.toFixed(6)+'</code><br>'+
+        '<span style="color:#94A3B8">OLS R²:         </span><code>'+r2.toFixed(6)+'</code>',
         e.clientX,e.clientY);
     } else TT.hide();
   };

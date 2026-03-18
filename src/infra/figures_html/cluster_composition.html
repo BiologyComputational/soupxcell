@@ -5,25 +5,37 @@
 <title>Cluster Composition — souporcell Output</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#080C14;color:#E2E8F0;font-family:'Helvetica Neue',Arial,sans-serif;padding:28px;min-height:100vh}
-h1{font-size:17px;font-weight:700;color:#F1F5F9;margin-bottom:3px}
-.sub{font-size:11px;color:#475569;margin-bottom:22px;line-height:1.6}
+body{background:#F0F4F8;color:#0F172A;font-family:'Helvetica Neue',Arial,sans-serif;padding:28px;min-height:100vh}
+h1{font-size:17px;font-weight:700;color:#0F172A;margin-bottom:3px}
+.sub{font-size:11px;color:#334155;margin-bottom:22px;line-height:1.6}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
-.stat{background:#111827;border:1px solid #1E293B;border-radius:8px;padding:14px 12px;text-align:center}
+.stat{background:#FFFFFF;border:1px solid #E2E8F0;border-radius:8px;padding:14px 12px;text-align:center}
 .stat .v{font-size:24px;font-weight:700}
-.stat .l{font-size:10px;color:#64748B;margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.stat .l{font-size:10px;color:#475569;margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.card{background:#111827;border:1px solid #1E293B;border-radius:10px;padding:20px}
-.card h2{font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.card{background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:20px}
+.card h2{font-size:11px;font-weight:600;color:#334155;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
 canvas{display:block;width:100%}
-.note{font-size:10px;color:#334155;margin-top:10px;line-height:1.5}
+.note{font-size:10px;color:#475569;margin-top:10px;line-height:1.5}
 .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-.li{display:flex;align-items:center;gap:6px;font-size:11px;color:#94A3B8}
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:#334155}
 .ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.btn{display:inline-block;background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:6px;padding:6px 14px;font-size:11px;cursor:pointer;text-decoration:none;margin-top:8px}
+.btn{display:inline-block;background:#F1F5F9;color:#334155;border:1px solid #CBD5E1;border-radius:6px;padding:6px 14px;font-size:11px;cursor:pointer;text-decoration:none;margin-top:8px}
 .btn:hover{background:#2563EB;color:#FFF;border-color:#2563EB}
 .source-badge{display:inline-block;background:#14532D;color:#86EFAC;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:600;margin-left:6px}
-.loading{color:#475569;font-size:12px;padding:40px;text-align:center}
+.loading{color:#94A3B8;font-size:12px;padding:40px;text-align:center}
+
+/* ── PhD Tooltip ─────────────────────────────────────────────────────── */
+.tt{position:fixed;background:#0F172A;border:1px solid #334155;border-radius:10px;
+    padding:13px 16px;font-size:11px;color:#E2E8F0;pointer-events:none;
+    display:none;z-index:9999;max-width:360px;line-height:1.7;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    box-shadow:0 8px 32px rgba(0,0,0,.55)}
+.tt code{background:#1E293B;color:#06B6D4;border-radius:3px;padding:1px 5px;font-size:10px}
+.tt hr{border:none;border-top:1px solid #1E293B;margin:7px 0}
+.tt b{color:#F59E0B}
+.tt .ok{color:#22C55E}
+.tt .warn{color:#F59E0B}
 </style>
 </head>
 <body>
@@ -107,7 +119,7 @@ async function loadData() {
     document.querySelectorAll('canvas').forEach(c => {
       const ctx = c.getContext('2d');
       c.width = c.parentElement.clientWidth - 40;
-      ctx.fillStyle = '#111827'; ctx.fillRect(0,0,c.width,220);
+      ctx.fillStyle = '#FEF2F2'; ctx.fillRect(0,0,c.width,220);
       ctx.fillStyle = '#EF4444'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText('cluster_data.json not found — run soupxcell first', c.width/2, 110);
     });
@@ -170,12 +182,12 @@ function drawAll(K) {
     const h=220, pL=50,pR=12,pT=24,pB=40, pw=w-pL-pR, ph=h-pT-pB;
     const maxC = Math.max(...K.map(c => c.singlets+c.doublets)) * 1.12;
     const gap = pw/K.length, bw = gap*0.55;
-    ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
     [0,.25,.5,.75,1].forEach(f => {
       const y=pT+ph-f*ph;
-      ctx.strokeStyle='#1E293B'; ctx.lineWidth=0.8;
+      ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=0.8;
       ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
-      ctx.fillStyle='#475569'; ctx.font='9px sans-serif'; ctx.textAlign='right';
+      ctx.fillStyle='#64748B'; ctx.font='9px sans-serif'; ctx.textAlign='right';
       ctx.fillText(Math.round(f*maxC), pL-4, y+3);
     });
     K.forEach((c,i) => {
@@ -186,9 +198,9 @@ function drawAll(K) {
       ctx.fillRect(x, pT+ph-totH, bw, totH-singH);
       ctx.fillStyle = c.col;
       ctx.fillRect(x, pT+ph-singH, bw, singH);
-      ctx.fillStyle='#CBD5E1'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#0F172A'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
       ctx.fillText(tot, x+bw/2, pT+ph-totH-6);
-      ctx.fillStyle='#94A3B8'; ctx.font='11px sans-serif';
+      ctx.fillStyle='#334155'; ctx.font='11px sans-serif';
       ctx.fillText(c.label, x+bw/2, pT+ph+16);
       ctx.fillStyle=c.col+'AA'; ctx.font='10px sans-serif';
       ctx.fillText(c.singlets+'S / '+c.doublets+'D', x+bw/2, pT+ph+28);
@@ -198,18 +210,19 @@ function drawAll(K) {
       '<div class="li"><div class="ld" style="background:#1E293B;border:1px solid #475569"></div>Doublet (excluded)</div>';
   });
   wireDownload('dlBar','cBar');
+  wireBarTooltip(document.getElementById('cBar'), K);
 
   // ── DONUT CHART ─────────────────────────────────────────────────────────────
   ready('cDonut', (canvas, ctx, w) => {
     const h=220, cx=w*0.42, cy=h/2, R=80, r=46;
     const total = K.reduce((s,c) => s+c.singlets+c.doublets, 0);
-    ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
     let angle = -Math.PI/2;
     K.forEach(c => {
       const frac=(c.singlets+c.doublets)/total, sweep=frac*2*Math.PI;
       ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,angle,angle+sweep);
       ctx.fillStyle=c.col; ctx.fill();
-      ctx.strokeStyle='#080C14'; ctx.lineWidth=2; ctx.stroke();
+      ctx.strokeStyle='#F0F4F8'; ctx.lineWidth=2; ctx.stroke();
       const mid=angle+sweep/2;
       const lx=cx+(R+r)/2*Math.cos(mid), ly=cy+(R+r)/2*Math.sin(mid);
       ctx.fillStyle='#FFF'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
@@ -217,16 +230,17 @@ function drawAll(K) {
       angle += sweep;
     });
     ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI);
-    ctx.fillStyle='#111827'; ctx.fill();
-    ctx.fillStyle='#F1F5F9'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#F0F4F8'; ctx.fill();
+    ctx.fillStyle='#0F172A'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center';
     ctx.fillText(total.toLocaleString(), cx, cy-5);
-    ctx.fillStyle='#64748B'; ctx.font='10px sans-serif';
+    ctx.fillStyle='#475569'; ctx.font='10px sans-serif';
     ctx.fillText('cells', cx, cy+10);
     document.getElementById('legDonut').innerHTML = K.map(c =>
       `<div class="li"><div class="ld" style="background:${c.col}"></div>${c.label}: ${c.singlets+c.doublets}</div>`
     ).join('');
   });
   wireDownload('dlDonut','cDonut');
+  wireDonutTooltip(document.getElementById('cDonut'), K);
 
   // ── SILHOUETTE ──────────────────────────────────────────────────────────────
   ready('cSil', (canvas, ctx, w) => {
@@ -237,17 +251,17 @@ function drawAll(K) {
     const sRange = sMax - sMin;
     const toY = v => pT+ph-(v-sMin)/sRange*ph;
     const zY  = toY(0);
-    ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
 
     // Gridlines — 5 ticks spanning actual data range
     const step = parseFloat(((sMax-sMin)/5).toPrecision(1));
     for (let v=Math.ceil(sMin/step)*step; v<=sMax+step*0.1; v+=step) {
       const y = toY(v);
       if (y < pT || y > pT+ph) continue;
-      ctx.strokeStyle = Math.abs(v)<1e-6 ? '#334155':'#1E293B';
+      ctx.strokeStyle = Math.abs(v)<1e-6 ? '#94A3B8':'#E2E8F0';
       ctx.lineWidth   = Math.abs(v)<1e-6 ? 1.5 : 0.8;
       ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
-      ctx.fillStyle='#475569'; ctx.font='9px sans-serif'; ctx.textAlign='right';
+      ctx.fillStyle='#64748B'; ctx.font='9px sans-serif'; ctx.textAlign='right';
       ctx.fillText(v.toFixed(4), pL-4, y+3);
     }
 
@@ -258,7 +272,7 @@ function drawAll(K) {
       ctx.fillStyle=c.col+'55'; ctx.fillRect(x, y1, bw, h1);
       const y2=Math.min(toY(c.sil_a),zY), h2=Math.max(Math.abs(toY(c.sil_a)-zY),2);
       ctx.fillStyle=c.col; ctx.fillRect(x+bw+6, y2, bw, h2);
-      ctx.fillStyle='#94A3B8'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#64748B'; ctx.font='10px sans-serif'; ctx.textAlign='center';
       ctx.fillText('C'+i, x+bw/2+3, pT+ph+14);
       const d = c.sil_a - c.sil_b;
       ctx.fillStyle = Math.abs(d)<0.001 ? '#475569' : d>0 ? '#22C55E':'#EF4444';
@@ -267,21 +281,22 @@ function drawAll(K) {
     });
     ctx.fillStyle='#64748B'; ctx.font='10px sans-serif'; ctx.textAlign='left';
     ctx.fillText('■ faded = before    ■ solid = after', pL, pT+ph+38);
-    ctx.fillStyle='#334155'; ctx.font='italic 9px sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#94A3B8'; ctx.font='italic 9px sans-serif'; ctx.textAlign='center';
     ctx.fillText('Δ≈0 expected at α=1.26% — run --simulate to show effect at 5/10/20%', w/2, h-4);
   });
   wireDownload('dlSil','cSil');
+  wireSilTooltip(document.getElementById('cSil'), K);
 
   // ── CORRECTION BAR ──────────────────────────────────────────────────────────
   ready('cCorr', (canvas, ctx, w) => {
     const h=200, pL=70,pR=15,pT=20,pB=40, pw=w-pL-pR, ph=h-pT-pB;
     const maxC = Math.max(...K.map(c=>c.corr)) * 1.25;
-    ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
     [0,.25,.5,.75,1].forEach(f => {
       const y=pT+ph-f*ph;
-      ctx.strokeStyle='#1E293B'; ctx.lineWidth=0.8;
+      ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=0.8;
       ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
-      ctx.fillStyle='#475569'; ctx.font='9px sans-serif'; ctx.textAlign='right';
+      ctx.fillStyle='#64748B'; ctx.font='9px sans-serif'; ctx.textAlign='right';
       ctx.fillText((f*maxC).toFixed(5), pL-4, y+3);
     });
     const gap=pw/K.length, bw=gap*0.55;
@@ -290,15 +305,235 @@ function drawAll(K) {
       const bh = ph*c.corr/maxC;
       ctx.fillStyle=c.col;
       ctx.fillRect(x, pT+ph-bh, bw, bh);
-      ctx.fillStyle='#CBD5E1'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
+      ctx.fillStyle='#0F172A'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center';
       ctx.fillText(c.corr.toFixed(5), x+bw/2, pT+ph-bh-6);
-      ctx.fillStyle='#94A3B8'; ctx.font='10px sans-serif';
+      ctx.fillStyle='#334155'; ctx.font='10px sans-serif';
       ctx.fillText(c.label, x+bw/2, pT+ph+14);
     });
-    ctx.fillStyle='#334155'; ctx.font='italic 9px sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#94A3B8'; ctx.font='italic 9px sans-serif'; ctx.textAlign='center';
     ctx.fillText('Uniform correction per cluster → global α (not donor-specific)', w/2, h-4);
   });
   wireDownload('dlCorr','cCorr');
+  wireCorrTooltip(document.getElementById('cCorr'), K);
+}
+
+// ── PhD Tooltip engine ────────────────────────────────────────────────
+const _tt = (() => {
+  const el = document.createElement('div');
+  el.className = 'tt';
+  document.body.appendChild(el);
+  return {
+    show(html, x, y) {
+      el.innerHTML = html; el.style.display = 'block';
+      const W=window.innerWidth, H=window.innerHeight;
+      const w=el.offsetWidth, h=el.offsetHeight;
+      let lx=x+16, ly=y+14;
+      if(lx+w>W-8) lx=x-w-10;
+      if(ly+h>H-8) ly=y-h-10;
+      el.style.left=lx+'px'; el.style.top=ly+'px';
+    },
+    move(x, y) {
+      if(el.style.display==='none') return;
+      const W=window.innerWidth, H=window.innerHeight;
+      const w=el.offsetWidth, h=el.offsetHeight;
+      let lx=x+16, ly=y+14;
+      if(lx+w>W-8) lx=x-w-10;
+      if(ly+h>H-8) ly=y-h-10;
+      el.style.left=lx+'px'; el.style.top=ly+'px';
+    },
+    hide() { el.style.display='none'; }
+  };
+})();
+
+// ── Bar chart tooltip ───────────────────────────────────────────────────
+function wireBarTooltip(canvas, K) {
+  const pL=50, pR=12, pT=24, pB=40;
+  function getHit(mx, my) {
+    const pw = canvas.width - pL - pR;
+    const ph = canvas.height - pT - pB;
+    const maxC = Math.max(...K.map(c => c.singlets+c.doublets)) * 1.12;
+    const gap = pw/K.length, bw = gap*0.55;
+    for(let i=0; i<K.length; i++) {
+      const x = pL + i*gap + (gap-bw)/2;
+      const c = K[i];
+      const tot = c.singlets + c.doublets;
+      const totH = ph * tot / maxC;
+      if(mx>=x && mx<=x+bw && my>=pT+ph-totH-2 && my<=pT+ph)
+        return {c, i};
+    }
+    return null;
+  }
+  canvas.addEventListener('mousemove', function(e) {
+    const r = canvas.getBoundingClientRect();
+    const mx = (e.clientX-r.left)*(canvas.width/r.width);
+    const my = (e.clientY-r.top)*(canvas.height/r.height);
+    const hit = getHit(mx, my);
+    if(!hit) { _tt.hide(); return; }
+    const c = hit.c;
+    const tot = c.singlets + c.doublets;
+    const dbRate = (c.doublets/tot*100).toFixed(2);
+    const singPct = (c.singlets/tot*100).toFixed(1);
+    const dbOk = parseFloat(dbRate) < 5;
+    _tt.show(
+      '<b style="color:'+c.col+'">'+c.label+'</b> — Donor '+hit.i+
+      '<hr>'+
+      '<span style="color:#94A3B8">Total cells:      </span> <code>'+tot.toLocaleString()+'</code><br>'+
+      '<span style="color:#94A3B8">Singlets (used):  </span> <code>'+c.singlets.toLocaleString()+' ('+singPct+'%)</code><br>'+
+      '<span style="color:#94A3B8">Doublets (excl.): </span> <code>'+c.doublets.toLocaleString()+' ('+dbRate+'%)</code><br>'+
+      '<hr>'+
+      '<b>What is a doublet?</b><br>'+
+      'Two cells co-captured in one droplet. Their allele fractions<br>'+
+      'blend two genotypes, making them unreliable for demultiplexing.<br>'+
+      'souporcell&#39;s <em>troublet</em> module identifies doublets via<br>'+
+      'a vireo-like joint genotype model. They are excluded from<br>'+
+      'ambient RNA estimation (μ[l]) but still receive correction.<br>'+
+      '<br>'+
+      '<b>Doublet rate '+dbRate+'%: </b>'+
+      (dbOk?'<span class="ok">✓ Within expected range (&lt;5%).</span>':'<span class="warn">⚠ Elevated. Consider re-checking library quality.</span>'),
+      e.clientX, e.clientY
+    );
+  });
+  canvas.addEventListener('mouseleave', () => _tt.hide());
+}
+
+// ── Donut tooltip ───────────────────────────────────────────────────────
+function wireDonutTooltip(canvas, K) {
+  const total = K.reduce((s,c) => s+c.singlets+c.doublets, 0);
+  canvas.addEventListener('mousemove', function(e) {
+    const r = canvas.getBoundingClientRect();
+    const mx = (e.clientX-r.left)*(canvas.width/r.width);
+    const my = (e.clientY-r.top)*(canvas.height/r.height);
+    const cxD = canvas.width*0.42, cyD = canvas.height/2, Rout=80, Rin=46;
+    const dx = mx-cxD, dy = my-cyD;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if(dist > Rout+12 || dist < Rin-4) { _tt.hide(); return; }
+    let angle = Math.atan2(dy, dx) + Math.PI/2;
+    if(angle < 0) angle += 2*Math.PI;
+    let cum = 0, hit = null;
+    K.forEach(c => {
+      const sweep = (c.singlets+c.doublets)/total * 2*Math.PI;
+      if(angle >= cum && angle < cum+sweep) hit = c;
+      cum += sweep;
+    });
+    if(!hit) { _tt.hide(); return; }
+    const n = hit.singlets + hit.doublets;
+    const pct = (n/total*100).toFixed(2);
+    const expPct = (100/K.length).toFixed(1);
+    const imbalance = Math.abs(parseFloat(pct)-parseFloat(expPct));
+    _tt.show(
+      '<b style="color:'+hit.col+'">'+hit.label+'</b>'+
+      '<hr>'+
+      '<span style="color:#94A3B8">Cells in cluster:    </span> <code>'+n.toLocaleString()+'</code><br>'+
+      '<span style="color:#94A3B8">Proportion of pool:  </span> <code>'+pct+'%</code><br>'+
+      '<span style="color:#94A3B8">Expected (balanced): </span> <code>~'+expPct+'% (1/'+K.length+')</code><br>'+
+      '<span style="color:#94A3B8">Imbalance:           </span> <code>'+imbalance.toFixed(2)+' percentage points</code><br>'+
+      '<hr>'+
+      '<b>Why balance matters:</b><br>'+
+      'souporcell uses a Dirichlet-multinomial model that expects<br>'+
+      'roughly equal donor contributions. Large imbalance (>10 pp)<br>'+
+      'can bias the ambient RNA estimate μ[l] toward the dominant<br>'+
+      'donor&#39;s allele pattern.<br>'+
+      (imbalance < 5 ? '<span class="ok">✓ Well-balanced pool.</span>' :
+       imbalance < 10 ? '<span class="warn">⚠ Mild imbalance — check donor cell inputs.</span>' :
+       '<span style="color:#EF4444">⚠ High imbalance — may affect μ[l] estimation.</span>'),
+      e.clientX, e.clientY
+    );
+  });
+  canvas.addEventListener('mouseleave', () => _tt.hide());
+}
+
+// ── Silhouette tooltip ──────────────────────────────────────────────────
+function wireSilTooltip(canvas, K) {
+  const pL=60, pT=20, pB=42;
+  function getHit(mx) {
+    const pw = canvas.width - pL - 15;
+    const gap = pw/K.length, bw = gap*0.28;
+    for(let i=0; i<K.length; i++) {
+      const x = pL + i*gap + (gap-bw*2-6)/2;
+      if(mx >= x-4 && mx <= x+bw*2+12) return {c:K[i], i};
+    }
+    return null;
+  }
+  canvas.addEventListener('mousemove', function(e) {
+    const r = canvas.getBoundingClientRect();
+    const mx = (e.clientX-r.left)*(canvas.width/r.width);
+    const hit = getHit(mx);
+    if(!hit) { _tt.hide(); return; }
+    const c = hit.c;
+    const d = c.sil_a - c.sil_b;
+    const dCol = Math.abs(d)<0.001 ? '#64748B' : d>0 ? '#22C55E' : '#EF4444';
+    _tt.show(
+      '<b style="color:'+c.col+'">'+c.label+'</b>'+
+      '<hr>'+
+      '<span style="color:#94A3B8">Silhouette before correction: </span><code>'+c.sil_b.toFixed(6)+'</code><br>'+
+      '<span style="color:#94A3B8">Silhouette after correction:  </span><code>'+c.sil_a.toFixed(6)+'</code><br>'+
+      '<span style="color:#94A3B8">Δ (after − before):           </span>'+
+      '<code style="color:'+dCol+'">'+(d>=0?'+':'')+d.toFixed(6)+'</code><br>'+
+      '<hr>'+
+      '<b>Silhouette coefficient formula:</b><br>'+
+      '<code>s(i) = [b(i) − a(i)] / max(a(i), b(i))</code><br>'+
+      'a(i) = mean intra-cluster allele-fraction distance<br>'+
+      'b(i) = mean distance to nearest-neighbour cluster<br>'+
+      'Range [−1, +1]. Near 0 = clusters overlap in feature space.<br>'+
+      '<br>'+
+      '<b>Why Δ ≈ 0 at α = 1.26%:</b><br>'+
+      'Ambient RNA adds α×μ[l] uniformly to all loci in all cells.<br>'+
+      'This shifts every donor&#39;s allele fractions by the same amount,<br>'+
+      'leaving inter-donor distances almost unchanged.<br>'+
+      'Detection threshold: Δ becomes significant at α > ~10%.<br>'+
+      'Run <code>--simulate</code> to empirically verify this threshold.',
+      e.clientX, e.clientY
+    );
+  });
+  canvas.addEventListener('mouseleave', () => _tt.hide());
+}
+
+// ── Correction tooltip ──────────────────────────────────────────────────
+function wireCorrTooltip(canvas, K) {
+  const pL=70, pT=20, pB=40;
+  function getHit(mx, my) {
+    const pw = canvas.width - pL - 15;
+    const ph = canvas.height - pT - pB;
+    const maxC = Math.max(...K.map(c=>c.corr)) * 1.25;
+    const gap=pw/K.length, bw=gap*0.55;
+    for(let i=0; i<K.length; i++) {
+      const c = K[i];
+      const x = pL + i*gap + (gap-bw)/2;
+      const bh = ph * c.corr / maxC;
+      if(mx>=x && mx<=x+bw && my>=pT+ph-bh-4 && my<=pT+ph) return {c, i};
+    }
+    return null;
+  }
+  canvas.addEventListener('mousemove', function(e) {
+    const r = canvas.getBoundingClientRect();
+    const mx = (e.clientX-r.left)*(canvas.width/r.width);
+    const my = (e.clientY-r.top)*(canvas.height/r.height);
+    const hit = getHit(mx, my);
+    if(!hit) { _tt.hide(); return; }
+    const c = hit.c;
+    _tt.show(
+      '<b style="color:'+c.col+'">'+c.label+'</b>'+
+      '<hr>'+
+      '<span style="color:#94A3B8">Mean |X_raw − X_corrected|: </span><code>'+c.corr.toFixed(8)+'</code><br>'+
+      '<hr>'+
+      '<b>Correction formula per entry:</b><br>'+
+      '<code>X_corr[l,n] = max(0, X[l,n] − α × μ[l])</code><br>'+
+      'α = global ambient fraction from ambient_rna.txt<br>'+
+      'μ[l] = mean allele fraction at locus l across singlets<br>'+
+      '<br>'+
+      '<b>Why bars are uniform across all donors:</b><br>'+
+      'soup[l] = α × μ[l] uses the <em>global</em> mean — the same<br>'+
+      'value is subtracted from every donor at every locus.<br>'+
+      'If bars differed, it would indicate donor-specific<br>'+
+      'contamination levels, which this model does not capture.<br>'+
+      'Uniformity here is the expected and correct result.<br>'+
+      '<br>'+
+      '<span style="color:#94A3B8">Value ≈ α × mean(μ[l]) = </span><code>'+c.corr.toFixed(8)+'</code><br>'+
+      '<span class="ok">✓ Uniform correction confirms global ambient model.</span>',
+      e.clientX, e.clientY
+    );
+  });
+  canvas.addEventListener('mouseleave', () => _tt.hide());
 }
 
 loadData();
