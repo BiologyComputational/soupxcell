@@ -1,0 +1,243 @@
+soupXcell Story Skill — Student Question Club Commands
+=======================================================
+
+Invoke with:  /explain-soupxcell-story [argument]
+
+This skill explains the soupXcell math model using everyday analogies,
+no biology background required. Think of it as a lightning talk at a
+university math/CS/data science club.
+
+Compare to:   /explain-math-model  (technical, formula-first, for experts)
+This skill:   /explain-soupxcell-story  (story-first, analogy-first, for everyone)
+
+
+FULL PRESENTATIONS
+------------------
+/explain-soupxcell-story
+/explain-soupxcell-story story
+/explain-soupxcell-story full
+  → Complete four-act presentation: all analogies, student interrupts, punchlines
+
+/explain-soupxcell-story plain english
+/explain-soupxcell-story no math
+  → Same story, zero formulas — only analogies and real numbers
+
+/explain-soupxcell-story numbers
+/explain-soupxcell-story all numbers
+  → Every key number from the experiment with one-sentence plain-English meaning
+
+
+BY ACT (narrative sections)
+-----------------------------
+/explain-soupxcell-story hook
+/explain-soupxcell-story intro
+  → Act 0: The crime scene dust hook — what problem are we solving?
+
+/explain-soupxcell-story act1
+/explain-soupxcell-story what are we measuring
+  → Act 1: The giant spreadsheet, marble jar analogy, four suspects,
+           soup vector as "average suspect DNA profile"
+
+/explain-soupxcell-story act2
+/explain-soupxcell-story how do we clean it
+  → Act 2: Watered-down paint correction, eraser formula,
+           radio static = 44.32% floor effect
+
+/explain-soupxcell-story act3
+/explain-soupxcell-story paradox
+/explain-soupxcell-story why nothing changed
+  → Act 3: Party in the dark (silhouette), crowd step-right (invariance),
+           precision ruler (within-cluster std)
+
+/explain-soupxcell-story act4
+/explain-soupxcell-story prove it
+  → Act 4: Fire drill simulation, odometer RMSE linearity, OLS best line,
+           R²=1.000 perfect forecast, PCA telephoto, t-SNE map
+
+
+BY ANALOGY (use when someone asks about one specific concept)
+--------------------------------------------------------------
+/explain-soupxcell-story marble
+/explain-soupxcell-story marble jar
+/explain-soupxcell-story allele fraction
+  → Allele fraction as a jar of red and blue marbles
+
+/explain-soupxcell-story paint
+/explain-soupxcell-story watered down
+/explain-soupxcell-story contamination model
+  → Contamination as watered-down paint + TV channel dial analogy
+
+/explain-soupxcell-story average suspect
+/explain-soupxcell-story soup vector
+  → Soup vector as "mixed-hair DNA bag" from all four suspects
+
+/explain-soupxcell-story eraser
+/explain-soupxcell-story humidity
+/explain-soupxcell-story correction
+  → Correction formula as subtracting known humidity from temperature
+
+/explain-soupxcell-story static
+/explain-soupxcell-story radio
+/explain-soupxcell-story floor
+/explain-soupxcell-story floor effect
+  → 44.32% floor as radio frequencies with only background static
+
+/explain-soupxcell-story party
+/explain-soupxcell-story dark
+/explain-soupxcell-story silhouette
+  → Silhouette as a party where 99.5% of the lights are off
+
+/explain-soupxcell-story step right
+/explain-soupxcell-story crowd
+/explain-soupxcell-story invariance
+  → Why silhouette Δ≈0 — the "everyone takes one step right" explanation
+
+/explain-soupxcell-story schools
+/explain-soupxcell-story davies bouldin
+  → Davies-Bouldin as school catchment areas and building separation
+
+/explain-soupxcell-story slouch
+/explain-soupxcell-story precision ruler
+/explain-soupxcell-story within cluster
+  → Within-cluster std as measuring heights before/after stopping slouching
+
+/explain-soupxcell-story fire drill
+/explain-soupxcell-story simulation
+/explain-soupxcell-story benchmark
+  → Simulation as testing sprinklers by setting a controlled fire
+
+/explain-soupxcell-story odometer
+/explain-soupxcell-story rmse
+/explain-soupxcell-story linearity
+  → RMSE linearity as a car odometer with a fixed percentage error
+
+/explain-soupxcell-story best line
+/explain-soupxcell-story OLS
+  → OLS regression as drawing the best line forced through the origin
+
+/explain-soupxcell-story perfect forecast
+/explain-soupxcell-story R squared
+/explain-soupxcell-story R2
+  → R²=1.000 as a weather forecast that was right because we wrote the weather
+
+/explain-soupxcell-story telephoto
+/explain-soupxcell-story PCA
+/explain-soupxcell-story dimensions
+  → PCA as a telephoto lens compressing 64,496 dimensions to 50
+
+/explain-soupxcell-story neighborhood map
+/explain-soupxcell-story map
+/explain-soupxcell-story tsne
+/explain-soupxcell-story t-SNE
+  → t-SNE as a mapmaker drawing 2D neighborhoods from 50D coordinates
+
+/explain-soupxcell-story springs
+/explain-soupxcell-story force
+/explain-soupxcell-story umap
+/explain-soupxcell-story UMAP
+  → UMAP as a physics simulation of springs (attractive) and magnets (repulsive)
+
+/explain-soupxcell-story before after
+/explain-soupxcell-story embedding
+/explain-soupxcell-story visual
+  → What to look for in the before/after 2D scatter plots
+
+
+FOR STUDENT QUESTIONS
+---------------------
+/explain-soupxcell-story questions
+/explain-soupxcell-story FAQ
+  → Full student question bank with scripted answers (15+ questions)
+
+Examples of questions answered:
+  - "Why 1.26%? Is that a lot?"
+  - "If the correction is tiny, why bother?"
+  - "Why does silhouette go slightly negative?"
+  - "Could the correction make things worse?"
+  - "What is 0.3875 really measuring?"
+  - "Why not just sequence more cells?"
+  - "What is souporcell vs soupXcell?"
+
+
+CLOSING / SUMMARY
+-----------------
+/explain-soupxcell-story summary
+/explain-soupxcell-story closing
+/explain-soupxcell-story takeaway
+  → One-sentence project summary + three bullets: what to remember
+
+
+QUICK REFERENCE — ALL ARGUMENTS
+---------------------------------
+(none)              → full four-act story
+story               → full four-act story
+full                → full four-act story
+plain english       → story, no formulas
+no math             → story, no formulas
+numbers             → all key numbers, plain-English only
+hook                → Act 0: crime scene opening
+intro               → Act 0: crime scene opening
+act1                → Act 1: data + marble jar + soup vector
+what are we measuring → Act 1
+act2                → Act 2: correction + floor effect
+how do we clean it  → Act 2
+act3                → Act 3: silhouette paradox + invariance + std deviation
+paradox             → Act 3
+why nothing changed → Act 3
+act4                → Act 4: simulation + OLS + R² + PCA/t-SNE/UMAP
+prove it            → Act 4
+allele fraction     → Concept card: marble jar
+marble              → Concept card: marble jar
+contamination model → Concept card: watered-down paint
+paint               → Concept card: watered-down paint
+watered down        → Concept card: watered-down paint
+soup vector         → Concept card: average suspect / mixed DNA bag
+average suspect     → Concept card: soup vector
+correction          → Concept card: eraser / humidity subtraction
+eraser              → Concept card: correction formula
+humidity            → Concept card: correction formula
+floor effect        → Concept card: radio static
+floor               → Concept card: radio static
+static              → Concept card: radio static
+radio               → Concept card: radio static
+silhouette          → Concept card: party in the dark
+party               → Concept card: silhouette
+dark                → Concept card: silhouette
+invariance          → Concept card: crowd step-right
+step right          → Concept card: invariance proof
+crowd               → Concept card: invariance proof
+davies bouldin      → Concept card: school neighborhoods
+schools             → Concept card: Davies-Bouldin
+within cluster      → Concept card: precision ruler / slouching
+precision ruler     → Concept card: within-cluster std
+slouch              → Concept card: within-cluster std
+simulation          → Concept card: fire drill
+fire drill          → Concept card: simulation
+benchmark           → Concept card: simulation
+rmse                → Concept card: odometer error
+odometer            → Concept card: RMSE linearity
+linearity           → Concept card: RMSE linearity
+OLS                 → Concept card: best-fit line through origin
+best line           → Concept card: OLS
+R squared           → Concept card: perfect weather forecast
+R2                  → Concept card: R²=1.000
+perfect forecast    → Concept card: R²=1.000
+PCA                 → Concept card: telephoto lens
+telephoto           → Concept card: PCA
+dimensions          → Concept card: PCA
+tsne                → Concept card: neighborhood map
+t-SNE               → Concept card: t-SNE
+map                 → Concept card: t-SNE
+neighborhood map    → Concept card: t-SNE
+umap                → Concept card: UMAP force-directed
+UMAP                → Concept card: UMAP
+force               → Concept card: UMAP
+springs             → Concept card: UMAP
+before after        → Concept card: visual interpretation
+embedding           → Concept card: before/after embedding
+visual              → Concept card: before/after embedding
+questions           → Student question bank (all 15+ questions)
+FAQ                 → Student question bank
+summary             → Closing card: one-sentence + three bullets
+closing             → Closing card
+takeaway            → Closing card

@@ -1,0 +1,122 @@
+soupXcell Math Model Skill — All Commands
+==========================================
+
+Invoke with:  /explain-math-model [argument]
+
+
+FULL WALKTHROUGH
+-----------------
+/explain-math-model
+/explain-math-model full
+  → All 13 steps end-to-end, every formula, derivation, and rationalization
+
+
+MODULE 1 — AMBIENT SUBTRACTION
+--------------------------------
+/explain-math-model contamination model
+  → Step 2: linear mixture model X_obs = (1−α)·X_true + α·μ, assumptions, why it's valid
+
+/explain-math-model correction formula
+/explain-math-model derivation
+  → Steps 3–4: soup vector μ[l], correction formula derivation from model, floor constraint
+
+/explain-math-model floor effect
+  → Step 5: why 44.32% of entries floor to zero, per-cluster uniformity table, biology explanation
+
+/explain-math-model approximation
+  → Why soupXcell uses X − α·μ instead of (X − α·μ)/(1−α), and what the error is
+
+
+CLUSTER QUALITY METRICS
+------------------------
+/explain-math-model silhouette
+  → Steps 6 + invariance proof: s(i) formula, why Δ≈0 is theoretically expected, per-donor breakdown
+
+/explain-math-model davies-bouldin
+  → Step 7: DB formula, contrast with silhouette, why DB shows a small improvement
+
+/explain-math-model within cluster std
+  → Step 8: why σ_within is the most sensitive metric for detecting this correction
+
+
+MODULE 2 — SIMULATION BENCHMARK
+---------------------------------
+/explain-math-model simulation
+/explain-math-model benchmark
+  → Steps 9–12: injection protocol, algebraic cancellation proof, RMSE linearity, OLS, R²
+
+/explain-math-model OLS
+/explain-math-model linearity
+  → Steps 10–11: full numerical OLS walkthrough, slope = √(mean(μ²)), table of predicted vs actual
+
+/explain-math-model R squared
+/explain-math-model R²
+  → Step 12: SS_res/SS_tot calculation, what R²=1.000 proves about the model
+
+/explain-math-model slope
+/explain-math-model 0.3875
+  → Why slope = √(mean(μ[l]²)) — the genetic fingerprint of the donor pool, Jensen's inequality
+
+
+MODULE 3 — DIMENSIONALITY REDUCTION
+--------------------------------------
+/explain-math-model module 3
+/explain-math-model visualisation
+  → Full Step 13 (all sub-sections 13a–13f)
+
+/explain-math-model PCA
+/explain-math-model dimensionality reduction
+  → Step 13b: randomised SVD, Gaussian sketch Ω, Y=X·Ω, mean centering, why PCA before t-SNE
+
+/explain-math-model t-SNE
+/explain-math-model tsne
+  → Step 13c: perplexity binary search, Gaussian P_ij, symmetrisation, Student-t Q_ij,
+              KL divergence cost, full gradient formula, early exaggeration, adaptive gain
+
+/explain-math-model UMAP
+/explain-math-model umap
+  → Step 13d: k-NN graph construction, attractive φ(d) and repulsive ψ(d) force kernels,
+              clamped updates, UMAP vs t-SNE trade-off comparison
+
+/explain-math-model before after
+/explain-math-model embedding
+  → Step 13e: what changes in 2D plots after correction, silhouette in embedding space,
+              why cluster structure persists (uniform translation invariance), interpretation guide
+
+
+PLAIN ENGLISH (NO EQUATIONS)
+------------------------------
+/explain-math-model plain english
+  → Full biological interpretation with no formulas — what every number means in the experiment
+
+
+QUICK REFERENCE — ALL ARGUMENTS
+---------------------------------
+full                    → all 13 steps
+contamination model     → Step 2
+correction formula      → Steps 3–4
+derivation              → Steps 3–4
+floor effect            → Step 5
+approximation           → linear approx vs exact
+silhouette              → Step 6 + invariance proof
+davies-bouldin          → Step 7
+within cluster std      → Step 8
+simulation              → Steps 9–12
+benchmark               → Steps 9–12
+OLS                     → Steps 10–11
+linearity               → Steps 10–11
+R squared               → Step 12
+R²                      → Step 12
+slope                   → slope derivation
+0.3875                  → slope derivation
+PCA                     → Step 13b
+dimensionality reduction→ Step 13b
+t-SNE                   → Step 13c
+tsne                    → Step 13c
+UMAP                    → Step 13d
+umap                    → Step 13d
+before after            → Step 13e
+embedding               → Step 13e
+module 3                → Full Step 13
+visualisation           → Full Step 13
+plain english           → no equations, biology only
