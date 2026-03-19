@@ -1,0 +1,12 @@
+{
+  "n_clusters": 4,
+  "global_before": -0.002560,
+  "global_after": -0.002563,
+  "alpha": 0.01261973,
+  "clusters": [
+    {"k":0,"sil_before":-0.002937,"sil_after":-0.002944,"delta":-0.000007,"n_cells":806},
+    {"k":1,"sil_before":-0.002572,"sil_after":-0.002589,"delta":-0.000017,"n_cells":813},
+    {"k":2,"sil_before":-0.006063,"sil_after":-0.006074,"delta":-0.000011,"n_cells":1004},
+    {"k":3,"sil_before":0.001330,"sil_after":0.001354,"delta":0.000024,"n_cells":899}
+  ]
+}

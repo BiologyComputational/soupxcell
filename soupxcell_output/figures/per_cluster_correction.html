@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Per-Cluster Correction &#x2014; soupXcell</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080C14;color:#E2E8F0;font-family:'Helvetica Neue',Arial,sans-serif;padding:20px}
+h1{font-size:15px;font-weight:700;margin-bottom:4px}.sub{font-size:10px;color:#475569;margin-bottom:12px}
+.card{background:#111827;border:1px solid #1E293B;border-radius:8px;padding:16px;margin-bottom:12px}
+canvas{display:block;width:100%}
+.btn{background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:5px;padding:4px 12px;font-size:10px;cursor:pointer;margin-top:8px;display:inline-block}
+.btn:hover{background:#2563EB;color:#fff}
+</style></head><body>
+<h1>Per-Cluster Correction Summary</h1>
+<p class="sub" id="sub">Loading&#x2026;</p>
+<div class="card"><canvas id="c" height="260"></canvas>
+<button class="btn" onclick="dlPNG('c','per_cluster_correction.png')">&#x2B07; PNG</button></div>
+<script>
+/* ── shared figure utilities ────────────────────────────────── */
+const COLS = ['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2','#9D174D','#065F46'];
+function col(k){ return COLS[k % COLS.length]; }
+
+/* Tooltip engine */
+const TT = (() => {
+  const el = document.createElement('div');
+  Object.assign(el.style, {
+    position:'fixed', background:'rgba(15,23,42,0.97)',
+    border:'1px solid #334155', borderRadius:'8px',
+    padding:'10px 14px', fontSize:'12px', color:'#E2E8F0',
+    pointerEvents:'none', display:'none', zIndex:'9999',
+    maxWidth:'320px', lineHeight:'1.6', fontFamily:'monospace',
+    boxShadow:'0 8px 24px rgba(0,0,0,0.6)'
+  });
+  document.body.appendChild(el);
+  let visible = false;
+  function show(html, x, y){
+    el.innerHTML = html; el.style.display = 'block'; visible = true;
+    move(x, y);
+  }
+  function move(x, y){
+    if(!visible) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    let lx = x + 16, ly = y + 16;
+    if(lx + w > W - 8) lx = x - w - 8;
+    if(ly + h > H - 8) ly = y - h - 8;
+    el.style.left = lx + 'px'; el.style.top = ly + 'px';
+  }
+  function hide(){ el.style.display = 'none'; visible = false; }
+  return { show, move, hide };
+})();
+
+/* Fetch JSON helper — never uses fallback fake data */
+async function loadJSON(name){
+  const candidates = [
+    `image_data/${name}.json`,
+    `../figures/image_data/${name}.json`,
+  ];
+  for(const p of candidates){
+    try { const r = await fetch(p); if(r.ok) return await r.json(); } catch(_){}
+  }
+  return null;
+}
+
+function noData(canvas, name){
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 800;
+  ctx.fillStyle = '#111827'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#EF4444'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`image_data/${name}.json not found`, canvas.width/2, canvas.height/2 - 10);
+  ctx.fillStyle = '#475569'; ctx.font = '11px sans-serif';
+  ctx.fillText('Run soupxcell, then open this file from the output/figures/ directory', canvas.width/2, canvas.height/2 + 12);
+}
+
+/* Download canvas as PNG */
+function dlPNG(canvasId, filename){
+  const c = document.getElementById(canvasId);
+  const a = document.createElement('a');
+  a.download = filename; a.href = c.toDataURL('image/png'); a.click();
+}
+
+(async()=>{
+  const data=await loadJSON('per_cluster_correction');
+  if(!data){noData(document.getElementById('c'),'per_cluster_correction');return;}
+  const K=data.clusters;
+  document.getElementById('sub').textContent=
+    K.length+' clusters | α='+data.alpha.toFixed(8);
+  const canvas=document.getElementById('c');
+  canvas.width=canvas.parentElement.clientWidth-32;
+  const w=canvas.width,h=260,pL=90,pR=20,pT=40,pB=50;
+  const pw=w-pL-pR,ph=h-pT-pB;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+  // 4 columns: cells, mean_correction, floor_pct, sil_delta
+  const cols=[
+    {key:'n_cells',      label:'Cells',          color:'#64748B', fmt:v=>v.toFixed(0)},
+    {key:'mean_correction',label:'Mean |Corr|',  color:'#8B5CF6', fmt:v=>v.toFixed(5)},
+    {key:'floor_pct',    label:'Floor %',         color:'#F59E0B', fmt:v=>v.toFixed(1)+'%'},
+    {key:'sil_delta',    label:'Sil Δ',       color:'#22C55E', fmt:v=>(v>=0?'+':'')+v.toFixed(4)},
+  ];
+  const maxes={};
+  cols.forEach(c=>maxes[c.key]=Math.max(...K.map(r=>Math.abs(r[c.key])))||1e-10);
+  const colW=pw/cols.length, rowH=ph/K.length;
+  // Headers
+  cols.forEach((c,ci)=>{
+    ctx.fillStyle='#64748B';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+    ctx.fillText(c.label,pL+ci*colW+colW/2,pT-10);
+  });
+  const hitCells=[];
+  K.forEach((row,ri)=>{
+    const y=pT+ri*rowH;
+    ctx.fillStyle='#111827';
+    ctx.fillRect(pL,y+1,pw,rowH-2);
+    // Cluster label
+    ctx.fillStyle=col(row.k);ctx.font='bold 10px sans-serif';ctx.textAlign='right';
+    ctx.fillText('C'+row.k,pL-6,y+rowH/2+4);
+    cols.forEach((c,ci)=>{
+      const x=pL+ci*colW+4;
+      const bw=(Math.abs(row[c.key])/maxes[c.key])*(colW-8);
+      ctx.fillStyle=c.color+'55';
+      ctx.fillRect(x,y+3,bw,rowH-6);
+      ctx.fillStyle=c.color;ctx.font='9px monospace';ctx.textAlign='left';
+      ctx.fillText(c.fmt(row[c.key]),x+bw+4,y+rowH/2+3);
+      hitCells.push({x,y,colW,rowH,row,c,ci});
+    });
+  });
+  canvas.onmousemove=function(e){
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+    const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+    const hit=hitCells.find(h=>mx>=pL&&mx<pL+pw&&my>=h.y&&my<h.y+h.rowH);
+    if(hit){
+      const r=hit.row,c=hit.c;
+      TT.show(
+        '<span style="color:'+col(r.k)+';font-weight:700">Cluster '+r.k+'</span><br>'+
+        '<span style="color:#94A3B8">Cells (singlets used):</span> '+r.n_cells+'<br>'+
+        '<span style="color:#94A3B8">Mean |correction|:  </span> <code>'+r.mean_correction.toFixed(8)+'</code><br>'+
+        '<span style="color:#94A3B8">Floor fraction:     </span> <code>'+r.floor_pct.toFixed(4)+'%</code><br>'+
+        '<span style="color:#94A3B8">Sil before:         </span> <code>'+r.sil_before.toFixed(6)+'</code><br>'+
+        '<span style="color:#94A3B8">Sil after:          </span> <code>'+r.sil_after.toFixed(6)+'</code><br>'+
+        '<span style="color:#94A3B8">Sil Δ:               </span> <code style="color:'+(Math.abs(r.sil_delta)<0.001?'#475569':r.sil_delta>0?'#22C55E':'#EF4444')+'">'+
+        (r.sil_delta>=0?'+':'')+r.sil_delta.toFixed(6)+'</code><br>'+
+        '<hr style="border-color:#334155;margin:4px 0"/>'+
+        '<b style="color:#F59E0B">Floor % definition:</b><br>'+
+        'Fraction of covered (non-NaN) entries where<br>'+
+        'X_raw[l,n] &lt; soup[l] (i.e., correction floors to 0).<br>'+
+        'Computed directly from raw allele fractions — no estimates.',
+        e.clientX,e.clientY);
+    } else TT.hide();
+  };
+  canvas.onmouseleave=()=>TT.hide();
+})();
+</script></body></html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Floor Per Locus &#x2014; soupXcell</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080C14;color:#E2E8F0;font-family:'Helvetica Neue',Arial,sans-serif;padding:20px}
+h1{font-size:15px;font-weight:700;margin-bottom:4px}.sub{font-size:10px;color:#475569;margin-bottom:12px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:#111827;border:1px solid #1E293B;border-radius:8px;padding:16px}
+canvas{display:block;width:100%}
+.btn{background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:5px;padding:4px 12px;font-size:10px;cursor:pointer;margin-top:8px;display:inline-block}
+.btn:hover{background:#2563EB;color:#fff}
+.footer{margin-top:10px;font-size:10px;color:#334155;line-height:1.5}
+</style></head><body>
+<h1>Floor Fraction Per Locus &#x2014; Where Does Correction Floor to Zero?</h1>
+<p class="sub" id="sub">Loading&#x2026;</p>
+<div class="cols">
+  <div class="card"><h2 style="font-size:10px;color:#64748B;text-transform:uppercase;margin-bottom:10px">Top 25 Loci by Floor Count</h2>
+    <canvas id="cBar" height="380"></canvas>
+    <button class="btn" onclick="dlPNG('cBar','floor_top25.png')">&#x2B07; PNG</button>
+  </div>
+  <div class="card"><h2 style="font-size:10px;color:#64748B;text-transform:uppercase;margin-bottom:10px">Floor Count Distribution &#x2014; All QC Loci (log y)</h2>
+    <canvas id="cHist" height="380"></canvas>
+    <button class="btn" onclick="dlPNG('cHist','floor_distribution.png')">&#x2B07; PNG</button>
+  </div>
+</div>
+<p class="footer" id="foot"></p>
+<script>
+/* ── shared figure utilities ────────────────────────────────── */
+const COLS = ['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2','#9D174D','#065F46'];
+function col(k){ return COLS[k % COLS.length]; }
+
+/* Tooltip engine */
+const TT = (() => {
+  const el = document.createElement('div');
+  Object.assign(el.style, {
+    position:'fixed', background:'rgba(15,23,42,0.97)',
+    border:'1px solid #334155', borderRadius:'8px',
+    padding:'10px 14px', fontSize:'12px', color:'#E2E8F0',
+    pointerEvents:'none', display:'none', zIndex:'9999',
+    maxWidth:'320px', lineHeight:'1.6', fontFamily:'monospace',
+    boxShadow:'0 8px 24px rgba(0,0,0,0.6)'
+  });
+  document.body.appendChild(el);
+  let visible = false;
+  function show(html, x, y){
+    el.innerHTML = html; el.style.display = 'block'; visible = true;
+    move(x, y);
+  }
+  function move(x, y){
+    if(!visible) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    let lx = x + 16, ly = y + 16;
+    if(lx + w > W - 8) lx = x - w - 8;
+    if(ly + h > H - 8) ly = y - h - 8;
+    el.style.left = lx + 'px'; el.style.top = ly + 'px';
+  }
+  function hide(){ el.style.display = 'none'; visible = false; }
+  return { show, move, hide };
+})();
+
+/* Fetch JSON helper — never uses fallback fake data */
+async function loadJSON(name){
+  const candidates = [
+    `image_data/${name}.json`,
+    `../figures/image_data/${name}.json`,
+  ];
+  for(const p of candidates){
+    try { const r = await fetch(p); if(r.ok) return await r.json(); } catch(_){}
+  }
+  return null;
+}
+
+function noData(canvas, name){
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 800;
+  ctx.fillStyle = '#111827'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#EF4444'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`image_data/${name}.json not found`, canvas.width/2, canvas.height/2 - 10);
+  ctx.fillStyle = '#475569'; ctx.font = '11px sans-serif';
+  ctx.fillText('Run soupxcell, then open this file from the output/figures/ directory', canvas.width/2, canvas.height/2 + 12);
+}
+
+/* Download canvas as PNG */
+function dlPNG(canvasId, filename){
+  const c = document.getElementById(canvasId);
+  const a = document.createElement('a');
+  a.download = filename; a.href = c.toDataURL('image/png'); a.click();
+}
+
+(async()=>{
+  const data=await loadJSON('floor_per_locus');
+  if(!data){['cBar','cHist'].forEach(id=>noData(document.getElementById(id),'floor_per_locus'));return;}
+  document.getElementById('sub').textContent=
+    data.l_qc+' QC loci | '+data.n_cells+' cells | top '+data.top_loci.length+' shown';
+
+  // ── Bar chart: top 25 ─────────────────────────────────────────────────────
+  const canvas=document.getElementById('cBar');
+  canvas.width=canvas.parentElement.clientWidth-32;
+  const w=canvas.width,h=380,pL=85,pR=20,pT=20,pB=30,pw=w-pL-pR,ph=h-pT-pB;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+  const top=data.top_loci;
+  const fcMax=top[0]?.floor_count||1;
+  const rowH=ph/top.length;
+  const hitRows=[];
+  top.forEach((d,i)=>{
+    const bw=d.floor_count/fcMax*pw;
+    const y=pT+i*rowH;
+    const c=d.floor_pct>60?'#EF4444':d.floor_pct>30?'#F59E0B':'#8B5CF6';
+    ctx.fillStyle=c;
+    ctx.fillRect(pL,y+1,Math.max(bw,3),rowH-2);
+    ctx.fillStyle='#64748B';ctx.font='8px monospace';ctx.textAlign='right';
+    ctx.fillText('l='+d.locus_idx+'(q'+d.compact_idx+')',pL-3,y+rowH/2+3);
+    if(bw>90){
+      ctx.fillStyle='#080C14';ctx.font='8px monospace';ctx.textAlign='right';
+      ctx.fillText(d.floor_count+' ('+d.floor_pct.toFixed(1)+'%)',pL+bw-3,y+rowH/2+3);
+    }
+    hitRows.push({y,rowH,d});
+  });
+  for(let i=0;i<=4;i++){
+    const v=fcMax*i/4;
+    ctx.fillStyle='#475569';ctx.font='8px monospace';ctx.textAlign='center';
+    ctx.fillText(v.toFixed(0),pL+v/fcMax*pw,pT+ph+16);
+    ctx.fillText('('+(v/data.n_cells*100).toFixed(0)+'%)',pL+v/fcMax*pw,pT+ph+26);
+  }
+  canvas.onmousemove=function(e){
+    const rect=canvas.getBoundingClientRect();
+    const my=(e.clientY-rect.top)*(h/rect.height);
+    const hr=hitRows.find(r=>my>=r.y&&my<r.y+r.rowH);
+    if(hr){
+      const d=hr.d;
+      TT.show(
+        '<b style="color:#EF4444">Rank '+d.rank+' &#x2014; Locus '+d.locus_idx+'</b><br>'+
+        '<span style="color:#94A3B8">Compact QC index:</span> q'+d.compact_idx+'<br>'+
+        '<span style="color:#94A3B8">Floor count:</span> '+d.floor_count+' cells<br>'+
+        '<span style="color:#94A3B8">Floor fraction:</span> '+d.floor_pct.toFixed(2)+'% of '+data.n_cells+' cells<br>'+
+        '<hr style="border-color:#334155;margin:4px 0"/>'+
+        '<b style="color:#F59E0B">Definition:</b><br>'+
+        'A cell is floored at locus l when:<br>'+
+        'X_raw[l,n] &lt; soup[l] = α×μ[l]<br>'+
+        'i.e., the raw allele fraction is already<br>'+
+        'below the ambient contribution level.<br>'+
+        'The correction X_corr = max(0, X-soup) = 0 for these.',
+        e.clientX,e.clientY);
+    } else TT.hide();
+  };
+  canvas.onmouseleave=()=>TT.hide();
+
+  // ── Histogram: all floor counts ───────────────────────────────────────────
+  const ch=document.getElementById('cHist');
+  ch.width=ch.parentElement.clientWidth-32;
+  const wh=ch.width,ctxh=ch.getContext('2d');
+  ctxh.fillStyle='#080C14'; ctxh.fillRect(0,0,wh,380);
+  const fc=data.all_floor_counts;
+  const fcMax2=Math.max(...fc)||1;
+  const nB=35,bw2=fcMax2/nB;
+  const bins=new Array(nB).fill(0);
+  fc.forEach(v=>{const b=Math.min(nB-1,Math.floor(v/bw2));bins[b]++;});
+  const logMax=Math.max(...bins.map(c=>Math.log10(c+1)));
+  const bwpx=pw/nB;
+  bins.forEach((cnt,i)=>{
+    if(!cnt)return;
+    const x=pL+i*bwpx,lc=Math.log10(cnt+1),bh=lc/logMax*ph;
+    ctxh.fillStyle=i===0?'#06B6D4':'#8B5CF6';
+    ctxh.fillRect(x+0.5,pT+ph-bh,bwpx-1,bh);
+  });
+  for(let p=0;p<=Math.ceil(logMax);p++){
+    const y=pT+ph-p/logMax*ph;
+    if(y<pT||y>pT+ph)continue;
+    ctxh.fillStyle='#475569';ctxh.font='8px monospace';ctxh.textAlign='right';
+    ctxh.fillText('10^'+p,pL-4,y+3);
+  }
+  for(let i=0;i<=5;i++){
+    const v=fcMax2*i/5;
+    ctxh.fillStyle='#475569';ctxh.font='8px monospace';ctxh.textAlign='center';
+    ctxh.fillText(v.toFixed(0),pL+v/fcMax2*pw,pT+ph+14);
+  }
+  ctxh.fillStyle='#64748B';ctxh.font='10px sans-serif';ctxh.textAlign='center';
+  ctxh.fillText('Floor count per locus (cells where X_raw < soup[l])',pL+pw/2,pT+ph+28);
+  const zeroFloor=fc.filter(v=>v===0).length;
+  ctxh.fillStyle='#475569';ctxh.font='9px sans-serif';ctxh.textAlign='left';
+  ctxh.fillText(zeroFloor+' loci: 0 floors | '+(fc.length-zeroFloor)+' loci: ≥1 cell floored',pL,pT+14);
+  ch.onmousemove=function(e){
+    const rect=ch.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(wh/rect.width);
+    const bi=Math.floor((mx-pL)/bwpx);
+    if(bi<0||bi>=nB){TT.hide();return;}
+    const cnt=bins[bi]||0;
+    TT.show(
+      '<b style="color:#8B5CF6">Bin '+bi+'</b><br>'+
+      '<span style="color:#94A3B8">Floor count range:</span> ['+Math.round(bi*bw2)+', '+Math.round((bi+1)*bw2)+')<br>'+
+      '<span style="color:#94A3B8">Locus count:</span> '+cnt+'<br>'+
+      (bi===0?'<span style="color:#06B6D4">First bin includes loci never floored.</span>':'')+
+      '<hr style="border-color:#334155;margin:4px 0"/>'+
+      'Most QC loci have non-zero floor counts because<br>'+
+      'at least one cell will have X_raw &lt; soup[l].<br>'+
+      'Only '+zeroFloor+' loci have no floored cells.',
+      e.clientX,e.clientY);
+  };
+  ch.onmouseleave=()=>TT.hide();
+  document.getElementById('foot').textContent=
+    data.l_qc+' QC loci | '+data.n_cells+' cells | '+
+    (fc.filter(v=>v===0).length)+' loci fully above soup | '+
+    (fc.length-fc.filter(v=>v===0).length)+' loci floored ≥1 cell ('+
+    ((fc.length-fc.filter(v=>v===0).length)/fc.length*100).toFixed(1)+'%)';
+})();
+</script></body></html>

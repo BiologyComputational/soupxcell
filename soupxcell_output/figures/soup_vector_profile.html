@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Soup Vector Profile &#x2014; soupXcell</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080C14;color:#E2E8F0;font-family:'Helvetica Neue',Arial,sans-serif;padding:20px}
+h1{font-size:15px;font-weight:700;margin-bottom:4px}.sub{font-size:10px;color:#475569;margin-bottom:12px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:#111827;border:1px solid #1E293B;border-radius:8px;padding:16px}
+canvas{display:block;width:100%}
+.btn{background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:5px;padding:4px 12px;font-size:10px;cursor:pointer;margin-top:8px;display:inline-block}
+.btn:hover{background:#2563EB;color:#fff}
+.footer{margin-top:10px;font-size:10px;color:#334155;line-height:1.5}
+</style></head><body>
+<h1>Soup Vector Profile &#x2014; Top Loci by &#x03bc;[l] and Distribution</h1>
+<p class="sub" id="sub">Loading&#x2026;</p>
+<div class="cols">
+  <div class="card"><h2 style="font-size:10px;color:#64748B;text-transform:uppercase;margin-bottom:10px">Top 30 Loci by &#x03bc;[l] (mean allele fraction)</h2>
+    <canvas id="cBar" height="380"></canvas>
+    <button class="btn" onclick="dlPNG('cBar','soup_top_loci.png')">&#x2B07; PNG</button>
+  </div>
+  <div class="card"><h2 style="font-size:10px;color:#64748B;text-transform:uppercase;margin-bottom:10px">Distribution of soup[l] = &#x03b1;&#x00d7;&#x03bc;[l] &#x2014; all loci (log y-axis)</h2>
+    <canvas id="cHist" height="380"></canvas>
+    <button class="btn" onclick="dlPNG('cHist','soup_distribution.png')">&#x2B07; PNG</button>
+  </div>
+</div>
+<p class="footer" id="foot"></p>
+<script>
+/* ── shared figure utilities ────────────────────────────────── */
+const COLS = ['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2','#9D174D','#065F46'];
+function col(k){ return COLS[k % COLS.length]; }
+
+/* Tooltip engine */
+const TT = (() => {
+  const el = document.createElement('div');
+  Object.assign(el.style, {
+    position:'fixed', background:'rgba(15,23,42,0.97)',
+    border:'1px solid #334155', borderRadius:'8px',
+    padding:'10px 14px', fontSize:'12px', color:'#E2E8F0',
+    pointerEvents:'none', display:'none', zIndex:'9999',
+    maxWidth:'320px', lineHeight:'1.6', fontFamily:'monospace',
+    boxShadow:'0 8px 24px rgba(0,0,0,0.6)'
+  });
+  document.body.appendChild(el);
+  let visible = false;
+  function show(html, x, y){
+    el.innerHTML = html; el.style.display = 'block'; visible = true;
+    move(x, y);
+  }
+  function move(x, y){
+    if(!visible) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    let lx = x + 16, ly = y + 16;
+    if(lx + w > W - 8) lx = x - w - 8;
+    if(ly + h > H - 8) ly = y - h - 8;
+    el.style.left = lx + 'px'; el.style.top = ly + 'px';
+  }
+  function hide(){ el.style.display = 'none'; visible = false; }
+  return { show, move, hide };
+})();
+
+/* Fetch JSON helper — never uses fallback fake data */
+async function loadJSON(name){
+  const candidates = [
+    `image_data/${name}.json`,
+    `../figures/image_data/${name}.json`,
+  ];
+  for(const p of candidates){
+    try { const r = await fetch(p); if(r.ok) return await r.json(); } catch(_){}
+  }
+  return null;
+}
+
+function noData(canvas, name){
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 800;
+  ctx.fillStyle = '#111827'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#EF4444'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`image_data/${name}.json not found`, canvas.width/2, canvas.height/2 - 10);
+  ctx.fillStyle = '#475569'; ctx.font = '11px sans-serif';
+  ctx.fillText('Run soupxcell, then open this file from the output/figures/ directory', canvas.width/2, canvas.height/2 + 12);
+}
+
+/* Download canvas as PNG */
+function dlPNG(canvasId, filename){
+  const c = document.getElementById(canvasId);
+  const a = document.createElement('a');
+  a.download = filename; a.href = c.toDataURL('image/png'); a.click();
+}
+
+(async()=>{
+  const data=await loadJSON('soup_vector_profile');
+  if(!data){['cBar','cHist'].forEach(id=>noData(document.getElementById(id),'soup_vector_profile'));return;}
+  document.getElementById('sub').textContent=
+    data.n_loci_total+' loci total | α='+data.alpha.toFixed(8)+
+    ' | top '+data.top_loci.length+' shown | all soup values in histogram';
+
+  // ── Bar chart: top 30 loci ────────────────────────────────────────────────
+  const canvas=document.getElementById('cBar');
+  canvas.width=canvas.parentElement.clientWidth-32;
+  const w=canvas.width,h=380,pL=80,pR=20,pT=20,pB=30;
+  const pw=w-pL-pR,ph=h-pT-pB;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+  const top=data.top_loci;
+  const muMax=Math.max(...top.map(d=>d.mu));
+  const rowH=ph/top.length;
+  const hitRows=[];
+  top.forEach((d,i)=>{
+    const bw=d.mu/muMax*pw;
+    const y=pT+i*rowH;
+    const intensity=d.mu/muMax;
+    const c=intensity>0.66?'#06B6D4':intensity>0.33?'#8B5CF6':'#475569';
+    ctx.fillStyle=c;
+    ctx.fillRect(pL,y+1,Math.max(bw,3),rowH-2);
+    ctx.fillStyle='#64748B';ctx.font='8px monospace';ctx.textAlign='right';
+    ctx.fillText('l='+d.locus_idx,pL-3,y+rowH/2+3);
+    if(bw>70){
+      ctx.fillStyle='#080C14';ctx.font='8px monospace';ctx.textAlign='right';
+      ctx.fillText('μ='+d.mu.toFixed(4)+'  s='+d.soup.toFixed(6),pL+bw-3,y+rowH/2+3);
+    }
+    hitRows.push({y,rowH,d,i});
+  });
+  // X ticks
+  [0,.25,.5,.75,1].forEach(f=>{
+    const x=pL+f*pw;
+    ctx.fillStyle='#475569';ctx.font='8px monospace';ctx.textAlign='center';
+    ctx.fillText('μ='+( f*muMax).toFixed(2),x,pT+ph+16);
+    ctx.fillText('s='+(f*muMax*data.alpha).toFixed(5),x,pT+ph+26);
+  });
+  canvas.onmousemove=function(e){
+    const rect=canvas.getBoundingClientRect();
+    const my=(e.clientY-rect.top)*(h/rect.height);
+    const hr=hitRows.find(r=>my>=r.y&&my<r.y+r.rowH);
+    if(hr){
+      const d=hr.d;
+      TT.show(
+        '<b style="color:#06B6D4">Rank '+d.rank+' — Locus '+d.locus_idx+'</b><br>'+
+        '<span style="color:#94A3B8">μ[l] (mean allele fraction):</span> <code>'+d.mu.toFixed(8)+'</code><br>'+
+        '<span style="color:#94A3B8">soup[l] = α×μ[l]:              </span> <code>'+d.soup.toFixed(8)+'</code><br>'+
+        '<span style="color:#94A3B8">α (ambient fraction):         </span> <code>'+data.alpha.toFixed(8)+'</code><br>'+
+        '<hr style="border-color:#334155;margin:4px 0"/>'+
+        '<b style="color:#F59E0B">Biological meaning:</b><br>'+
+        'soup[l] = expected ambient contribution at locus l.<br>'+
+        'Loci with μ≈1.0 are loci where the ambient pool is<br>'+
+        'almost entirely alt allele (common in homozygous SNPs).<br>'+
+        'Correction: X_corr[l,n] = max(0, X[l,n] − soup[l])',
+        e.clientX,e.clientY);
+    } else TT.hide();
+  };
+  canvas.onmouseleave=()=>TT.hide();
+
+  // ── Histogram: all soup values ────────────────────────────────────────────
+  const ch=document.getElementById('cHist');
+  ch.width=ch.parentElement.clientWidth-32;
+  const wh=ch.width;
+  const ctxh=ch.getContext('2d');
+  ctxh.fillStyle='#080C14'; ctxh.fillRect(0,0,wh,380);
+  const soups=data.all_soup;
+  const sMax=Math.max(...soups),sMin=0,nB=50;
+  const sbw=(sMax-sMin)/nB;
+  const sbins=new Array(nB).fill(0);
+  soups.forEach(v=>{const b=Math.min(nB-1,Math.floor((v-sMin)/sbw));sbins[b]++;});
+  const logMax=Math.max(...sbins.map(c=>Math.log10(c+1)));
+  const px2=pL,pw2=wh-pL-pR,bwpx=pw2/nB;
+  const toXh=v=>px2+(v-sMin)/(sMax-sMin+1e-14)*pw2;
+  const toYh=v=>pT+ph-(v/logMax*ph);
+  const hitH=[];
+  sbins.forEach((cnt,i)=>{
+    if(!cnt)return;
+    const x=px2+i*bwpx,lc=Math.log10(cnt+1),barH=lc/logMax*ph;
+    ctxh.fillStyle=i===0?'#06B6D4':'#8B5CF6';
+    ctxh.fillRect(x+0.5,pT+ph-barH,bwpx-1,barH);
+    hitH.push({x,bwpx,cnt,lo:sMin+i*sbw,hi:sMin+(i+1)*sbw,i,lc});
+  });
+  // Log y ticks
+  for(let p=0;p<=Math.ceil(logMax);p++){
+    const y=toYh(p);
+    if(y<pT||y>pT+ph)continue;
+    ctxh.fillStyle='#475569';ctxh.font='8px monospace';ctxh.textAlign='right';
+    ctxh.fillText('10^'+p,px2-4,y+3);
+    ctxh.strokeStyle='#1E293B';ctxh.lineWidth=0.8;
+    ctxh.beginPath();ctxh.moveTo(px2,y);ctxh.lineTo(px2+pw2,y);ctxh.stroke();
+  }
+  // Median/mean lines
+  const sSort=[...soups].sort((a,b)=>a-b);
+  const sMed=sSort[Math.floor(sSort.length/2)];
+  const sMean=soups.reduce((a,v)=>a+v,0)/soups.length;
+  [[sMed,'#F59E0B','median'],[sMean,'#06B6D4','mean']].forEach(([v,c,lbl])=>{
+    const x=toXh(v);
+    ctxh.strokeStyle=c;ctxh.lineWidth=1.5;ctxh.setLineDash([5,3]);
+    ctxh.beginPath();ctxh.moveTo(x,pT);ctxh.lineTo(x,pT+ph);ctxh.stroke();ctxh.setLineDash([]);
+    ctxh.fillStyle=c;ctxh.font='9px sans-serif';ctxh.textAlign='left';
+    ctxh.fillText(lbl+'='+v.toFixed(5),x+2,pT+10+(lbl==='mean'?14:0));
+  });
+  // X ticks
+  for(let i=0;i<=5;i++){
+    const v=sMax*i/5;
+    ctxh.fillStyle='#475569';ctxh.font='8px monospace';ctxh.textAlign='center';
+    ctxh.fillText(v.toFixed(5),toXh(v),pT+ph+16);
+  }
+  ctxh.fillStyle='#64748B';ctxh.font='10px sans-serif';ctxh.textAlign='center';
+  ctxh.fillText('soup[l] = α×μ[l]  (log₁₀ count)',px2+pw2/2,pT+ph+28);
+  ch.onmousemove=function(e){
+    const rect=ch.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(wh/rect.width);
+    const hb=hitH.find(b=>mx>=b.x&&mx<b.x+b.bwpx);
+    if(hb){
+      TT.show(
+        '<b style="color:#8B5CF6">Bin '+hb.i+'</b><br>'+
+        '<span style="color:#94A3B8">soup[l] range:</span> ['+hb.lo.toFixed(6)+', '+hb.hi.toFixed(6)+')<br>'+
+        '<span style="color:#94A3B8">Locus count:</span> '+hb.cnt+' (log₁₀='+(hb.lc).toFixed(2)+')<br>'+
+        '<hr style="border-color:#334155;margin:4px 0"/>'+
+        'Most loci cluster near 0 (low contamination per locus).<br>'+
+        'A small number have high soup values → these are SNPs<br>'+
+        'where the ambient pool is strongly allele-biased.',
+        e.clientX,e.clientY);
+    } else TT.hide();
+  };
+  ch.onmouseleave=()=>TT.hide();
+  document.getElementById('foot').textContent=
+    'soup[l] = α×μ[l] where μ[l] = mean allele fraction across singlet cells. '+
+    'Distribution shows most loci have soup≈0 (log y-axis). '+
+    'Top loci sorted by μ[l] since all ties at μ=1.0 produce identical soup=α.';
+})();
+</script></body></html>

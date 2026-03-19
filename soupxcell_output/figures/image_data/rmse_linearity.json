@@ -1,0 +1,11 @@
+{
+  "true_alpha": 0.01261973,
+  "points": [
+    {"alpha_sim":0.0100,"rmse":0.003873,"sil_before":-0.002562,"sil_after":-0.002563,"delta":-0.000001,"floor_pct":0.0000},
+    {"alpha_sim":0.0500,"rmse":0.019366,"sil_before":-0.002566,"sil_after":-0.002572,"delta":-0.000006,"floor_pct":0.0000},
+    {"alpha_sim":0.1000,"rmse":0.038733,"sil_before":-0.002571,"sil_after":-0.002584,"delta":-0.000013,"floor_pct":0.0000},
+    {"alpha_sim":0.2000,"rmse":0.077471,"sil_before":-0.002580,"sil_after":-0.002610,"delta":-0.000029,"floor_pct":0.0000},
+    {"alpha_sim":0.3000,"rmse":0.116218,"sil_before":-0.002591,"sil_after":-0.002640,"delta":-0.000048,"floor_pct":0.0000},
+    {"alpha_sim":0.5000,"rmse":0.193779,"sil_before":-0.002610,"sil_after":-0.002697,"delta":-0.000087,"floor_pct":0.0000}
+  ]
+}

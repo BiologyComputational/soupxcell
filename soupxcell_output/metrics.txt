@@ -1,0 +1,14 @@
+soupxcell v1.0 — Correction Metrics Summary
+============================================
+alpha_used            : 0.01261973
+n_loci                : 80712
+n_cells               : 3522
+n_entries_floored     : 640425
+pct_floored           : 44.32%
+mean_abs_correction   : 0.005201
+silhouette_before     : -0.0026
+silhouette_after      : -0.0026
+silhouette_delta      : -0.0000
+davies_bouldin_before : 1.9618
+davies_bouldin_after  : 1.9588
+davies_bouldin_delta  : -0.0030

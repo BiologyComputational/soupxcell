@@ -1,0 +1,436 @@
+[36m
+  ███████╗ ██████╗ ██╗   ██╗██████╗ ██╗  ██╗ ██████╗███████╗██╗     ██╗
+  ██╔════╝██╔═══██╗██║   ██║██╔══██╗╚██╗██╔╝██╔════╝██╔════╝██║     ██║
+  ███████╗██║   ██║██║   ██║██████╔╝ ╚███╔╝ ██║     █████╗  ██║     ██║
+  ╚════██║██║   ██║██║   ██║██╔═══╝  ██╔██╗ ██║     ██╔══╝  ██║     ██║
+  ███████║╚██████╔╝╚██████╔╝██║     ██╔╝ ██╗╚██████╗███████╗███████╗███████╗
+  ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝╚══════╝╚══════╝
+[0m
+  [1m[96mAmbient RNA Correction for Genotype Demultiplexing[0m
+  [2msoupXcell v1.0  ·  Jahidul Arafat[0m
+  [2mPost-processor for souporcell  ·  Heaton et al., Nature Methods 2020[0m
+  [2mBinary : /Users/jarotball/Setups/ambientRNA_research/souporcell_pipeline_components/soupxcell/target/release/soupxcell[0m
+  [2mStarted: UTC 09:57:57[0m
+
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  INPUT VALIDATION                                                        ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  INPUT VALIDATION  elapsed=0ms[0m
+[92m[1m  ✔  All input files present[0m
+[2m  [SOUPX] OK       All input files present[0m
+[35m[1m  ✦  cluster_composition.html            [2m./soupxcell_output/figures/cluster_composition.html  (26.1 KB)[0m
+[2m  [SOUPX] WRITTEN   cluster_composition.html  path=./soupxcell_output/figures/cluster_composition.html  size=26.1 KB[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  LOADING MATRICES                                                        ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  LOADING MATRICES  elapsed=3ms[0m
+[2m  │ ref matrix............................[2m  [33m/Volumes/extra_space/demux_test/ref.mtx[0m
+[2m  [SOUPX] INFO      ref matrix=/Volumes/extra_space/demux_test/ref.mtx[0m
+[2m  │ alt matrix............................[2m  [33m/Volumes/extra_space/demux_test/alt.mtx[0m
+[2m  [SOUPX] INFO      alt matrix=/Volumes/extra_space/demux_test/alt.mtx[0m
+[2m  │ loci..................................[2m  [33m80712[0m
+[2m  [SOUPX] INFO      loci=80712[0m
+[2m  │ cells (columns).......................[2m  [33m3639[0m
+[2m  [SOUPX] INFO      cells (columns)=3639[0m
+[92m[1m  ✔  Matrices loaded[2m  [took 4.677s][0m
+[2m  [SOUPX] OK       Matrices loaded  took=4.677s[0m
+
+[1m[96m  ┄┄ Locus selection [2m[+4.680s][0m
+[2m  │ souporcell_vcf........................[2m  [33mnot set — check $VCF shell variable is exported before running[0m
+[2m  [SOUPX] INFO      souporcell_vcf=not set — check $VCF shell variable is exported before running[0m
+[2m  │ locus source..........................[2m  [33mQC filter (no --souporcell_vcf provided — reproducing souporcell QC)[0m
+[2m  [SOUPX] INFO      locus source=QC filter (no --souporcell_vcf provided — reproducing souporcell QC)[0m
+[1m[33m  ⚠  WARNING: add --souporcell_vcf cluster_genotypes.vcf for exact locus matching[0m
+[2m  [SOUPX] WARN      add --souporcell_vcf cluster_genotypes.vcf for exact locus matching[0m
+[2m  │ QC params.............................[2m  [33mmin_ref=4 min_alt=4 min_ref_umis=4 min_alt_umis=4[0m
+[2m  [SOUPX] INFO      QC params=min_ref=4 min_alt=4 min_ref_umis=4 min_alt_umis=4[0m
+[2m[96m  ⧖  loading ref+alt matrices in lockstep with QC filter (min_ref=4 min_alt=4 min_ref_umis=4 min_alt_umis=4)… [2m[elapsed=4.680s][0m
+[2m  [SOUPX] COMPUTING loading ref+alt matrices in lockstep with QC filter (min_ref=4 min_alt=4 min_ref_umis=4 min_alt_umis=4)  elapsed=4.680s[0m
+[2m  │ loci (raw in matrix)..................[2m  [33m80712[0m
+[2m  [SOUPX] INFO      loci (raw in matrix)=80712[0m
+[2m  │ cells (raw in matrix).................[2m  [33m3639[0m
+[2m  [SOUPX] INFO      cells (raw in matrix)=3639[0m
+[2m  │ loci (passing QC).....................[2m  [33m8219 / 80712 (10.2% of raw loci)[0m
+[2m  [SOUPX] INFO      loci (passing QC)=8219 / 80712 (10.2% of raw loci)[0m
+[2m  │ QC filter applied.....................[2m  [33mmin_ref=4 min_alt=4 min_ref_umis=4 min_alt_umis=4[0m
+[2m  [SOUPX] INFO      QC filter applied=min_ref=4 min_alt=4 min_ref_umis=4 min_alt_umis=4[0m
+[2m  │ zero-cov entries......................[2m  [33m29144301 (97.4% of QC-loci × cells — expected >95% for sparse scRNA)[0m
+[2m  [SOUPX] INFO      zero-cov entries=29144301 (97.4% of QC-loci × cells — expected >95% for sparse scRNA)[0m
+[1m[92m  ◆ METRIC  loci_raw                         = [92m80712[2m count[0m
+[2m  [SOUPX] METRIC    loci_raw=80712  unit=count[0m
+[1m[92m  ◆ METRIC  loci_qc                          = [92m8219[2m count  ← equivalent to souporcell 'Loci passing QC: N'[0m
+[2m  [SOUPX] METRIC    loci_qc=8219  unit=count  ← equivalent to souporcell 'Loci passing QC: N'[0m
+[1m[92m  ◆ METRIC  zero_cov_pct                     = [92m97.4[2m %[0m
+[2m  [SOUPX] METRIC    zero_cov_pct=97.4  unit=%[0m
+[1m[92m  ◆ METRIC  loci_for_metrics                 = [92m8219[2m count[0m
+[2m  [SOUPX] METRIC    loci_for_metrics=8219  unit=count[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  LOADING CLUSTERS                                                        ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  LOADING CLUSTERS  elapsed=5.440s[0m
+[2m  │ cells in clusters.tsv.................[2m  [33m3640[0m
+[2m  [SOUPX] INFO      cells in clusters.tsv=3640[0m
+[2m  │ singlets..............................[2m  [33m3523[0m
+[2m  [SOUPX] INFO      singlets=3523[0m
+[2m  │ doublets..............................[2m  [33m117[0m
+[2m  [SOUPX] INFO      doublets=117[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  PARSING AMBIENT FRACTION                                                ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  PARSING AMBIENT FRACTION  elapsed=5.452s[0m
+[2m  │ alpha (from file).....................[2m  [33m0.01261973[0m
+[2m  [SOUPX] INFO      alpha (from file)=0.01261973[0m
+[2m  │ alpha (used)..........................[2m  [33m0.01261973[0m
+[2m  [SOUPX] INFO      alpha (used)=0.01261973[0m
+[92m[1m  ✔  Ambient fraction loaded[0m
+[2m  [SOUPX] OK       Ambient fraction loaded[0m
+[2m  │ cells used for correction.............[2m  [33m3522 (3523 singlets)[0m
+[2m  [SOUPX] INFO      cells used for correction=3522 (3523 singlets)[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  MODULE 1 — AMBIENT SUBTRACTION                                          ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  MODULE 1 — AMBIENT SUBTRACTION  elapsed=5.452s[0m
+[2m  │ algorithm.............................[2m  [33mSupervisor spec: X_corr[l,n] = max(0, X[l,n] - α×μ[l])[0m
+[2m  [SOUPX] INFO      algorithm=Supervisor spec: X_corr[l,n] = max(0, X[l,n] - α×μ[l])[0m
+[2m  │ alpha.................................[2m  [33m0.01261973  (1.2620%)[0m
+[2m  [SOUPX] INFO      alpha=0.01261973  (1.2620%)[0m
+[2m  │ cells for soup estimation.............[2m  [33m3522 (singlets only: true)[0m
+[2m  [SOUPX] INFO      cells for soup estimation=3522 (singlets only: true)[0m
+
+[1m[95m  ▶ STEP 1/3  Computing allele fraction matrix  X[l,n] = alt[l,n] / (ref[l,n] + alt[l,n])[0m
+[2m  [SOUPX] STEP     1/3  Computing allele fraction matrix  X[l,n] = alt[l,n] / (ref[l,n] + alt[l,n])[0m
+
+[1m[95m  ▶ STEP 2/3  Computing per-locus soup vector   soup[l] = α × mean_n(X[l,n])[0m
+[2m  [SOUPX] STEP     2/3  Computing per-locus soup vector   soup[l] = α × mean_n(X[l,n])[0m
+
+[1m[95m  ▶ STEP 3/3  Subtracting soup, flooring at 0  X_corr[l,n] = max(0, X[l,n] - soup[l])[0m
+[2m  [SOUPX] STEP     3/3  Subtracting soup, flooring at 0  X_corr[l,n] = max(0, X[l,n] - soup[l])[0m
+[2m[96m  ⧖  ambient subtraction on full matrix… [2m[elapsed=5.452s][0m
+[2m  [SOUPX] COMPUTING ambient subtraction on full matrix  elapsed=5.452s[0m
+[2m[96m  ⧖  allele fraction matrix  80712 loci × 3639 cells… [2m[elapsed=5.452s][0m
+[2m  [SOUPX] COMPUTING allele fraction matrix  80712 loci × 3639 cells  elapsed=5.452s[0m
+[2m  │ step 1/3 complete.....................[2m  [33mallele fraction matrix built[0m
+[2m  [SOUPX] INFO      step 1/3 complete=allele fraction matrix built[0m
+[2m  │ matrix dimensions.....................[2m  [33m80712 loci × 3639 cells[0m
+[2m  [SOUPX] INFO      matrix dimensions=80712 loci × 3639 cells[0m
+[2m  │ covered entries.......................[2m  [33m1445091 / 293710968 (0.5% non-NaN)[0m
+[2m  [SOUPX] INFO      covered entries=1445091 / 293710968 (0.5% non-NaN)[0m
+[2m  │ zero-coverage entries.................[2m  [33m292265877 (99.5% sparse)[0m
+[2m  [SOUPX] INFO      zero-coverage entries=292265877 (99.5% sparse)[0m
+[2m  │ cells used for soup estimation........[2m  [33m3522[0m
+[2m  [SOUPX] INFO      cells used for soup estimation=3522[0m
+[2m  │ alpha.................................[2m  [33m0.01261973[0m
+[2m  [SOUPX] INFO      alpha=0.01261973[0m
+[2m  │ soup max..............................[2m  [33m0.012620[0m
+[2m  [SOUPX] INFO      soup max=0.012620[0m
+[2m  │ soup mean.............................[2m  [33m0.004843[0m
+[2m  [SOUPX] INFO      soup mean=0.004843[0m
+[2m[96m  ⧖  subtracting soup vector and flooring at 0… [2m[elapsed=5.991s][0m
+[2m  [SOUPX] COMPUTING subtracting soup vector and flooring at 0  elapsed=5.991s[0m
+[2m  │ entries floored at 0..................[2m  [33m640425 (44.32% of covered)[0m
+[2m  [SOUPX] INFO      entries floored at 0=640425 (44.32% of covered)[0m
+[2m  │ mean |correction|.....................[2m  [33m0.005201[0m
+[2m  [SOUPX] INFO      mean |correction|=0.005201[0m
+[92m[1m  ✔  Module 1 — Ambient subtraction complete[2m  [took 1.156s][0m
+[2m  [SOUPX] OK       Module 1 — Ambient subtraction complete  took=1.156s[0m
+[92m[1m  ✔  Module 1 — Ambient subtraction complete[2m  [took 2.937s][0m
+[2m  [SOUPX] OK       Module 1 — Ambient subtraction complete  took=2.937s[0m
+[1m[92m  ◆ METRIC  alpha_used                       = [92m0.01261973[2m fraction[0m
+[2m  [SOUPX] METRIC    alpha_used=0.01261973  unit=fraction[0m
+[1m[92m  ◆ METRIC  entries_floored                  = [92m640425[2m count[0m
+[2m  [SOUPX] METRIC    entries_floored=640425  unit=count[0m
+[1m[92m  ◆ METRIC  pct_floored                      = [92m44.3173[2m %[0m
+[2m  [SOUPX] METRIC    pct_floored=44.3173  unit=%[0m
+[1m[92m  ◆ METRIC  mean_abs_correction              = [92m0.00520142[2m allele_fraction[0m
+[2m  [SOUPX] METRIC    mean_abs_correction=0.00520142  unit=allele_fraction[0m
+[1m[92m  ◆ METRIC  covered_entries                  = [92m1445091[2m count[0m
+[2m  [SOUPX] METRIC    covered_entries=1445091  unit=count[0m
+[1m[92m  ◆ METRIC  soup_max                         = [92m0.01261973[2m allele_fraction[0m
+[2m  [SOUPX] METRIC    soup_max=0.01261973  unit=allele_fraction[0m
+[1m[92m  ◆ METRIC  soup_mean                        = [92m0.00484333[2m allele_fraction[0m
+[2m  [SOUPX] METRIC    soup_mean=0.00484333  unit=allele_fraction[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  CLUSTER QUALITY METRICS                                                 ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  CLUSTER QUALITY METRICS  elapsed=8.390s[0m
+[2m  │ loci (raw matrix).....................[2m  [33m80712[0m
+[2m  [SOUPX] INFO      loci (raw matrix)=80712[0m
+[2m  │ loci (QC-passing).....................[2m  [33m8219[0m
+[2m  [SOUPX] INFO      loci (QC-passing)=8219[0m
+[2m  │ loci (QC match).......................[2m  [33mmatches souporcell 'Loci passing QC: 8219' exactly[0m
+[2m  [SOUPX] INFO      loci (QC match)=matches souporcell 'Loci passing QC: 8219' exactly[0m
+[2m[96m  ⧖  silhouette score (8219 QC loci × ~150 cells/cluster)… [2m[elapsed=8.744s][0m
+[2m  [SOUPX] COMPUTING silhouette score (8219 QC loci × ~150 cells/cluster)  elapsed=8.744s[0m
+[2m  │ loci (for metrics)....................[2m  [33mall 80111 covered loci (professor spec)[0m
+[2m  [SOUPX] INFO      loci (for metrics)=all 80111 covered loci (professor spec)[0m
+[2m  │ metric_loci param.....................[2m  [33m0 (0=all)[0m
+[2m  [SOUPX] INFO      metric_loci param=0 (0=all)[0m
+[92m[1m  ✔  Cluster quality metrics computed[2m  [took 47.841s][0m
+[2m  [SOUPX] OK       Cluster quality metrics computed  took=47.841s[0m
+
+[1m[96m  ┄┄ Silhouette Score  (range [-1,1], higher = better separation) [2m[+56.231s][0m
+[1m[92m  ◆ METRIC  silhouette_before                = [92m-0.002560[2m score[0m
+[2m  [SOUPX] METRIC    silhouette_before=-0.002560  unit=score[0m
+[1m[92m  ◆ METRIC  silhouette_after                 = [92m-0.002563[2m score[0m
+[2m  [SOUPX] METRIC    silhouette_after=-0.002563  unit=score[0m
+[1m[92m  ◆ METRIC  silhouette_delta                 = [92m-0.000003[2m score[0m
+[2m  [SOUPX] METRIC    silhouette_delta=-0.000003  unit=score[0m
+
+[1m[96m  ┄┄ Davies-Bouldin Index  (lower = better separation) [2m[+56.231s][0m
+[1m[92m  ◆ METRIC  davies_bouldin_before            = [92m1.961777[2m index[0m
+[2m  [SOUPX] METRIC    davies_bouldin_before=1.961777  unit=index[0m
+[1m[92m  ◆ METRIC  davies_bouldin_after             = [92m1.958813[2m index[0m
+[2m  [SOUPX] METRIC    davies_bouldin_after=1.958813  unit=index[0m
+[1m[92m  ◆ METRIC  davies_bouldin_delta             = [92m-0.002964[2m index[0m
+[2m  [SOUPX] METRIC    davies_bouldin_delta=-0.002964  unit=index[0m
+
+[1m[96m  ┄┄ Within-Cluster Spread [2m[+56.231s][0m
+[1m[92m  ◆ METRIC  mean_within_std_before           = [92m0.204675[2m allele_fraction[0m
+[2m  [SOUPX] METRIC    mean_within_std_before=0.204675  unit=allele_fraction[0m
+[1m[92m  ◆ METRIC  mean_within_std_after            = [92m0.203788[2m allele_fraction[0m
+[2m  [SOUPX] METRIC    mean_within_std_after=0.203788  unit=allele_fraction[0m
+[1m[92m  ◆ METRIC  within_std_delta                 = [92m-0.000887[2m allele_fraction[0m
+[2m  [SOUPX] METRIC    within_std_delta=-0.000887  unit=allele_fraction[0m
+[2m  │ interpretation........................[2m  [33m→ no significant change (expected at α=1.26%)[0m
+[2m  [SOUPX] INFO      interpretation=→ no significant change (expected at α=1.26%)[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  MODULE 3 — DIMENSIONALITY REDUCTION                                     ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  MODULE 3 — DIMENSIONALITY REDUCTION  elapsed=56.231s[0m
+[2m  │ PCA input dims........................[2m  [33m80111 loci × 3522 cells[0m
+[2m  [SOUPX] INFO      PCA input dims=80111 loci × 3522 cells[0m
+[2m  │ PCA output dims.......................[2m  [33m3522 cells × 50 components[0m
+[2m  [SOUPX] INFO      PCA output dims=3522 cells × 50 components[0m
+[2m[96m  ⧖  randomised PCA  80111 loci → 50 components… [2m[elapsed=56.231s][0m
+[2m  [SOUPX] COMPUTING randomised PCA  80111 loci → 50 components  elapsed=56.231s[0m
+[92m[1m  ✔  PCA complete  [3522 cells × 50 components][2m  [took 16.903s][0m
+[2m  [SOUPX] OK       PCA complete  [3522 cells × 50 components]  took=16.903s[0m
+[2m  │ PCA input dims........................[2m  [33m80111 loci × 3522 cells[0m
+[2m  [SOUPX] INFO      PCA input dims=80111 loci × 3522 cells[0m
+[2m  │ PCA output dims.......................[2m  [33m3522 cells × 50 components[0m
+[2m  [SOUPX] INFO      PCA output dims=3522 cells × 50 components[0m
+[2m[96m  ⧖  randomised PCA  80111 loci → 50 components… [2m[elapsed=1m 13.1s][0m
+[2m  [SOUPX] COMPUTING randomised PCA  80111 loci → 50 components  elapsed=1m 13.1s[0m
+[92m[1m  ✔  PCA complete  [3522 cells × 50 components][2m  [took 15.913s][0m
+[2m  [SOUPX] OK       PCA complete  [3522 cells × 50 components]  took=15.913s[0m
+
+[1m[96m  ┄┄ PCA → t-SNE  (cells before correction) [2m[+1m 29.0s][0m
+[2m[96m  ⧖  PCA 50-dim → 2-dim, then t-SNE 1000 iterations… [2m[elapsed=1m 29.0s][0m
+[2m  [SOUPX] COMPUTING PCA 50-dim → 2-dim, then t-SNE 1000 iterations  elapsed=1m 29.0s[0m
+[2m  │ t-SNE input...........................[2m  [33m3522 cells × 50 PCA dims[0m
+[2m  [SOUPX] INFO      t-SNE input=3522 cells × 50 PCA dims[0m
+[2m  │ t-SNE output..........................[2m  [33m3522 cells × 2D[0m
+[2m  [SOUPX] INFO      t-SNE output=3522 cells × 2D[0m
+[2m  │ t-SNE perplexity......................[2m  [33m30[0m
+[2m  [SOUPX] INFO      t-SNE perplexity=30[0m
+[2m  │ t-SNE iterations......................[2m  [33m1000[0m
+[2m  [SOUPX] INFO      t-SNE iterations=1000[0m
+[2m  │ t-SNE algorithm.......................[2m  [33mBarnes-Hut  O(N log N)  early-exaggeration=4  momentum=0.8[0m
+[2m  [SOUPX] INFO      t-SNE algorithm=Barnes-Hut  O(N log N)  early-exaggeration=4  momentum=0.8[0m
+[2m[96m  ⧖  t-SNE  3522 cells × 50 dims → 2D  (1000 iters)… [2m[elapsed=1m 29.0s][0m
+[2m  [SOUPX] COMPUTING t-SNE  3522 cells × 50 dims → 2D  (1000 iters)  elapsed=1m 29.0s[0m
+[92m[1m  ✔  t-SNE complete  [3522 cells embedded in 2D][2m  [took 47.697s][0m
+[2m  [SOUPX] OK       t-SNE complete  [3522 cells embedded in 2D]  took=47.697s[0m
+[2m  │ t-SNE input...........................[2m  [33m3522 cells × 50 PCA dims[0m
+[2m  [SOUPX] INFO      t-SNE input=3522 cells × 50 PCA dims[0m
+[2m  │ t-SNE output..........................[2m  [33m3522 cells × 2D[0m
+[2m  [SOUPX] INFO      t-SNE output=3522 cells × 2D[0m
+[2m  │ t-SNE perplexity......................[2m  [33m30[0m
+[2m  [SOUPX] INFO      t-SNE perplexity=30[0m
+[2m  │ t-SNE iterations......................[2m  [33m1000[0m
+[2m  [SOUPX] INFO      t-SNE iterations=1000[0m
+[2m  │ t-SNE algorithm.......................[2m  [33mBarnes-Hut  O(N log N)  early-exaggeration=4  momentum=0.8[0m
+[2m  [SOUPX] INFO      t-SNE algorithm=Barnes-Hut  O(N log N)  early-exaggeration=4  momentum=0.8[0m
+[2m[96m  ⧖  t-SNE  3522 cells × 50 dims → 2D  (1000 iters)… [2m[elapsed=2m 16.7s][0m
+[2m  [SOUPX] COMPUTING t-SNE  3522 cells × 50 dims → 2D  (1000 iters)  elapsed=2m 16.7s[0m
+[92m[1m  ✔  t-SNE complete  [3522 cells embedded in 2D][2m  [took 46.379s][0m
+[2m  [SOUPX] OK       t-SNE complete  [3522 cells embedded in 2D]  took=46.379s[0m
+[92m[1m  ✔  t-SNE complete (before + after)[2m  [took 2m 06.8s][0m
+[2m  [SOUPX] OK       t-SNE complete (before + after)  took=2m 06.8s[0m
+[1m[92m  ◆ METRIC  tsne_perplexity                  = [92m30[2m [0m
+[2m  [SOUPX] METRIC    tsne_perplexity=30  unit=[0m
+[1m[92m  ◆ METRIC  tsne_iterations                  = [92m1000[2m [0m
+[2m  [SOUPX] METRIC    tsne_iterations=1000  unit=[0m
+[1m[92m  ◆ METRIC  pca_components                   = [92m50[2m [0m
+[2m  [SOUPX] METRIC    pca_components=50  unit=[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  MODULE 2 — SIMULATION BENCHMARK                                         ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  MODULE 2 — SIMULATION BENCHMARK  elapsed=3m 03.1s[0m
+[2m  │ simulation levels.....................[2m  [33m[0.01, 0.05, 0.1, 0.2, 0.3, 0.5][0m
+[2m  [SOUPX] INFO      simulation levels=[0.01, 0.05, 0.1, 0.2, 0.3, 0.5][0m
+[2m  │ trials per level......................[2m  [33m3[0m
+[2m  [SOUPX] INFO      trials per level=3[0m
+[2m  │ method................................[2m  [33minject α×μ → correct → measure RMSE + silhouette delta[0m
+[2m  [SOUPX] INFO      method=inject α×μ → correct → measure RMSE + silhouette delta[0m
+[2m  │ simulation levels.....................[2m  [33m[0.01, 0.05, 0.1, 0.2, 0.3, 0.5][0m
+[2m  [SOUPX] INFO      simulation levels=[0.01, 0.05, 0.1, 0.2, 0.3, 0.5][0m
+[2m  │ trials per level......................[2m  [33m3[0m
+[2m  [SOUPX] INFO      trials per level=3[0m
+[2m  [[36m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░[2m]   0%  α=0.0100                      [0m[2m[96m  ⧖  simulation level 1/6: α_sim=0.0100  (3 trials)… [2m[elapsed=3m 03.1s][0m
+[2m  [SOUPX] COMPUTING simulation level 1/6: α_sim=0.0100  (3 trials)  elapsed=3m 03.1s[0m
+SOUPX_SIM	alpha=0.0100	rmse=0.003873	sil_before=-0.0026	sil_after=-0.0026	delta=-0.0000	floor=0.0000
+[2m  │   α=0.0100 result....................[2m  [33mrmse=0.003873  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [SOUPX] INFO        α=0.0100 result=rmse=0.003873  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [[36m███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░[2m]  16%  α=0.0500                      [0m[2m[96m  ⧖  simulation level 2/6: α_sim=0.0500  (3 trials)… [2m[elapsed=5m 15.3s][0m
+[2m  [SOUPX] COMPUTING simulation level 2/6: α_sim=0.0500  (3 trials)  elapsed=5m 15.3s[0m
+SOUPX_SIM	alpha=0.0500	rmse=0.019366	sil_before=-0.0026	sil_after=-0.0026	delta=-0.0000	floor=0.0000
+[2m  │   α=0.0500 result....................[2m  [33mrmse=0.019366  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [SOUPX] INFO        α=0.0500 result=rmse=0.019366  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [[36m██████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░[2m]  33%  α=0.1000                      [0m[2m[96m  ⧖  simulation level 3/6: α_sim=0.1000  (3 trials)… [2m[elapsed=7m 25.5s][0m
+[2m  [SOUPX] COMPUTING simulation level 3/6: α_sim=0.1000  (3 trials)  elapsed=7m 25.5s[0m
+SOUPX_SIM	alpha=0.1000	rmse=0.038733	sil_before=-0.0026	sil_after=-0.0026	delta=-0.0000	floor=0.0000
+[2m  │   α=0.1000 result....................[2m  [33mrmse=0.038733  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [SOUPX] INFO        α=0.1000 result=rmse=0.038733  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [[36m██████████████████████░░░░░░░░░░░░░░░░░░░░░░[2m]  50%  α=0.2000                      [0m[2m[96m  ⧖  simulation level 4/6: α_sim=0.2000  (3 trials)… [2m[elapsed=9m 40.1s][0m
+[2m  [SOUPX] COMPUTING simulation level 4/6: α_sim=0.2000  (3 trials)  elapsed=9m 40.1s[0m
+SOUPX_SIM	alpha=0.2000	rmse=0.077471	sil_before=-0.0026	sil_after=-0.0026	delta=-0.0000	floor=0.0000
+[2m  │   α=0.2000 result....................[2m  [33mrmse=0.077471  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [SOUPX] INFO        α=0.2000 result=rmse=0.077471  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [[36m█████████████████████████████░░░░░░░░░░░░░░░[2m]  66%  α=0.3000                      [0m[2m[96m  ⧖  simulation level 5/6: α_sim=0.3000  (3 trials)… [2m[elapsed=11m 54.9s][0m
+[2m  [SOUPX] COMPUTING simulation level 5/6: α_sim=0.3000  (3 trials)  elapsed=11m 54.9s[0m
+SOUPX_SIM	alpha=0.3000	rmse=0.116218	sil_before=-0.0026	sil_after=-0.0026	delta=-0.0000	floor=0.0000
+[2m  │   α=0.3000 result....................[2m  [33mrmse=0.116218  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [SOUPX] INFO        α=0.3000 result=rmse=0.116218  sil_before=-0.0026  sil_after=-0.0026  Δsil=-0.0000  floor=0.00%[0m
+[2m  [[36m████████████████████████████████████░░░░░░░░[2m]  83%  α=0.5000                      [0m[2m[96m  ⧖  simulation level 6/6: α_sim=0.5000  (3 trials)… [2m[elapsed=14m 08.4s][0m
+[2m  [SOUPX] COMPUTING simulation level 6/6: α_sim=0.5000  (3 trials)  elapsed=14m 08.4s[0m
+SOUPX_SIM	alpha=0.5000	rmse=0.193779	sil_before=-0.0026	sil_after=-0.0027	delta=-0.0001	floor=0.0000
+[2m  │   α=0.5000 result....................[2m  [33mrmse=0.193779  sil_before=-0.0026  sil_after=-0.0027  Δsil=-0.0001  floor=0.00%[0m
+[2m  [SOUPX] INFO        α=0.5000 result=rmse=0.193779  sil_before=-0.0026  sil_after=-0.0027  Δsil=-0.0001  floor=0.00%[0m
+[2m  [[36m████████████████████████████████████████████[2m] 100%  done                          [0m  [92m✔[0m
+[2m  [SOUPX] PROGRESS done  done=6[0m
+[92m[1m  ✔  Module 2 — Simulation benchmark complete (6 levels × 3 trials)[2m  [took 13m 16.0s][0m
+[2m  [SOUPX] OK       Module 2 — Simulation benchmark complete (6 levels × 3 trials)  took=13m 16.0s[0m
+
+[1m[96m  ┄┄ Simulation Benchmark Results [2m[+16m 19.1s][0m
+[2m  │ header................................[2m  [33malpha_sim   RMSE        sil_before  sil_after   delta       floor%[0m
+[2m  [SOUPX] INFO      header=alpha_sim   RMSE        sil_before  sil_after   delta       floor%[0m
+[2m  │ α=0.010..............................[2m  [33mrmse=0.003873  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  [SOUPX] INFO      α=0.010=rmse=0.003873  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  │ α=0.050..............................[2m  [33mrmse=0.019366  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  [SOUPX] INFO      α=0.050=rmse=0.019366  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  │ α=0.100..............................[2m  [33mrmse=0.038733  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  [SOUPX] INFO      α=0.100=rmse=0.038733  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  │ α=0.200..............................[2m  [33mrmse=0.077471  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  [SOUPX] INFO      α=0.200=rmse=0.077471  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  │ α=0.300..............................[2m  [33mrmse=0.116218  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  [SOUPX] INFO      α=0.300=rmse=0.116218  sil_bef=-0.0026  sil_aft=-0.0026  Δ=-0.0000 →  floor=0.0%[0m
+[2m  │ α=0.500..............................[2m  [33mrmse=0.193779  sil_bef=-0.0026  sil_aft=-0.0027  Δ=-0.0001 →  floor=0.0%[0m
+[2m  [SOUPX] INFO      α=0.500=rmse=0.193779  sil_bef=-0.0026  sil_aft=-0.0027  Δ=-0.0001 →  floor=0.0%[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  GENERATING PLOTS                                                        ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  GENERATING PLOTS  elapsed=16m 19.1s[0m
+[35m[1m  ✦  tsne_before_after.json              [2m./soupxcell_output/figures/image_data/tsne_before_after.json  (240.0 KB)[0m
+[2m  [SOUPX] WRITTEN   tsne_before_after.json  path=./soupxcell_output/figures/image_data/tsne_before_after.json  size=240.0 KB[0m
+[35m[1m  ✦  silhouette_comparison.json          [2m./soupxcell_output/figures/image_data/silhouette_comparison.json  (482 B)[0m
+[2m  [SOUPX] WRITTEN   silhouette_comparison.json  path=./soupxcell_output/figures/image_data/silhouette_comparison.json  size=482 B[0m
+[35m[1m  ✦  correction_distribution.json        [2m./soupxcell_output/figures/image_data/correction_distribution.json  (31.1 KB)[0m
+[2m  [SOUPX] WRITTEN   correction_distribution.json  path=./soupxcell_output/figures/image_data/correction_distribution.json  size=31.1 KB[0m
+[35m[1m  ✦  simulation_curves.json              [2m./soupxcell_output/figures/image_data/simulation_curves.json  (793 B)[0m
+[2m  [SOUPX] WRITTEN   simulation_curves.json  path=./soupxcell_output/figures/image_data/simulation_curves.json  size=793 B[0m
+[35m[1m  ✦  rmse_linearity.json                 [2m./soupxcell_output/figures/image_data/rmse_linearity.json  (793 B)[0m
+[2m  [SOUPX] WRITTEN   rmse_linearity.json  path=./soupxcell_output/figures/image_data/rmse_linearity.json  size=793 B[0m
+[35m[1m  ✦  soup_vector_profile.json            [2m./soupxcell_output/figures/image_data/soup_vector_profile.json  (711.4 KB)[0m
+[2m  [SOUPX] WRITTEN   soup_vector_profile.json  path=./soupxcell_output/figures/image_data/soup_vector_profile.json  size=711.4 KB[0m
+[35m[1m  ✦  per_cluster_correction.json         [2m./soupxcell_output/figures/image_data/per_cluster_correction.json  (635 B)[0m
+[2m  [SOUPX] WRITTEN   per_cluster_correction.json  path=./soupxcell_output/figures/image_data/per_cluster_correction.json  size=635 B[0m
+[35m[1m  ✦  floor_per_locus.json                [2m./soupxcell_output/figures/image_data/floor_per_locus.json  (24.4 KB)[0m
+[2m  [SOUPX] WRITTEN   floor_per_locus.json  path=./soupxcell_output/figures/image_data/floor_per_locus.json  size=24.4 KB[0m
+[35m[1m  ✦  tsne_before_after.html              [2m./soupxcell_output/figures/tsne_before_after.html  (10.5 KB)[0m
+[2m  [SOUPX] WRITTEN   tsne_before_after.html  path=./soupxcell_output/figures/tsne_before_after.html  size=10.5 KB[0m
+[35m[1m  ✦  umap_before_after.html              [2m./soupxcell_output/figures/umap_before_after.html  (10.5 KB)[0m
+[2m  [SOUPX] WRITTEN   umap_before_after.html  path=./soupxcell_output/figures/umap_before_after.html  size=10.5 KB[0m
+[35m[1m  ✦  silhouette_comparison.html          [2m./soupxcell_output/figures/silhouette_comparison.html  (8.7 KB)[0m
+[2m  [SOUPX] WRITTEN   silhouette_comparison.html  path=./soupxcell_output/figures/silhouette_comparison.html  size=8.7 KB[0m
+[35m[1m  ✦  correction_distribution.html        [2m./soupxcell_output/figures/correction_distribution.html  (7.5 KB)[0m
+[2m  [SOUPX] WRITTEN   correction_distribution.html  path=./soupxcell_output/figures/correction_distribution.html  size=7.5 KB[0m
+[35m[1m  ✦  simulation_curves.html              [2m./soupxcell_output/figures/simulation_curves.html  (10.0 KB)[0m
+[2m  [SOUPX] WRITTEN   simulation_curves.html  path=./soupxcell_output/figures/simulation_curves.html  size=10.0 KB[0m
+[35m[1m  ✦  soup_vector_profile.html            [2m./soupxcell_output/figures/soup_vector_profile.html  (10.4 KB)[0m
+[2m  [SOUPX] WRITTEN   soup_vector_profile.html  path=./soupxcell_output/figures/soup_vector_profile.html  size=10.4 KB[0m
+[35m[1m  ✦  per_cluster_correction.html         [2m./soupxcell_output/figures/per_cluster_correction.html  (6.9 KB)[0m
+[2m  [SOUPX] WRITTEN   per_cluster_correction.html  path=./soupxcell_output/figures/per_cluster_correction.html  size=6.9 KB[0m
+[35m[1m  ✦  floor_per_locus.html                [2m./soupxcell_output/figures/floor_per_locus.html  (9.6 KB)[0m
+[2m  [SOUPX] WRITTEN   floor_per_locus.html  path=./soupxcell_output/figures/floor_per_locus.html  size=9.6 KB[0m
+[35m[1m  ✦  rmse_linearity.html                 [2m./soupxcell_output/figures/rmse_linearity.html  (9.9 KB)[0m
+[2m  [SOUPX] WRITTEN   rmse_linearity.html  path=./soupxcell_output/figures/rmse_linearity.html  size=9.9 KB[0m
+[35m[1m  ✦  contamination_progression.html      [2m./soupxcell_output/figures/contamination_progression.html  (33.8 KB)[0m
+[2m  [SOUPX] WRITTEN   contamination_progression.html  path=./soupxcell_output/figures/contamination_progression.html  size=33.8 KB[0m
+[92m[1m  ✔  All plots written[0m
+[2m  [SOUPX] OK       All plots written[0m
+[2m  [SOUPX] TIME      plots-complete  elapsed=16m 20.8s[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  WRITING OUTPUTS                                                         ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  WRITING OUTPUTS  elapsed=16m 20.8s[0m
+[35m[1m  ✦  X_corrected.mtx                     [2m./soupxcell_output/X_corrected.mtx  (15.5 MB)[0m
+[2m  [SOUPX] WRITTEN   X_corrected.mtx  path=./soupxcell_output/X_corrected.mtx  size=15.5 MB[0m
+[35m[1m  ✦  X_raw.mtx                           [2m./soupxcell_output/X_raw.mtx  (15.5 MB)[0m
+[2m  [SOUPX] WRITTEN   X_raw.mtx  path=./soupxcell_output/X_raw.mtx  size=15.5 MB[0m
+[35m[1m  ✦  soup_vector.csv                     [2m./soupxcell_output/soup_vector.csv  (3.0 MB)[0m
+[2m  [SOUPX] WRITTEN   soup_vector.csv  path=./soupxcell_output/soup_vector.csv  size=3.0 MB[0m
+[35m[1m  ✦  correction_summary.csv              [2m./soupxcell_output/correction_summary.csv  (151.4 KB)[0m
+[2m  [SOUPX] WRITTEN   correction_summary.csv  path=./soupxcell_output/correction_summary.csv  size=151.4 KB[0m
+[35m[1m  ✦  cluster_data.json                   [2m./soupxcell_output/figures/cluster_data.json  (891 B)[0m
+[2m  [SOUPX] WRITTEN   cluster_data.json  path=./soupxcell_output/figures/cluster_data.json  size=891 B[0m
+[35m[1m  ✦  simulation_benchmark.csv            [2m./soupxcell_output/simulation_benchmark.csv  (494 B)[0m
+[2m  [SOUPX] WRITTEN   simulation_benchmark.csv  path=./soupxcell_output/simulation_benchmark.csv  size=494 B[0m
+[35m[1m  ✦  metrics.txt                         [2m./soupxcell_output/metrics.txt  (470 B)[0m
+[2m  [SOUPX] WRITTEN   metrics.txt  path=./soupxcell_output/metrics.txt  size=470 B[0m
+[35m[1m  ✦  soupxcell_report.html               [2m./soupxcell_output/soupxcell_report.html  (89.6 KB)[0m
+[2m  [SOUPX] WRITTEN   soupxcell_report.html  path=./soupxcell_output/soupxcell_report.html  size=89.6 KB[0m
+[92m[1m  ✔  All outputs written[2m  [took 2.050s][0m
+[2m  [SOUPX] OK       All outputs written  took=2.050s[0m
+
+[1m[36m╔══════════════════════════════════════════════════════════════════════════╗[0m
+[1m[36m║  COMPLETE                                                                ║[0m
+[1m[36m╚══════════════════════════════════════════════════════════════════════════╝[0m
+[2m  [SOUPX] SECTION  COMPLETE  elapsed=16m 22.8s[0m
+
+  [36m╔══════════════════════════════════════════════════════╗[0m
+  [1m[36m║   soupxcell v1.0  ·  Run Summary                   ║[0m
+  [36m╚══════════════════════════════════════════════════════╝[0m
+
+[2m  │ alpha used............................[2m  [33m0.01261973  (1.2620%)[0m
+[2m  [SOUPX] INFO      alpha used=0.01261973  (1.2620%)[0m
+[2m  │ loci processed........................[2m  [33m80712[0m
+[2m  [SOUPX] INFO      loci processed=80712[0m
+[2m  │ cells processed.......................[2m  [33m3522 (3523 singlets)[0m
+[2m  [SOUPX] INFO      cells processed=3522 (3523 singlets)[0m
+[2m  │ entries floored.......................[2m  [33m640425 (44.32%)[0m
+[2m  [SOUPX] INFO      entries floored=640425 (44.32%)[0m
+[2m  │ mean |correction|.....................[2m  [33m0.005201[0m
+[2m  [SOUPX] INFO      mean |correction|=0.005201[0m
+[2m  │ silhouette before.....................[2m  [33m-0.0026[0m
+[2m  [SOUPX] INFO      silhouette before=-0.0026[0m
+[2m  │ silhouette after......................[2m  [33m-0.0026[0m
+[2m  [SOUPX] INFO      silhouette after=-0.0026[0m
+[2m  │ silhouette Δ.........................[2m  [33m-0.0000  (→ unchanged)[0m
+[2m  [SOUPX] INFO      silhouette Δ=-0.0000  (→ unchanged)[0m
+[2m  │ output directory......................[2m  [33m./soupxcell_output[0m
+[2m  [SOUPX] INFO      output directory=./soupxcell_output[0m
+
+[92m[1m  ✔  Total runtime: 982.85s[0m
+[2m  [SOUPX] OK       Total runtime: 982.85s[0m
+
+  Key files:
+    ./soupxcell_output/X_corrected.mtx
+    ./soupxcell_output/soup_vector.csv
+    ./soupxcell_output/metrics.txt
+    ./soupxcell_output/soupxcell_report.html
+    ./soupxcell_output/figures/tsne_before_after.html
+    ./soupxcell_output/figures/silhouette_comparison.html
+    ./soupxcell_output/simulation_benchmark.csv
+    ./soupxcell_output/figures/simulation_curves.html
+

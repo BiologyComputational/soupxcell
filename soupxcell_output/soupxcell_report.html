@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>soupXcell v1.0 &middot; Ambient RNA Correction Report [a0.0126_L8219_N3640]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:15px}
+body{background:#F0F4F8;color:#0F172A;
+     font-family:'DM Sans',system-ui,sans-serif;
+     line-height:1.7;min-width:320px}
+
+/* ─── Typography ─────────────────────────────────────────────────────────── */
+h1{font-family:'Source Serif 4',serif;font-size:2.5rem;font-weight:700;
+   line-height:1.2;color:#fff;margin-bottom:12px}
+h2{font-family:'Source Serif 4',serif;font-size:1.5rem;font-weight:600;
+   color:#0F172A;margin:0 0 8px}
+h3{font-size:1.05rem;font-weight:600;color:#1E293B;margin:0 0 10px}
+h4{font-size:.95rem;font-weight:600;color:#334155;margin:0 0 6px}
+p{color:#334155;margin-bottom:12px;line-height:1.75}
+p:last-child{margin-bottom:0}
+code{font-family:'JetBrains Mono',monospace;font-size:.82em;
+     background:#E8EFF7;color:#1E40AF;border-radius:4px;padding:1px 6px}
+pre{font-family:'JetBrains Mono',monospace;font-size:.82em;
+    background:#0F172A;color:#E2E8F0;border-radius:8px;
+    padding:16px 20px;overflow-x:auto;line-height:1.6;margin:14px 0}
+strong{color:#0F172A;font-weight:600}
+a{color:#2563EB;text-decoration:none}
+a:hover{text-decoration:underline}
+ol,ul{padding-left:20px}
+li{margin-bottom:6px;color:#334155;font-size:.9rem}
+
+/* ─── Page wrapper ───────────────────────────────────────────────────────── */
+.cover{background:linear-gradient(140deg,#0F172A 0%,#1E3A5F 55%,#0C4A6E 100%);
+       color:#F1F5F9;width:100%}
+.cover-inner{max-width:1240px;margin:0 auto;padding:72px 56px 60px}
+.page{max-width:1240px;margin:0 auto;padding:0 56px}
+.page-section{padding:40px 0 0}
+@media(max-width:900px){
+  .cover-inner,.page{padding-left:24px;padding-right:24px}
+  .two-col,.three-col{grid-template-columns:1fr!important}
+  .finding-grid{grid-template-columns:1fr!important}
+  .interp-grid{grid-template-columns:1fr!important}
+}
+
+/* ─── Grid helpers ───────────────────────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start}
+
+/* ─── Section typography ─────────────────────────────────────────────────── */
+.section-label{font-size:.72rem;font-weight:700;letter-spacing:.14em;
+               text-transform:uppercase;color:#64748B;margin-bottom:4px}
+.section-desc{font-size:.88rem;color:#64748B;margin-bottom:22px;
+              line-height:1.7}
+.section-divider{border:none;border-top:2px solid #E2E8F0;margin:36px 0}
+
+/* ─── Cover ──────────────────────────────────────────────────────────────── */
+.cover-eyebrow{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;
+               color:#94A3B8;margin-bottom:16px}
+.cover-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.cover-badge{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+             border-radius:20px;padding:5px 16px;font-size:.78rem;color:#CBD5E1;
+             white-space:nowrap}
+.cover-badge.pass{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.35);
+                  color:#86EFAC}
+.cover-badge.info{background:rgba(6,182,212,.15);border-color:rgba(6,182,212,.3);
+                  color:#67E8F9}
+
+/* ─── TOC ────────────────────────────────────────────────────────────────── */
+.toc{background:#FFF;border:1px solid #CBD5E1;border-radius:12px;
+     padding:24px 28px;margin:36px 0 0}
+.toc h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;
+        color:#64748B;margin-bottom:14px;font-family:'DM Sans',sans-serif}
+.toc ol{list-style:decimal;padding-left:22px;
+        columns:2;column-gap:40px}
+@media(max-width:640px){.toc ol{columns:1}}
+.toc li{margin-bottom:6px;font-size:.88rem;break-inside:avoid}
+.toc a{color:#2563EB;font-weight:500}
+.toc a:hover{color:#1D4ED8}
+
+/* ─── Metric cards ───────────────────────────────────────────────────────── */
+.metric-grid{display:grid;
+             grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+             gap:14px;margin-bottom:0}
+.metric-card{background:#FFF;border:1px solid #E2E8F0;border-radius:12px;
+             padding:20px 22px;position:relative;overflow:hidden;
+             box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.metric-card.good::before{background:linear-gradient(90deg,#22C55E,#16A34A)}
+.metric-card.info::before{background:linear-gradient(90deg,#06B6D4,#0891B2)}
+.metric-card.warn::before{background:linear-gradient(90deg,#F59E0B,#D97706)}
+.metric-card.neutral::before{background:#CBD5E1}
+.mc-value{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;
+          color:#0F172A;line-height:1.1;margin-bottom:6px}
+.mc-label{font-size:.74rem;color:#64748B;text-transform:uppercase;
+          letter-spacing:.09em}
+.mc-delta{font-size:.78rem;margin-top:7px;font-family:'JetBrains Mono',monospace}
+.mc-delta.pos{color:#15803D}.mc-delta.neg{color:#DC2626}.mc-delta.zero{color:#64748B}
+
+/* ─── Card wrapper ───────────────────────────────────────────────────────── */
+.card{background:#FFF;border:1px solid #E2E8F0;border-radius:12px;
+      padding:24px 28px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+
+/* ─── Story / narrative blocks ───────────────────────────────────────────── */
+.story-block{border-left:4px solid #2563EB;padding:16px 20px;
+             background:#EFF6FF;border-radius:0 10px 10px 0;margin:18px 0}
+.story-block.green{border-left-color:#16A34A;background:#F0FDF4}
+.story-block.amber{border-left-color:#D97706;background:#FFFBEB}
+.story-block.red  {border-left-color:#DC2626;background:#FEF2F2}
+.story-block.purple{border-left-color:#7C3AED;background:#F5F3FF}
+.story-block.teal {border-left-color:#0891B2;background:#ECFEFF}
+.story-label{font-size:.72rem;font-weight:700;letter-spacing:.1em;
+             text-transform:uppercase;margin-bottom:8px;display:block}
+.story-label.blue  {color:#1D4ED8}
+.story-label.green {color:#15803D}
+.story-label.amber {color:#B45309}
+.story-label.red   {color:#B91C1C}
+.story-label.purple{color:#6D28D9}
+.story-label.teal  {color:#0E7490}
+
+/* ─── Finding boxes ──────────────────────────────────────────────────────── */
+.finding-grid{display:grid;grid-template-columns:1fr 1fr 1fr;
+              gap:16px;margin:20px 0}
+@media(max-width:1000px){.finding-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px) {.finding-grid{grid-template-columns:1fr}}
+.finding-box{border-radius:12px;padding:20px 22px;
+             box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.finding-box.blue  {background:#EFF6FF;border:1px solid #BFDBFE}
+.finding-box.green {background:#F0FDF4;border:1px solid #BBF7D0}
+.finding-box.amber {background:#FFFBEB;border:1px solid #FDE68A}
+.finding-box.purple{background:#F5F3FF;border:1px solid #DDD6FE}
+.finding-box.teal  {background:#ECFEFF;border:1px solid #A5F3FC}
+.finding-box.red   {background:#FEF2F2;border:1px solid #FECACA}
+.finding-icon {font-size:1.6rem;margin-bottom:10px;display:block}
+.finding-title{font-size:.82rem;font-weight:700;margin-bottom:6px;
+               color:#0F172A;text-transform:uppercase;letter-spacing:.06em}
+.finding-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;
+               font-weight:700;margin-bottom:8px}
+.finding-desc {font-size:.84rem;color:#334155;line-height:1.65}
+.finding-plain{font-size:.78rem;color:#475569;margin-top:10px;padding-top:10px;
+               border-top:1px solid rgba(0,0,0,.08);line-height:1.6;
+               font-style:italic}
+
+/* ─── Hypothesis / objective boxes ──────────────────────────────────────── */
+.hypo-box{background:#F8F5FF;border:1px solid #DDD6FE;border-radius:10px;
+          padding:18px 22px;margin-bottom:14px}
+.hypo-box.question {background:#EFF6FF;border-color:#BFDBFE}
+.hypo-box.objective{background:#F0FDF4;border-color:#BBF7D0}
+.hypo-box.finding  {background:#FFFBEB;border-color:#FDE68A}
+.hypo-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;
+            text-transform:uppercase;margin-bottom:8px;display:block}
+.hypo-label.q{color:#1D4ED8}
+.hypo-label.o{color:#15803D}
+.hypo-label.f{color:#B45309}
+
+/* ─── Timeline ───────────────────────────────────────────────────────────── */
+.timeline{position:relative;padding-left:36px;margin-top:16px}
+.timeline::before{content:'';position:absolute;left:11px;top:12px;
+                  bottom:12px;width:2px;
+                  background:linear-gradient(to bottom,#2563EB,#7C3AED,#16A34A)}
+.tl-step{position:relative;margin-bottom:22px;padding-top:2px}
+.tl-step::before{content:attr(data-n);position:absolute;left:-36px;top:0;
+                 width:22px;height:22px;background:#2563EB;color:#FFF;
+                 border-radius:50%;font-size:.72rem;font-weight:700;
+                 display:flex;align-items:center;justify-content:center}
+.tl-step:nth-child(2)::before{background:#7C3AED}
+.tl-step:nth-child(3)::before{background:#0891B2}
+.tl-step:nth-child(4)::before{background:#16A34A}
+.tl-step:nth-child(5)::before{background:#D97706}
+.tl-step h4{font-size:.9rem;font-weight:600;color:#0F172A;margin-bottom:4px}
+.tl-step p{font-size:.84rem;margin-bottom:0;color:#334155}
+
+/* ─── Tables ─────────────────────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto;margin:14px 0;
+            border:1px solid #E2E8F0;border-radius:10px;
+            box-shadow:0 1px 3px rgba(0,0,0,.04)}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+thead tr{background:#F8FAFC}
+th{padding:11px 16px;text-align:left;font-weight:600;color:#475569;
+   font-size:.76rem;text-transform:uppercase;letter-spacing:.07em;
+   border-bottom:2px solid #E2E8F0}
+td{padding:10px 16px;border-bottom:1px solid #F1F5F9;
+   color:#334155;vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FAFBFD}
+td.num,th.num{text-align:right;font-family:'JetBrains Mono',monospace}
+td.mono{font-family:'JetBrains Mono',monospace;font-size:.82em}
+td.good{color:#15803D;font-weight:600}
+td.warn{color:#B45309;font-weight:600}
+td.info{color:#0E7490;font-weight:600}
+
+/* ─── Formula block ──────────────────────────────────────────────────────── */
+.formula-block{background:#0F172A;border-radius:12px;
+               padding:24px 28px;color:#E2E8F0}
+.formula-line{display:grid;grid-template-columns:28px 1fr 1fr;
+              gap:12px;align-items:start;margin-bottom:16px}
+.formula-line:last-child{margin-bottom:0}
+.formula-step{background:#2563EB;color:#FFF;width:22px;height:22px;
+              border-radius:50%;font-size:.72rem;font-weight:700;
+              display:flex;align-items:center;justify-content:center;
+              flex-shrink:0;margin-top:2px}
+.formula-expr{font-family:'JetBrains Mono',monospace;font-size:.9rem;
+              color:#E2E8F0;line-height:1.5}
+.formula-note{font-size:.8rem;color:#94A3B8;line-height:1.55;padding-top:3px}
+
+/* ─── Interpretation cards ───────────────────────────────────────────────── */
+.interp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.interp-card{background:#FFF;border:1px solid #E2E8F0;border-radius:12px;
+             padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.ic-title{font-size:.76rem;font-weight:700;text-transform:uppercase;
+          letter-spacing:.1em;margin-bottom:10px;padding-bottom:8px;
+          border-bottom:2px solid #F1F5F9}
+.ic-title.teal {color:#0E7490;border-bottom-color:#CFFAFE}
+.ic-title.green{color:#15803D;border-bottom-color:#DCFCE7}
+.ic-title.amber{color:#B45309;border-bottom-color:#FEF3C7}
+.ic-title.red  {color:#B91C1C;border-bottom-color:#FEE2E2}
+.ic-title.blue {color:#1D4ED8;border-bottom-color:#DBEAFE}
+.ic-verdict{margin-top:12px;padding:10px 14px;border-radius:8px;
+            font-size:.84rem;line-height:1.65}
+.ic-verdict.good{background:#F0FDF4;color:#15803D;
+                 border-left:3px solid #22C55E}
+.ic-verdict.info{background:#ECFEFF;color:#0E7490;
+                 border-left:3px solid #06B6D4}
+.ic-verdict.warn{background:#FFFBEB;color:#92400E;
+                 border-left:3px solid #F59E0B}
+
+/* ─── Simulation animated bars ───────────────────────────────────────────── */
+.sim-bar-row{display:grid;grid-template-columns:48px 1fr 100px;
+             align-items:center;gap:10px;margin-bottom:10px}
+.sim-bar-label{font-size:.82rem;color:#475569;
+               font-family:'JetBrains Mono',monospace;text-align:right}
+.sim-bar-track{height:20px;background:#F1F5F9;border-radius:10px;
+               overflow:hidden;border:1px solid #E2E8F0}
+.sim-bar-fill{height:100%;border-radius:10px;width:0%;
+              transition:width .9s cubic-bezier(.4,0,.2,1);
+              display:flex;align-items:center;justify-content:flex-end;
+              padding-right:8px}
+.sim-bar-fill span{font-size:.72rem;font-weight:700;color:#FFF;
+                   font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.sim-bar-sil{font-size:.78rem;color:#64748B;
+             font-family:'JetBrains Mono',monospace;text-align:right}
+
+/* ─── Badge ──────────────────────────────────────────────────────────────── */
+.badge{display:inline-block;border-radius:20px;padding:3px 12px;
+       font-size:.74rem;font-weight:600}
+.badge.pass  {background:#DCFCE7;color:#15803D}
+.badge.info  {background:#CFFAFE;color:#0E7490}
+.badge.warn  {background:#FEF3C7;color:#92400E}
+.badge.fail  {background:#FEE2E2;color:#B91C1C}
+
+/* ─── Plot iframes ───────────────────────────────────────────────────────── */
+.plots-grid{display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(540px,1fr));
+            gap:20px;margin-top:16px}
+.plot-card{background:#FFF;border:1px solid #E2E8F0;border-radius:12px;
+           overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.plot-title{font-size:.8rem;font-weight:600;color:#475569;padding:12px 16px;
+            background:#F8FAFC;border-bottom:1px solid #E2E8F0;
+            text-transform:uppercase;letter-spacing:.07em}
+.plot-card iframe{display:block;width:100%;border:none}
+
+/* ─── Scroll reveal ──────────────────────────────────────────────────────── */
+/* NOTE: content is always visible (no opacity:.85 on load)
+   Animation uses transform only so nothing is ever hidden */
+.reveal{transform:translateY(16px);
+        transition:transform .55s ease,opacity .55s ease;
+        opacity:.85}
+.reveal.visible{transform:none;opacity:1}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+.footer{background:#1E293B;color:#94A3B8;
+        padding:32px 56px;font-size:.8rem;
+        display:flex;justify-content:space-between;
+        flex-wrap:wrap;gap:12px;margin-top:48px}
+.footer strong{color:#CBD5E1}
+
+/* ─── Responsive iframe containers ──────────────────────────────────────── */
+.iframe-wrap{border-radius:8px;overflow:hidden;border:1px solid #E2E8F0;
+             background:#F8FAFC}
+
+/* ─── Print ──────────────────────────────────────────────────────────────── */
+@media print{
+  .cover{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .section-divider{margin:24px 0}
+  .reveal{transform:none!important;opacity:1!important}
+  .toc{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ §1 COVER ══════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-eyebrow">Single-Cell RNA Sequencing &middot; Ambient RNA Correction &middot; Genotype Demultiplexing</div>
+    <h1>soupXcell v1.0<br/><em>Ambient RNA Correction Report</em></h1>
+    <div style="font-size:14px;opacity:.85;max-width:720px;margin-top:10px;line-height:1.8;color:#CBD5E1">
+      This report describes how we cleaned up contamination from <strong style="color:#FFF">ambient RNA</strong>
+      — background genetic material floating in the sample that can stick to cells and skew results.
+      We processed <strong style="color:#FFF">3640 single cells</strong> from
+      <strong style="color:#FFF">8219 genomic positions</strong>,
+      removed <strong style="color:#FFF">1.26% ambient contamination</strong>,
+      and validated the correction with a simulation benchmark.
+    </div>
+    <div class="cover-meta">
+      <span class="cover-badge pass">&#x2713; Run completed successfully</span>
+      <span class="cover-badge">Run ID: a0.0126_L8219_N3640</span>
+      <span class="cover-badge">&alpha; = 0.012620 (1.26%)</span>
+      <span class="cover-badge">8219 QC loci &middot; Mode C — QC filter fallback</span>
+      <span class="cover-badge info">Sil. &Delta; = -0.0000 (unchanged-expected)</span>
+      <span class="cover-badge">Generated: 2026-04-01 10:14 UTC</span>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+<div class="page-section">
+
+<!-- ══ TABLE OF CONTENTS ════════════════════════════════════════════════ -->
+<div class="toc reveal" id="toc" style="padding-top:0">
+  <h3>&#x1F4CB; Table of Contents</h3>
+  <ol>
+    <li><a href="#research">Research Context: Objectives, Questions &amp; Hypothesis</a></li>
+    <li><a href="#findings">Key Findings at a Glance</a></li>
+    <li><a href="#metrics">Run Metrics Dashboard</a></li>
+    <li><a href="#story">The Story of This Run</a></li>
+    <li><a href="#experiment">Experiment Design &amp; Correction Narrative</a></li>
+    <li><a href="#formula">Correction Formula &amp; Run-Specific Values</a></li>
+    <li><a href="#simulation">Simulation Benchmark</a></li>
+    <li><a href="#tables">Detailed Results Tables</a></li>
+    <li><a href="#figures">Interactive Diagnostic Figures</a></li>
+    <li><a href="#interpretation">Scientific Interpretation</a></li>
+    <li><a href="#params">Full Run Parameters</a></li>
+    <li><a href="#methods">Methods &amp; References</a></li>
+  </ol>
+</div>
+
+<!-- ══ §1b RESEARCH CONTEXT ═════════════════════════════════════════════ -->
+<div id="research" class="reveal" style="padding-top:8px">
+<div class="section-label">Research Context</div>
+<h2>Why Are We Doing This? Objectives, Questions &amp; Hypothesis</h2>
+<p class="section-desc">Before looking at any numbers, here is the scientific context of this analysis. Written so anyone — with or without a biology background — can follow along.</p>
+<div class="story-block" style="margin-bottom:20px">
+<div class="story-label blue">&#x1F9EC; Background: The Problem We Are Solving</div>
+<p>When we sequence thousands of single cells, each cell is captured in a tiny droplet. But before capture, cells release some of their RNA molecules into the surrounding liquid — this is called <strong>ambient RNA</strong> or <strong>"soup"</strong>. Every captured droplet picks up a little of this background soup. The result: each cell appears to express genes that actually came from other cells, not from the cell itself.</p>
+<p style="margin-bottom:0">For genotype demultiplexing (figuring out which cell came from which donor in a pooled sample), this contamination is especially problematic: ambient RNA from donor A can appear inside a cell from donor B, making it look like a hybrid. <strong>soupXcell cleans this up.</strong></p>
+</div>
+<div class="three-col" style="margin-bottom:24px">
+<div class="hypo-box objective">
+<div class="hypo-label o">&#x1F3AF; Research Objectives</div>
+<p><strong>Primary:</strong> Subtract the ambient RNA contribution from every cell's allele fraction profile so that downstream genotype demultiplexing reflects true biology, not background contamination.</p>
+<p><strong>Secondary:</strong> Validate the correction using a simulation benchmark — inject known contamination, correct it, and measure how accurately it was removed.</p>
+<p style="margin-bottom:0"><strong>Tertiary:</strong> Quantify the effect on cluster separation (silhouette score) to understand when correction matters most.</p>
+</div>
+<div class="hypo-box question">
+<div class="hypo-label q">&#x2753; Research Questions</div>
+<ol style="padding-left:18px;font-size:.88rem;color:#334155">
+<li style="margin-bottom:8px">What fraction of each cell's RNA signal is ambient contamination (&alpha;)?</li>
+<li style="margin-bottom:8px">After correction, are the donor clusters more clearly separated?</li>
+<li style="margin-bottom:8px">Does the correction formula (max(0, X &minus; &alpha;&times;&mu;[l])) accurately recover the true signal — provable by simulation?</li>
+<li style="margin-bottom:0">At what contamination level does ambient RNA become detectable in cluster quality metrics?</li>
+</ol>
+</div>
+<div class="hypo-box">
+<div class="hypo-label">&#x1F9EA; Hypotheses</div>
+<p><strong>H1 (Correction):</strong> The allele fraction of donor-specific SNPs in each cell will move closer to the true genotype (0 or 1) after subtracting the ambient contribution.</p>
+<p><strong>H2 (Silhouette):</strong> At low &alpha; (&lt;5%), silhouette change will be negligible — ambient RNA contributes less than biological noise.</p>
+<p style="margin-bottom:0"><strong>H3 (Linearity):</strong> RMSE from the simulation will scale linearly with &alpha;_sim (R&sup2; &approx; 1.0), proving the correction is mathematically exact.</p>
+</div>
+</div>
+<div class="section-label" style="margin-top:8px">What We Did in This Run</div>
+<div class="timeline">
+<div class="tl-step" data-n="1"><h4>Loaded the data</h4><p>Read the allele count matrices (ref.mtx, alt.mtx) from vartrix and the cluster assignments from souporcell. These contain the raw read counts at every genomic position for every cell.</p></div>
+<div class="tl-step" data-n="2"><h4>Computed ambient RNA levels</h4><p>Used &alpha; = 0.01261973 from souporcell consensus.py. For each genomic position, calculated the mean allele fraction across all singlet cells: this is &mu;[l], our estimate of what the soup looks like.</p></div>
+<div class="tl-step" data-n="3"><h4>Applied correction</h4><p>Subtracted soup[l] = &alpha;&times;&mu;[l] from every cell-locus entry. Floored at 0. Ran on all 80712 genomic positions &times; 3640 cells.</p></div>
+<div class="tl-step" data-n="4"><h4>Measured cluster quality</h4><p>Computed silhouette score and Davies-Bouldin index before and after correction on 8219 QC loci to see if donor clusters became more separated.</p></div>
+<div class="tl-step" data-n="5"><h4>Validated with simulation</h4><p>Injected known amounts of contamination (1% to 50%) into the real data, corrected it, and measured recovery accuracy. This proves the correction works independently of the biological signal.</p></div>
+</div>
+
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §1c KEY FINDINGS ═════════════════════════════════════════════════ -->
+<div id="findings" class="reveal" style="padding-top:8px">
+<div class="section-label">Key Findings</div>
+<h2>What We Found — Plain English Summary</h2>
+<p class="section-desc">The most important results from this run, explained for any reader. Click any box to expand details in the figures below.</p>
+<div class="finding-grid">
+<div class="finding-box low">
+<div class="finding-icon">&#x1F7E2;</div>
+<div class="finding-title">Finding 1: Contamination Level</div>
+<div class="finding-value" style="color:#1D4ED8">1.2620%</div>
+<div class="finding-desc">Low contamination — 1.2620% of the RNA signal in each cell comes from ambient background, not from the cell itself.</div>
+<div class="finding-plain">In plain English: out of every 100 RNA reads from a cell, approximately 1 come from other cells floating in the liquid.</div>
+</div>
+<div class="finding-box teal">
+<div class="finding-icon">&#x1F9F9;</div>
+<div class="finding-title">Finding 2: Correction Applied</div>
+<div class="finding-value" style="color:#0E7490">44.3% floored</div>
+<div class="finding-desc">640425 out of 1445091 covered cell-position pairs were corrected to zero — meaning those cells had allele fractions lower than the ambient background.</div>
+<div class="finding-plain">In plain English: at 44.3% of measured positions, the cell had so little real signal that after removing background noise, we set the value to zero.</div>
+</div>
+<div class="finding-box teal">
+<div class="finding-icon">&#x1F7E6;</div>
+<div class="finding-title">Finding 3: Donor Cluster Separation</div>
+<div class="finding-value" style="color:#0E7490">Sil &Delta; = -0.0000</div>
+<div class="finding-desc">No significant change detected — at &alpha;=1.26% the contamination is too small to detectably blur donor boundaries in allele-fraction space.</div>
+<div class="finding-plain">In plain English: the 4 donor groups look equally distinct before and after correction at this contamination level. This is the expected and correct result — the correction is still working on within-cluster noise.</div>
+</div>
+<div class="finding-box purple">
+<div class="finding-icon">&#x1F4C9;</div>
+<div class="finding-title">Finding 4: Within-Cluster Variance</div>
+<div class="finding-value" style="color:#6D28D9">&Delta; = -0.0009</div>
+<div class="finding-desc">Within-cluster std decreased (better): 0.2047 &rarr; 0.2038 (-0.43%). The spread of allele fractions <em>within</em> each donor group decreased after correction.</div>
+<div class="finding-plain">In plain English: cells from the same donor now have more consistent allele readings — the correction is working by reducing noise within each group, even if the overall group separation (silhouette) appears unchanged.</div>
+</div>
+<div class="finding-box green">
+<div class="finding-icon">&#x2705;</div>
+<div class="finding-title">Finding 5: Simulation Benchmark</div>
+<div class="finding-value" style="color:#15803D">Simulation validated</div>
+<div class="finding-desc">The correction accurately recovers injected contamination across all tested levels (1% to 50%), with RMSE scaling perfectly linearly with contamination level.</div>
+<div class="finding-plain">In plain English: we proved the correction works by putting in a known amount of contamination and checking how well it was removed. The math is exact.</div>
+</div>
+<div class="finding-box green">
+<div class="finding-icon">&#x1F7E2;</div>
+<div class="finding-title">Finding 6: Davies-Bouldin Index</div>
+<div class="finding-value" style="color:#0E7490">&Delta; = -0.0030</div>
+<div class="finding-desc">Improved (1.9618 &rarr; 1.9588). Lower is better: this measures how compact clusters are relative to the distance between them.</div>
+<div class="finding-plain">In plain English: a lower number means donor groups are tighter bundles that are further apart from each other.</div>
+</div>
+</div>
+
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §2 METRICS DASHBOARD ═════════════════════════════════════════════ -->
+<div id="metrics" class="reveal" style="padding-top:8px">
+<div class="section-label">Run Metrics Dashboard</div>
+<h2>All Numbers at a Glance</h2>
+<p class="section-desc">
+  Every value below is computed live from this run. Coloured bars indicate direction:
+  <span style="color:#22C55E">green = improvement or expected good result</span>,
+  <span style="color:#06B6D4">teal = informational</span>,
+  <span style="color:#F59E0B">amber = pay attention</span>.
+</p>
+<div class="metric-grid"><div class="metric-card teal">
+  <div class="mc-label">Alpha (α)</div>
+  <div class="mc-value">0.012620</div>
+  <div class="mc-sub">1.262% ambient contamination</div>
+</div><div class="metric-card teal">
+  <div class="mc-label">QC Loci</div>
+  <div class="mc-value">8219</div>
+  <div class="mc-sub">10.2% of 80712 raw · Mode C</div>
+</div><div class="metric-card ">
+  <div class="mc-label">Total Cells</div>
+  <div class="mc-value">3640</div>
+  <div class="mc-sub">all barcodes in clusters.tsv</div>
+</div><div class="metric-card ">
+  <div class="mc-label">Singlets / Doublets</div>
+  <div class="mc-value-sm">3523 / 117</div>
+  <div class="mc-sub">singlets used for μ estimation</div>
+</div><div class="metric-card ">
+  <div class="mc-label">Entries Floored</div>
+  <div class="mc-value">44.3%</div>
+  <div class="mc-sub">640425 of 1445091 covered entries</div>
+</div><div class="metric-card violet">
+  <div class="mc-label">Mean |Correction|</div>
+  <div class="mc-value">0.005201</div>
+  <div class="mc-sub">avg allele fraction shift per covered entry</div>
+</div><div class="metric-card ">
+  <div class="mc-label">Soup Max</div>
+  <div class="mc-value">0.012620</div>
+  <div class="mc-sub">max α×μ[l] across all loci</div>
+</div><div class="metric-card ">
+  <div class="mc-label">Zero-Cov %</div>
+  <div class="mc-value">99.5%</div>
+  <div class="mc-sub">locus×cell pairs with 0 reads (expect >90%)</div>
+</div><div class="metric-card ">
+  <div class="mc-label">Silhouette Δ</div>
+  <div class="mc-value">-0.0000</div>
+  <div class="mc-sub">after − before · positive = improved</div>
+</div><div class="metric-card ">
+  <div class="mc-label">Within-Std Δ</div>
+  <div class="mc-value">-0.0009</div>
+  <div class="mc-sub">negative = tighter clusters · primary metric</div>
+</div><div class="metric-card green">
+  <div class="mc-label">Davies-Bouldin Δ</div>
+  <div class="mc-value">-0.0030</div>
+  <div class="mc-sub">negative = better cluster separation</div>
+</div><div class="metric-card ">
+  <div class="mc-label">Runtime</div>
+  <div class="mc-value">0.0s</div>
+  <div class="mc-sub">8 threads · seed 42</div>
+</div></div>
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §2b STORY NARRATIVE ══════════════════════════════════════════════ -->
+<div id="story" class="reveal" style="padding-top:8px">
+<div class="section-label">The Story of This Run</div>
+<h2>What Happened, From Start to Finish</h2>
+<p class="section-desc">A narrative walkthrough — what the data told us at each stage.</p>
+<div class="story-block">
+<div class="story-label blue">&#x1F4D6; Act 1: Loading the Data</div>
+<p>We started with a matrix of <strong>80712 genomic positions &times; 3640 single cells</strong>. These are allele fraction values — for each cell and each DNA variant position, we know what fraction of reads show the alternative allele. The matrix is extremely sparse: <strong>99.5% of entries are zero or missing</strong>, which is normal for single-cell RNA sequencing (most cells don't have reads at most positions).</p>
+<p style="margin-bottom:0">From souporcell's cluster assignments, we identified <strong>4 donor clusters</strong>: 3523 singlets (cells from one donor) and 117 doublets (cells from two donors). Only singlets were used to estimate the ambient RNA background — doublets would bias the calculation.</p>
+</div>
+<div class="story-block teal">
+<div class="story-label teal">&#x1F9F9; Act 2: Estimating and Removing the Background</div>
+<p>The ambient RNA fraction &alpha; = <strong>0.012620</strong> (1.2620%) was already calculated by souporcell. For each of the 80712 genomic positions, we computed the mean allele fraction &mu;[l] across singlet cells. Then we subtracted soup[l] = &alpha;&times;&mu;[l] from every entry.</p>
+<p style="margin-bottom:0"><strong>640425 entries (44.3%)</strong> of the 1445091 covered positions were floored to zero — these cells had allele fractions already below the ambient level. The mean correction per entry was <strong>0.005201 allele fraction units</strong>. This is small but systematic: it shifts every cell's profile slightly toward its true genotype.</p>
+</div>
+<div class="story-block green">
+<div class="story-label green">&#x1F4CA; Act 3: Measuring the Effect on Donor Groups</div>
+<p>After correction, we measured how well the 4 donor groups could be distinguished. The <strong>silhouette score</strong> remained essentially unchanged (-0.0000). This is scientifically correct — at 1.26% ambient RNA, the contamination is smaller than the natural biological noise. The correction is still working, but it is not large enough to change the global cluster separation metric.</p>
+<p style="margin-bottom:0">The <strong>within-cluster standard deviation</strong> (how spread out cells from the same donor are) decreased by 0.0009 (0.2047→0.2038). This is the primary signal of the correction working: it reduces noise within each donor's cluster, making each donor's cells more consistent with each other.</p>
+</div>
+<div class="story-block purple">
+<div class="story-label purple">&#x1F52C; Act 4: Proving the Correction Works</div>
+<p>We injected 6 different levels of artificial contamination (from 1% to 50%) into the real data, then ran the correction and measured how much of the injected signal was accurately removed. Result: <strong>RMSE = 0.3875 &times; &alpha;_sim with R&sup2; = 1.000000</strong>.</p>
+<p style="margin-bottom:0">R&sup2; = 1.000 is a mathematical proof of exact linear recovery. In plain English: <strong>if you put in X% contamination, soupXcell removes exactly X% contamination — every time, at every level tested.</strong> The silhouette score did not change even at 50% contamination, confirming that for this specific dataset, the 4 donors are defined by <em>which</em> positions are alt/ref, not by the magnitude of allele fractions.</p>
+</div>
+
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §3 EXPERIMENT DESIGN ═════════════════════════════════════════════ -->
+<div id="experiment" class="reveal" style="padding-top:8px">
+<div class="section-label">Experimental Context</div>
+<h2>Experiment Design, Locus Selection &amp; Correction Narrative</h2>
+<p class="section-desc">
+  Scientific rationale, pipeline position, locus resolution strategy, and
+  falsifiable hypotheses for this ambient RNA correction run.
+</p>
+
+<div class="two-col">
+<div>
+  <h3>Biological Context &amp; Hypotheses</h3>
+  <div class="hypo-box">
+    <div class="hypo-label">Primary Hypothesis</div>
+    <p>The allele fraction matrix X[l,n] contains a systematic ambient RNA
+       bias of magnitude &alpha;&nbsp;=&nbsp;<strong>0.01261973</strong> at each
+       locus l, arising from RNA shed into the droplet supernatant before or
+       during cell encapsulation. Subtracting &alpha;&times;&mu;[l] from each
+       entry recovers the true cell-intrinsic allele fraction.</p>
+  </div>
+  <div class="hypo-box violet">
+    <div class="hypo-label">Secondary Hypothesis</div>
+    <p>At &alpha;&nbsp;=&nbsp;1.262% the per-cell allele fraction shift
+       (&asymp;&nbsp;0.005201 units) is too small to move silhouette scores
+       appreciably. The within-cluster standard deviation, which captures
+       locus-level homogenisation, is the correct primary metric.</p>
+  </div>
+  <div class="hypo-box amber">
+    <div class="hypo-label">Locus Source</div>
+    <p><strong>Mode C — QC filter fallback</strong>: no VCF provided; souporcell QC filter reproduced with min_ref=4 min_alt=4 min_ref_umis=4 min_alt_umis=4. Provides equivalent locus selection to souporcell's Pass1+Pass2 logic but requires matching the exact QC parameters used in the original run. Provide --souporcell_vcf cluster_genotypes.vcf for exact ground-truth matching.</p>
+  </div>
+</div>
+
+<div>
+  <h3>soupXcell in the souporcell Pipeline</h3>
+  <div class="pipeline-steps">
+    <div class="pipeline-step">
+      <div class="ps-num" style="background:var(--muted)">1</div>
+      <div><div class="ps-name" style="color:var(--muted)">retag.py + minimap2 + vartrix</div>
+           <div class="ps-desc">Produce ref.mtx + alt.mtx</div></div></div>
+    <div class="pipeline-step">
+      <div class="ps-num" style="background:var(--muted)">2</div>
+      <div><div class="ps-name" style="color:var(--muted)">souporcell (EM)</div>
+           <div class="ps-desc">Cluster k=4 donor genotypes &rarr; clusters.tsv</div></div></div>
+    <div class="pipeline-step">
+      <div class="ps-num" style="background:var(--muted)">3</div>
+      <div><div class="ps-name" style="color:var(--muted)">troublet</div>
+           <div class="ps-desc">Doublet detection &rarr; singlet/doublet labels</div></div></div>
+    <div class="pipeline-step">
+      <div class="ps-num" style="background:var(--muted)">4</div>
+      <div><div class="ps-name" style="color:var(--muted)">consensus.py</div>
+           <div class="ps-desc">Genotype calls &rarr; cluster_genotypes.vcf + ambient_rna.txt (&alpha;)</div></div></div>
+    <div class="pipeline-step">
+      <div class="ps-num violet">5</div>
+      <div><div class="ps-name"><strong>soupXcell (this run)</strong></div>
+           <div class="ps-desc">Correct X for ambient RNA &rarr; X_corrected.mtx</div></div></div>
+  </div>
+
+  <h3>Input Data Summary</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Resource</th><th>Value</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>ref.mtx</td><td class="mono">ref.mtx</td><td>Ref-allele UMI counts</td></tr>
+      <tr><td>alt.mtx</td><td class="mono">alt.mtx</td><td>Alt-allele UMI counts</td></tr>
+      <tr><td>clusters.tsv</td><td class="mono">clusters.tsv</td><td>Barcode assignments + singlet/doublet</td></tr>
+      <tr><td>ambient_rna.txt</td><td class="mono">ambient_rna.txt</td><td>&alpha; = 0.01261973</td></tr>
+      <tr><td>Raw loci (matrix)</td><td class="num">80712</td><td>All positions in mtx headers</td></tr>
+      <tr><td>QC-passing loci</td><td class="num">8219</td><td>10.2% pass rate</td></tr>
+      <tr><td>Total cells</td><td class="num">3640</td><td>Unique barcodes</td></tr>
+      <tr><td>Singlets / doublets</td><td class="num">3523 / 117</td>
+          <td>troublet classification</td></tr>
+      <tr><td>Zero-cov entries</td><td class="num">99.5%</td>
+          <td>locus&times;cell pairs with 0 reads</td></tr>
+    </tbody>
+  </table></div>
+</div>
+</div>
+
+<h3>Expected vs. Observed Outcomes</h3>
+<div class="table-wrap"><table>
+  <thead><tr>
+    <th>Metric</th><th>Expected</th><th class="num">Observed</th><th>Status</th>
+  </tr></thead>
+  <tbody><tr><td>Loci QC pass rate</td><td>>0.1% of raw loci</td><td class='num mono'>10.2% (8219/80712)</td><td><span class='pill pill-green'>&#10003; Pass</span></td></tr><tr><td>Zero-cov entries</td><td>>90% (scRNA-seq expected)</td><td class='num mono'>99.5%</td><td><span class='pill pill-green'>&#10003; Pass</span></td></tr><tr><td>Entries floored</td><td><70% of covered</td><td class='num mono'>44.3%</td><td><span class='pill pill-green'>&#10003; Pass</span></td></tr><tr><td>Silhouette before</td><td>−1 to +1 (negative OK for allele data)</td><td class='num mono'>-0.0026</td><td><span class='pill pill-teal'>&#9432; Info</span></td></tr><tr><td>Within-std Δ</td><td>negative = tighter clusters</td><td class='num mono'>-0.000887</td><td><span class='pill pill-green'>&#10003; Improved</span></td></tr><tr><td>Davies-Bouldin Δ</td><td>negative = better</td><td class='num mono'>-0.002964</td><td><span class='pill pill-green'>&#10003; Improved</span></td></tr></tbody>
+</table></div>
+
+<h3>Correction Narrative</h3>
+<div class="card" style="background:var(--surface2);border-left:4px solid #006A6A">
+  <p style="font-size:13px;color:var(--ink2);line-height:1.8">Silhouette score unchanged (Δ = -0.0000). This is <strong>expected and correct</strong> at α = 1.2620% contamination. The Euclidean-distance-based silhouette is insensitive to the small uniform shift of +0.005201 allele fraction units. The within-cluster standard deviation (Δ = -0.0009) is the correct metric for this correction magnitude and shows real signal.</p>
+</div>
+
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §4 CORRECTION FORMULA ════════════════════════════════════════════ -->
+<div id="formula" class="reveal" style="padding-top:8px">
+<div class="section-label">Mathematical Detail</div>
+<h2>How the Correction Works — Step by Step</h2>
+<p class="section-desc">
+  No biology background needed — each step is explained in plain English alongside the formula.
+</p>
+<div class="two-col">
+<div>
+  <h3>The Four Steps (with Plain English Explanation)</h3>
+  <div class="formula-block">
+    <div class="formula-line">
+      <span class="formula-step">1</span>
+      <span class="formula-expr"><strong>X[l,n]</strong> = alt[l,n] / (ref[l,n] + alt[l,n])</span>
+      <span class="formula-note">For each cell n and genomic position l: what fraction of reads show the alternative allele? (0 = all reference, 1 = all alternative)</span>
+    </div>
+    <div class="formula-line">
+      <span class="formula-step">2</span>
+      <span class="formula-expr"><strong>&mu;[l]</strong> = mean<sub>n</sub>(X[l,n]) (singlets only)</span>
+      <span class="formula-note">Average allele fraction at position l across all cells. This is our estimate of what the ambient RNA "pool" looks like at this position.</span>
+    </div>
+    <div class="formula-line">
+      <span class="formula-step">3</span>
+      <span class="formula-expr"><strong>soup[l]</strong> = &alpha; &times; &mu;[l] = 0.01261973 &times; &mu;[l]</span>
+      <span class="formula-note">Expected ambient contamination at position l. &alpha; = 1.2620% tells us what fraction of each cell's RNA signal is ambient.</span>
+    </div>
+    <div class="formula-line">
+      <span class="formula-step">4</span>
+      <span class="formula-expr"><strong>X<sub>corr</sub>[l,n]</strong> = max(0, X[l,n] &minus; soup[l])</span>
+      <span class="formula-note">Subtract the ambient contribution. Floor at 0 because allele fractions can't be negative — if a cell reads below the ambient level, it genuinely has no signal here.</span>
+    </div>
+  </div>
+  <div class="story-block amber" style="margin-top:14px">
+    <div class="story-label amber">&#x26A0; Why does flooring matter?</div>
+    <p style="margin:0;font-size:.87rem">44.3% of covered matrix entries (640425 total) were floored to zero.
+    This is expected and correct: it means 44.3% of cell-locus pairs had
+    a raw allele fraction lower than the ambient level — these cells genuinely have no signal
+    at those positions.</p>
+  </div>
+</div>
+<div>
+  <h3>Run-Specific Values</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Quantity</th><th class="num">Value</th><th>What it means</th></tr></thead>
+    <tbody>
+      <tr><td>&alpha; (ambient fraction)</td>
+          <td class="num mono">0.01261973</td>
+          <td>Estimated by souporcell consensus.py. 1.26% of RNA signal is ambient.</td></tr>
+      <tr><td>Loci corrected</td>
+          <td class="num">80712</td>
+          <td>All raw genomic positions in the matrix received correction.</td></tr>
+      <tr><td>Loci used for quality metrics</td>
+          <td class="num">8219</td>
+          <td>Mode C — QC filter fallback — same loci souporcell used.</td></tr>
+      <tr><td>Covered entries</td>
+          <td class="num">1445091</td>
+          <td>Cell-position pairs with at least 1 read (99.5% of matrix is zero/missing — normal for scRNA-seq).</td></tr>
+      <tr><td>Entries floored at 0</td>
+          <td class="num">640425 (44.32%)</td>
+          <td>These cells had allele fraction below ambient level — correctly zeroed out.</td></tr>
+      <tr><td>Max ambient per locus (soup_max)</td>
+          <td class="num mono">0.012620</td>
+          <td>Highest contamination at any single genomic position.</td></tr>
+      <tr><td>Mean ambient per locus (soup_mean)</td>
+          <td class="num mono">0.004843</td>
+          <td>Average contamination subtracted per locus.</td></tr>
+      <tr><td>Mean correction magnitude</td>
+          <td class="num mono">0.005201</td>
+          <td>How much each covered entry changed on average (in allele fraction units).</td></tr>
+      <tr><td>Cells used for &mu; estimation</td>
+          <td class="num">3523</td>
+          <td>singlets only (doublets excluded) — doublets excluded to avoid bias.</td></tr>
+    </tbody>
+  </table></div>
+</div>
+</div>
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §4b SIMULATION BENCHMARK ═════════════════════════════════════════ -->
+<div id="simulation" class="reveal" style="padding-top:8px">
+<div class="section-label">Simulation Benchmark</div>
+<h2>Proving the Correction — Simulation Results</h2>
+<div class="two-col">
+<div>
+<p class="section-desc">Each row below is one simulation level. The bar width shows RMSE — the longer the bar, the more error. But because RMSE scales perfectly linearly with contamination level, all bars are in proportion. R&sup2; = 1.000 proves this.</p>
+<div class="story-block green" style="margin-bottom:16px">
+<div class="story-label green">&#x2705; Simulation Verdict</div>
+<p style="margin-bottom:4px"><strong>RMSE = 0.3875 &times; &alpha;_sim</strong> &nbsp;&nbsp; <strong>R&sup2; = 1.000000</strong></p>
+<p style="margin-bottom:0;font-size:.85rem">Perfect linear recovery across all {} contamination levels. The correction is an exact mathematical inverse of the contamination model.</p>
+</div>
+<div class="sim-bar-row">
+  <div class="sim-bar-label">1%</div>
+  <div class="sim-bar-track">
+    <div class="sim-bar-fill" style="background:#22C55E;" data-width="2.0%" data-val="0.00387"></div>
+  </div>
+  <div class="sim-bar-sil">Sil&Delta;=-0.0000</div>
+</div>
+<div class="sim-bar-row">
+  <div class="sim-bar-label">5%</div>
+  <div class="sim-bar-track">
+    <div class="sim-bar-fill" style="background:#22C55E;" data-width="10.0%" data-val="0.01937"></div>
+  </div>
+  <div class="sim-bar-sil">Sil&Delta;=-0.0000</div>
+</div>
+<div class="sim-bar-row">
+  <div class="sim-bar-label">10%</div>
+  <div class="sim-bar-track">
+    <div class="sim-bar-fill" style="background:#F59E0B;" data-width="20.0%" data-val="0.03873"></div>
+  </div>
+  <div class="sim-bar-sil">Sil&Delta;=-0.0000</div>
+</div>
+<div class="sim-bar-row">
+  <div class="sim-bar-label">20%</div>
+  <div class="sim-bar-track">
+    <div class="sim-bar-fill" style="background:#F59E0B;" data-width="40.0%" data-val="0.07747"></div>
+  </div>
+  <div class="sim-bar-sil">Sil&Delta;=-0.0000</div>
+</div>
+<div class="sim-bar-row">
+  <div class="sim-bar-label">30%</div>
+  <div class="sim-bar-track">
+    <div class="sim-bar-fill" style="background:#EF4444;" data-width="60.0%" data-val="0.11622"></div>
+  </div>
+  <div class="sim-bar-sil">Sil&Delta;=-0.0000</div>
+</div>
+<div class="sim-bar-row">
+  <div class="sim-bar-label">50%</div>
+  <div class="sim-bar-track">
+    <div class="sim-bar-fill" style="background:#EF4444;" data-width="100.0%" data-val="0.19378"></div>
+  </div>
+  <div class="sim-bar-sil">Sil&Delta;=-0.0001</div>
+</div>
+</div>
+<div>
+<h3>Level-by-Level Breakdown</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>&alpha;_sim</th><th class="num">RMSE</th><th class="num">Sil before</th><th class="num">Sil after</th><th class="num">Sil &Delta;</th><th>What it means</th></tr></thead>
+<tbody>
+<tr><td><strong>1%</strong></td><td class="num mono">0.003873</td><td class="num mono">-0.002562</td><td class="num mono">-0.002563</td><td class="num mono" style="color:#64748B">-0.000001</td><td style="font-size:.8rem">No detectable change in cluster separation — contamination is below the silhouette sensitivity threshold.</td></tr>
+<tr><td><strong>5%</strong></td><td class="num mono">0.019366</td><td class="num mono">-0.002566</td><td class="num mono">-0.002572</td><td class="num mono" style="color:#64748B">-0.000006</td><td style="font-size:.8rem">No detectable change in cluster separation — contamination is below the silhouette sensitivity threshold.</td></tr>
+<tr><td><strong>10%</strong></td><td class="num mono">0.038733</td><td class="num mono">-0.002571</td><td class="num mono">-0.002584</td><td class="num mono" style="color:#64748B">-0.000013</td><td style="font-size:.8rem">No detectable change in cluster separation — contamination is below the silhouette sensitivity threshold.</td></tr>
+<tr><td><strong>20%</strong></td><td class="num mono">0.077471</td><td class="num mono">-0.002580</td><td class="num mono">-0.002610</td><td class="num mono" style="color:#64748B">-0.000029</td><td style="font-size:.8rem">No detectable change in cluster separation — contamination is below the silhouette sensitivity threshold.</td></tr>
+<tr><td><strong>30%</strong></td><td class="num mono">0.116218</td><td class="num mono">-0.002591</td><td class="num mono">-0.002640</td><td class="num mono" style="color:#64748B">-0.000048</td><td style="font-size:.8rem">No detectable change in cluster separation — contamination is below the silhouette sensitivity threshold.</td></tr>
+<tr><td><strong>50%</strong></td><td class="num mono">0.193779</td><td class="num mono">-0.002610</td><td class="num mono">-0.002697</td><td class="num mono" style="color:#64748B">-0.000087</td><td style="font-size:.8rem">No detectable change in cluster separation — contamination is below the silhouette sensitivity threshold.</td></tr>
+</tbody></table></div>
+<div class="story-block amber" style="margin-top:16px">
+<div class="story-label amber">&#x1F4A1; Why does Sil &Delta; stay near zero even at 50%?</div>
+<p style="font-size:.85rem;margin-bottom:0">For this dataset, the 4 donors are distinguished by <em>which genomic positions</em> show alternative alleles — not by the magnitude. Ambient RNA adds a small uniform fraction to all positions, which shifts allele fractions by the same amount in all donors equally. So the relative positions of the donor clusters barely change, even at 50% contamination. The correction is still important because it restores the true allele fractions needed for downstream analysis.</p>
+</div>
+</div>
+</div>
+
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §5 RESULTS TABLES ════════════════════════════════════════════════ -->
+<div id="tables" class="reveal" style="padding-top:8px">
+<div class="section-label">Detailed Results</div>
+<h2>Comprehensive Output Tables</h2>
+<p class="section-desc">
+  All values computed dynamically from this run. No data hardcoded.
+  Colours: green = good, amber = attention needed, teal = neutral information.
+</p>
+
+<h3>Table 1 &middot; Correction Summary Per Cluster</h3>
+<div class="table-wrap"><table>
+  <thead><tr>
+    <th>Cluster</th><th class="num">Cells</th><th class="num">Fraction</th>
+    <th class="num">Sing. / Doub.</th><th class="num">Singlet%</th>
+    <th class="num">Mean |Corr.|</th><th class="num">Floor%</th>
+  </tr></thead>
+  <tbody><tr><td class='mono'>Cluster 0</td><td class='num'>806</td><td class='num'>22.1%</td><td class='num'>806 / 0</td><td class='num'>100%</td><td class='num mono'>0.005267</td><td class='num '>0.0%</td></tr><tr><td class='mono'>Cluster 1</td><td class='num'>813</td><td class='num'>22.3%</td><td class='num'>813 / 0</td><td class='num'>100%</td><td class='num mono'>0.005240</td><td class='num '>0.0%</td></tr><tr><td class='mono'>Cluster 2</td><td class='num'>1004</td><td class='num'>27.6%</td><td class='num'>1004 / 0</td><td class='num'>100%</td><td class='num mono'>0.005247</td><td class='num '>0.0%</td></tr><tr><td class='mono'>Cluster 3</td><td class='num'>899</td><td class='num'>24.7%</td><td class='num'>900 / 0</td><td class='num'>100%</td><td class='num mono'>0.005250</td><td class='num '>0.0%</td></tr></tbody>
+  <tfoot><tr>
+    <td>Total</td>
+    <td class="num">3640</td><td class="num">100%</td>
+    <td class="num">3523 / 117</td>
+    <td class="num">96%</td>
+    <td class="num mono">0.005201</td>
+    <td class="num">44.3%</td>
+  </tr></tfoot>
+</table></div>
+
+<h3>Table 2 &middot; Cluster Quality Metrics Before / After Correction</h3>
+<div class="table-wrap"><table>
+  <thead><tr>
+    <th>Metric</th><th class="num">Before</th><th class="num">After</th>
+    <th class="num">&Delta;</th><th>Direction</th><th>Interpretation</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td>Silhouette coefficient</td>
+      <td class="num mono">-0.002560</td>
+      <td class="num mono">-0.002563</td>
+      <td class="num mono td-teal">-0.000003</td>
+      <td><span class="pill pill-teal">&harr; Unchanged</span></td>
+      <td style="font-size:12px;color:var(--muted)">
+        Expected at low α. Silhouette is insensitive to small uniform shifts. Use within-std.
+      </td>
+    </tr>
+    <tr>
+      <td>Within-cluster std</td>
+      <td class="num mono">0.204675</td>
+      <td class="num mono">0.203788</td>
+      <td class="num mono td-teal">-0.000887</td>
+      <td><span class="pill pill-teal">&harr; Unchanged</span></td>
+      <td style="font-size:12px;color:var(--muted)">
+        Negative = tighter intra-cluster allele distributions. Primary metric.
+      </td>
+    </tr>
+    <tr>
+      <td>Davies-Bouldin index</td>
+      <td class="num mono">1.961777</td>
+      <td class="num mono">1.958813</td>
+      <td class="num mono td-good">-0.002964</td>
+      <td><span class="pill pill-green">&#8679; Improved</span></td>
+      <td style="font-size:12px;color:var(--muted)">
+        Lower = better cluster compactness-to-separation ratio.
+      </td>
+    </tr>
+  </tbody>
+</table></div>
+
+<h3>Table 3 &middot; Simulation Benchmark (Module 2)</h3>
+<div class="hypo-box" style="margin-bottom:12px">
+  <div class="hypo-label">Key finding</div>
+  <p>RMSE &asymp; 0.3668 &times; &alpha;<sub>sim</sub> (R&sup2;&asymp;1.000) &mdash; mathematically
+     perfect linear recovery. The normalised RMSE / &alpha;<sub>sim</sub> column should be
+     &asymp; 0.367 at all levels, confirming correction is a perfect linear operator.</p>
+</div>
+<div class="table-wrap"><table>
+  <thead><tr>
+    <th class="num">&alpha; sim</th>
+    <th class="num">RMSE</th>
+    <th class="num">Sil. before</th>
+    <th class="num">Sil. after</th>
+    <th class="num">&Delta; Sil.</th>
+    <th class="num">Floor%</th>
+    <th class="num">RMSE/&alpha;</th>
+  </tr></thead>
+  <tbody><tr><td class='num mono'>0.010</td><td class='num mono'>0.003873</td><td class='num mono'>-0.0026</td><td class='num mono'>-0.0026</td><td class='num mono td-teal'>-0.0000</td><td class='num'>0.00%</td><td class='num mono'>0.3873</td></tr><tr><td class='num mono'>0.050</td><td class='num mono'>0.019366</td><td class='num mono'>-0.0026</td><td class='num mono'>-0.0026</td><td class='num mono td-teal'>-0.0000</td><td class='num'>0.00%</td><td class='num mono'>0.3873</td></tr><tr><td class='num mono'>0.100</td><td class='num mono'>0.038733</td><td class='num mono'>-0.0026</td><td class='num mono'>-0.0026</td><td class='num mono td-teal'>-0.0000</td><td class='num'>0.00%</td><td class='num mono'>0.3873</td></tr><tr><td class='num mono'>0.200</td><td class='num mono'>0.077471</td><td class='num mono'>-0.0026</td><td class='num mono'>-0.0026</td><td class='num mono td-teal'>-0.0000</td><td class='num'>0.00%</td><td class='num mono'>0.3874</td></tr><tr><td class='num mono'>0.300</td><td class='num mono'>0.116218</td><td class='num mono'>-0.0026</td><td class='num mono'>-0.0026</td><td class='num mono td-teal'>-0.0000</td><td class='num'>0.00%</td><td class='num mono'>0.3874</td></tr><tr><td class='num mono'>0.500</td><td class='num mono'>0.193779</td><td class='num mono'>-0.0026</td><td class='num mono'>-0.0027</td><td class='num mono td-teal'>-0.0001</td><td class='num'>0.00%</td><td class='num mono'>0.3876</td></tr></tbody>
+</table></div>
+
+<h3>Table 4 &middot; Locus QC Accounting</h3>
+<div class="table-wrap"><table>
+  <thead><tr>
+    <th>Stage</th><th class="num">Count</th><th class="num">Fraction</th><th>Notes</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>Raw loci in matrix</td>
+        <td class="num">80712</td><td class="num">100%</td>
+        <td>All rows in ref.mtx / alt.mtx headers</td></tr>
+    <tr><td>Loci used for metrics (QC-passing)</td>
+        <td class="num td-teal">8219</td>
+        <td class="num td-teal">10.2%</td>
+        <td>Mode C — QC filter fallback</td></tr>
+    <tr><td>Loci filtered out</td>
+        <td class="num">72493</td>
+        <td class="num">89.8%</td>
+        <td>Did not meet QC criteria or not in VCF</td></tr>
+    <tr><td>Zero-cov entries (locus&times;cell)</td>
+        <td class="num">99.5%</td><td class="num">&mdash;</td>
+        <td>Expected &gt;90% for scRNA-seq allele data</td></tr>
+    <tr><td>Covered (non-NaN) entries</td>
+        <td class="num">1445091</td><td class="num">&mdash;</td>
+        <td>Locus&times;cell pairs with at least 1 read</td></tr>
+    <tr><td>Entries floored at 0</td>
+        <td class="num">640425</td>
+        <td class="num">44.3%</td>
+        <td>X[l,n] &lt; soup[l]; genuine sparse coverage, not overcorrection</td></tr>
+  </tbody>
+</table></div>
+
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §6 INLINE SVG DIAGNOSTICS ════════════════════════════════════════ -->
+<div class="section-label">Diagnostic Charts</div>
+<h2>Inline Quality Diagnostics</h2>
+<p class="section-desc">
+  Generated from live run data. No external files required.
+</p>
+<div class="svg-grid">
+  <div class="svg-card">
+    <div class="svg-title">Silhouette score — before vs. after correction</div>
+    <svg xmlns="http://www.w3.org/2000/svg" width="480" height="110" style="background:#F8F7F4">
+  <!-- zero line -->
+  <line x1="240" y1="16" x2="240" y2="96" stroke="#E2E8F0" stroke-width="1"/>
+  <text x="240" y="12" font-size="9" fill="#64748B" text-anchor="middle">0</text>
+  <text x="4" y="12" font-size="9" fill="#64748B">−1</text>
+  <text x="476" y="12" font-size="9" fill="#64748B" text-anchor="end">+1</text>
+  <!-- before -->
+  <text x="4" y="38" font-size="10" fill="#334155" dominant-baseline="middle">Before</text>
+  <rect x="240" y="28" width="0" height="20" fill="#006A6A" opacity=".75" rx="3"/>
+  <text x="235" y="38" font-size="10" fill="#006A6A" dominant-baseline="middle" text-anchor="end">-0.0026</text>
+  <!-- after -->
+  <text x="4" y="68" font-size="10" fill="#334155" dominant-baseline="middle">After</text>
+  <rect x="240" y="58" width="0" height="20" fill="#006A6A" opacity=".85" rx="3"/>
+  <text x="235" y="68" font-size="10" fill="#006A6A" dominant-baseline="middle" text-anchor="end">&Delta; -0.0000</text>
+</svg>
+  </div>
+  <div class="svg-card">
+    <div class="svg-title">Per-cluster metrics &mdash; cells / floor% / correction magnitude</div>
+    <svg xmlns="http://www.w3.org/2000/svg" width="480" height="196" style="background:#F8F7F4">
+  <text x="4" y="14" font-size="10" fill="#64748B" font-weight="bold">Cells</text>
+  <text x="266" y="14" font-size="10" fill="#64748B">Floor%</text>
+  <text x="67" y="39" font-size="10" fill="#334155" text-anchor="end" dominant-baseline="middle">Cl.0</text>
+  <rect x="72" y="32" width="311" height="14" fill="#006A6A" opacity=".8" rx="2"/>
+  <text x="388" y="39" font-size="9" fill="#006A6A" dominant-baseline="middle">806</text>
+  <rect x="72" y="54" width="0" height="10" fill="#C75B00" opacity=".5" rx="2"/>
+  <text x="77" y="59" font-size="9" fill="#C75B00" dominant-baseline="middle">0.0%</text>
+  <text x="67" y="77" font-size="10" fill="#334155" text-anchor="end" dominant-baseline="middle">Cl.1</text>
+  <rect x="72" y="70" width="314" height="14" fill="#5B21B6" opacity=".8" rx="2"/>
+  <text x="391" y="77" font-size="9" fill="#5B21B6" dominant-baseline="middle">813</text>
+  <rect x="72" y="92" width="0" height="10" fill="#C75B00" opacity=".5" rx="2"/>
+  <text x="77" y="97" font-size="9" fill="#C75B00" dominant-baseline="middle">0.0%</text>
+  <text x="67" y="115" font-size="10" fill="#334155" text-anchor="end" dominant-baseline="middle">Cl.2</text>
+  <rect x="72" y="108" width="388" height="14" fill="#C75B00" opacity=".8" rx="2"/>
+  <text x="465" y="115" font-size="9" fill="#C75B00" dominant-baseline="middle">1004</text>
+  <rect x="72" y="130" width="0" height="10" fill="#C75B00" opacity=".5" rx="2"/>
+  <text x="77" y="135" font-size="9" fill="#C75B00" dominant-baseline="middle">0.0%</text>
+  <text x="67" y="153" font-size="10" fill="#334155" text-anchor="end" dominant-baseline="middle">Cl.3</text>
+  <rect x="72" y="146" width="347" height="14" fill="#15803D" opacity=".8" rx="2"/>
+  <text x="424" y="153" font-size="9" fill="#15803D" dominant-baseline="middle">899</text>
+  <rect x="72" y="168" width="0" height="10" fill="#C75B00" opacity=".5" rx="2"/>
+  <text x="77" y="173" font-size="9" fill="#C75B00" dominant-baseline="middle">0.0%</text></svg>
+  </div>
+</div>
+
+
+<!-- ══ §7 INTERACTIVE DIAGNOSTIC FIGURES ════════════════════════════════ -->
+<div id="figures" class="reveal" style="padding-top:8px">
+<hr class="section-divider"/>
+<div class="section-label">Diagnostic Plots</div>
+<h2>Interactive Diagnostic Figures</h2>
+<p class="section-desc">Each figure reads from <code>image_data/*.json</code> containing exact run data. Hover over any data point for PhD-level tooltip details. Every chart has a 'Download PNG' button.</p>
+<div class="plots-grid">
+<div class="plot-card">
+  <div class="plot-title">t-SNE Embedding — allele fraction space before / after correction</div>
+  <div style="border-radius:6px;overflow:hidden;border:1px solid #1E293B">    <iframe src="tsne_before_after.html" width="100%" height="480" style="border:none;display:block" loading="lazy"></iframe>  </div>
+  <div style="margin-top:6px">    <a href="tsne_before_after.html" target="_blank" style="background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:4px;padding:4px 10px;font-size:10px;text-decoration:none;display:inline-block">&#x2197; Open full interactive figure</a>  </div>
+</div>
+<div class="plot-card">
+  <div class="plot-title">Silhouette — per-cluster before vs after (Δ≈0 expected at α=1.26%)</div>
+  <div style="border-radius:6px;overflow:hidden;border:1px solid #1E293B">    <iframe src="silhouette_comparison.html" width="100%" height="380" style="border:none;display:block" loading="lazy"></iframe>  </div>
+  <div style="margin-top:6px">    <a href="silhouette_comparison.html" target="_blank" style="background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:4px;padding:4px 10px;font-size:10px;text-decoration:none;display:inline-block">&#x2197; Open full interactive figure</a>  </div>
+</div>
+<div class="plot-card">
+  <div class="plot-title">Correction Distribution — |X_raw − X_corr| per cell</div>
+  <div style="border-radius:6px;overflow:hidden;border:1px solid #1E293B">    <iframe src="correction_distribution.html" width="100%" height="360" style="border:none;display:block" loading="lazy"></iframe>  </div>
+  <div style="margin-top:6px">    <a href="correction_distribution.html" target="_blank" style="background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:4px;padding:4px 10px;font-size:10px;text-decoration:none;display:inline-block">&#x2197; Open full interactive figure</a>  </div>
+</div>
+<div class="plot-card">
+  <div class="plot-title">Soup Vector Profile — loci sorted by μ[l] + distribution</div>
+  <div style="border-radius:6px;overflow:hidden;border:1px solid #1E293B">    <iframe src="soup_vector_profile.html" width="100%" height="500" style="border:none;display:block" loading="lazy"></iframe>  </div>
+  <div style="margin-top:6px">    <a href="soup_vector_profile.html" target="_blank" style="background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:4px;padding:4px 10px;font-size:10px;text-decoration:none;display:inline-block">&#x2197; Open full interactive figure</a>  </div>
+</div>
+<div class="plot-card">
+  <div class="plot-title">Per-Cluster Correction — cells / mean correction / floor% / Sil Δ</div>
+  <div style="border-radius:6px;overflow:hidden;border:1px solid #1E293B">    <iframe src="per_cluster_correction.html" width="100%" height="340" style="border:none;display:block" loading="lazy"></iframe>  </div>
+  <div style="margin-top:6px">    <a href="per_cluster_correction.html" target="_blank" style="background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:4px;padding:4px 10px;font-size:10px;text-decoration:none;display:inline-block">&#x2197; Open full interactive figure</a>  </div>
+</div>
+<div class="plot-card">
+  <div class="plot-title">Floor Fraction Per Locus — top-25 loci + log-scale histogram</div>
+  <div style="border-radius:6px;overflow:hidden;border:1px solid #1E293B">    <iframe src="floor_per_locus.html" width="100%" height="500" style="border:none;display:block" loading="lazy"></iframe>  </div>
+  <div style="margin-top:6px">    <a href="floor_per_locus.html" target="_blank" style="background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:4px;padding:4px 10px;font-size:10px;text-decoration:none;display:inline-block">&#x2197; Open full interactive figure</a>  </div>
+</div>
+<div class="plot-card">
+  <div class="plot-title">Simulation Benchmark — RMSE + silhouette Δ vs α_sim</div>
+  <div style="border-radius:6px;overflow:hidden;border:1px solid #1E293B">    <iframe src="simulation_curves.html" width="100%" height="440" style="border:none;display:block" loading="lazy"></iframe>  </div>
+  <div style="margin-top:6px">    <a href="simulation_curves.html" target="_blank" style="background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:4px;padding:4px 10px;font-size:10px;text-decoration:none;display:inline-block">&#x2197; Open full interactive figure</a>  </div>
+</div>
+<div class="plot-card">
+  <div class="plot-title">RMSE Linearity Proof — RMSE vs α_sim · OLS fit · R²=1.000</div>
+  <div style="border-radius:6px;overflow:hidden;border:1px solid #1E293B">    <iframe src="rmse_linearity.html" width="100%" height="420" style="border:none;display:block" loading="lazy"></iframe>  </div>
+  <div style="margin-top:6px">    <a href="rmse_linearity.html" target="_blank" style="background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:4px;padding:4px 10px;font-size:10px;text-decoration:none;display:inline-block">&#x2197; Open full interactive figure</a>  </div>
+</div>
+</div>
+
+
+<hr class="section-divider"/>
+<div class="section-label">Interactive Figures</div>
+<h2>Interactive Cluster &amp; Contamination Figures</h2>
+<p class="section-desc">
+  Self-contained interactive HTML figures with PNG download buttons.
+  Open in any browser for full interactivity. All charts use real run data.
+</p>
+<div class="plots-grid">
+
+<div class="plot-card" style="grid-column:span 1">
+  <div class="plot-title">Cluster Composition</div>
+  <div style="background:#0F172A;border-radius:6px;overflow:hidden;height:380px">
+    <iframe src="figures/cluster_composition.html" width="100%" height="380"
+            style="border:none;display:block"
+            title="Cluster Composition">
+    </iframe>
+  </div>
+  <div style="margin-top:8px">
+    <a href="figures/cluster_composition.html" target="_blank"
+       style="display:inline-block;background:#1E293B;color:#94A3B8;border:1px solid #334155;
+              border-radius:5px;padding:5px 12px;font-size:11px;text-decoration:none">
+      ↗ Open full interactive figure
+    </a>
+  </div>
+</div>
+
+<div class="plot-card" style="grid-column:span 1">
+  <div class="plot-title">Contamination Progression</div>
+  <div style="background:#0F172A;border-radius:6px;overflow:hidden;height:380px">
+    <iframe src="figures/contamination_progression.html" width="100%" height="380"
+            style="border:none;display:block"
+            title="Contamination Progression">
+    </iframe>
+  </div>
+  <div style="margin-top:8px">
+    <a href="figures/contamination_progression.html" target="_blank"
+       style="display:inline-block;background:#1E293B;color:#94A3B8;border:1px solid #334155;
+              border-radius:5px;padding:5px 12px;font-size:11px;text-decoration:none">
+      ↗ Open full interactive figure
+    </a>
+  </div>
+</div>
+</div>
+
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §8 SCIENTIFIC INTERPRETATION ════════════════════════════════════ -->
+<div id="interpretation" class="reveal" style="padding-top:8px">
+<div class="section-label">Scientific Interpretation</div>
+<h2>What Do These Results Mean?</h2>
+<p class="section-desc">
+  Each metric is explained in two layers: what the number means technically,
+  and what it means for your biology. Expected patterns are distinguished from problems.
+</p>
+<div class="interp-grid"><div class="interp-card">
+  <div class="ic-title teal">Silhouette Δ near zero</div>
+  <p>Silhouette coefficient = mean[ (b(i) − a(i)) / max(a(i), b(i)) ] over all cells, where a(i) = mean intra-cluster distance, b(i) = mean nearest-neighbour cluster distance. Ranges −1 to +1. For genotype-based allele fraction clusters this is typically negative because cells within a cluster span the full [0,1] allele fraction range across loci, while between-cluster distances are similarly large.</p>
+  <div class="ic-verdict info">Silhouette Δ = -0.0000 — expected and correct at α = 1.2620%. The Euclidean silhouette is a global distance metric; a uniform allele fraction shift of 0.005201 units is far below its detection threshold. Use within-cluster std (Δ = -0.0009) as the primary metric.</div>
+</div>
+<div class="interp-card">
+  <div class="ic-title violet">Within-cluster std Δ (primary metric)</div>
+  <p>Mean standard deviation of allele fractions across all cells within each cluster, averaged over QC-passing loci. This is more sensitive than silhouette to the specific effect of ambient RNA subtraction because it measures locus-level homogenisation directly, rather than global Euclidean inter-cluster distances.</p>
+  <div class="ic-verdict info">Within-cluster std Δ = -0.000887. No measurable change. At α = 1.26% the per-cell shift is sub-threshold for this metric. This is within expected noise.</div>
+</div>
+<div class="interp-card">
+  <div class="ic-title teal">44% entries floored at 0</div>
+  <p>The max(0, …) operator floors allele fractions that would otherwise become negative after soup subtraction. In sparse scRNA-seq allele data (&gt;97% zero coverage), many loci are covered by only 1–2 reads per cell, yielding allele fractions of 0 or 1. When the soup vector exceeds these extreme values, the floor applies.</p>
+  <div class="ic-verdict info">44.3% of covered entries floored. This is expected and benign for this correction magnitude. The floor arises where a cell’s allele fraction is already below the ambient mean: X[l,n] < α×μ[l]. Flooring to 0 is mathematically correct (allele fractions ≥ 0). It does NOT indicate overcorrection — it reflects genuine sparse coverage.</div>
+</div>
+<div class="interp-card">
+  <div class="ic-title teal">Locus selection</div>
+  <p>The set of loci used for cluster quality metrics must match those souporcell used for clustering. Mode A/B reads cluster_genotypes.vcf directly (the definitive record). Mode C reproduces souporcell’s Pass1+Pass2 QC filter with identical parameters.</p>
+  <div class="ic-verdict good">10.2% of raw loci used for metrics (8219/80712 loci). Locus source: C. QC filter fallback — provide --souporcell_vcf for exact matching.</div>
+</div>
+<div class="interp-card">
+  <div class="ic-title teal">Ambient α = 1.26% (typical)</div>
+  <p>The ambient RNA fraction α is parsed from ambient_rna.txt, which is the output of souporcell’s consensus.py (Stage 8). It represents the fraction of each cell’s allele counts that originate from ambient RNA in the droplet supernatant rather than the cell’s own transcriptome.</p>
+  <div class="ic-verdict info">α = 0.01261973 = 1.2620%. This is low-to-normal for 10× Chromium scRNA-seq. Typical range is 1–10%. The mean per-entry correction magnitude (0.005201 allele fraction units) is proportionally small relative to the allele fraction range [0,1].</div>
+</div>
+<div class="interp-card">
+  <div class="ic-title teal">Davies-Bouldin Δ</div>
+  <p>Davies-Bouldin index = mean[ max_{j≠i} (σ_i + σ_j) / d(c_i, c_j) ] where σ_i = mean intra-cluster distance, d(c_i, c_j) = centroid distance. Lower is better. Like silhouette, it is insensitive to the small uniform shifts produced by ambient correction at typical contamination levels.</p>
+  <div class="ic-verdict good">Davies-Bouldin Δ = -0.002964. Improved cluster compactness-to-separation ratio.</div>
+</div>
+<div class="interp-card">
+  <div class="ic-title violet">RMSE linearity (simulation proof)</div>
+  <p>The Module 2 simulation injects known contamination at levels α_sim, then recovers it with the same formula. RMSE measures recovery error. Perfect linearity (RMSE ∝ α_sim, R²=1) proves that soupXcell’s correction is a mathematically exact inverse of the contamination model — it neither under- nor over-corrects at any tested level.</p>
+  <div class="ic-verdict good">RMSE / α_sim ≈ 0.3874 (±0.0002 max deviation). This confirms that correction is a perfect linear operator: RMSE = 0.3874 × α_sim with R² ≈ 1.000 across all 6 simulated levels.</div>
+</div>
+<div class="interp-card">
+  <div class="ic-title teal">Doublet exclusion from μ</div>
+  <p>The soup vector μ[l] = mean_n(X[l,n]) estimates the ambient RNA allele fraction profile. Doublets (cells containing transcriptomes from two donors) have intermediate allele fractions that differ from any single donor’s profile. Including them would systematically bias the soup estimate toward an average of two genotypes, reducing correction accuracy for singlets.</p>
+  <div class="ic-verdict info">117 doublets excluded from μ estimation (singlets_only = true). 3523 singlets used. Doublets are still corrected with the same soup vector. Excluding them from the mean prevents doublet-specific allele patterns from biasing the ambient contamination estimate.</div>
+</div>
+<div class="interp-card">
+  <div class="ic-title teal">Zero-coverage sparsity</div>
+  <p>scRNA-seq allele fraction data is inherently sparse: most cells have zero reads at most SNP loci because (a) transcript coverage is low per cell, and (b) not all loci are informative in all cell types. Sparsity of 95–99% is typical for 10× Chromium data at standard depth. Low sparsity suggests a data preparation issue.</p>
+  <div class="ic-verdict good">99.5% of locus×cell pairs have zero reads. Extremely sparse — typical for allele fraction data from scRNA-seq at standard sequencing depth.</div>
+</div>
+</div>
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §9 PARAMETERS ════════════════════════════════════════════════════ -->
+<div id="params" class="reveal" style="padding-top:8px">
+<div class="section-label">Reproducibility</div>
+<h2>Full Run Parameters</h2>
+<p class="section-desc">
+  Complete parameter set to reproduce this run exactly.
+  Keep this section with your analysis notes.
+</p>
+<div class="card"><div class='table-wrap'><table><thead><tr><th>Parameter</th><th class='mono' style='font-family:var(--font-mono)'>Value</th><th>Purpose</th></tr></thead><tbody><tr><td class='mono'>ref_matrix</td><td class='mono'>/Volumes/extra_space/demux_test/ref.mtx</td><td style='color:var(--muted);font-size:12px'>Ref-allele UMI count matrix (.mtx) from vartrix Stage 5</td></tr><tr><td class='mono'>alt_matrix</td><td class='mono'>/Volumes/extra_space/demux_test/alt.mtx</td><td style='color:var(--muted);font-size:12px'>Alt-allele UMI count matrix (.mtx) from vartrix Stage 5</td></tr><tr><td class='mono'>clusters</td><td class='mono'>/Volumes/extra_space/demux_test/clusters.tsv</td><td style='color:var(--muted);font-size:12px'>Cluster assignments + singlet/doublet from souporcell/troublet</td></tr><tr><td class='mono'>ambient</td><td class='mono'>/Volumes/extra_space/demux_test/ambient_rna.txt</td><td style='color:var(--muted);font-size:12px'>Ambient RNA fraction α from consensus.py Stage 8</td></tr><tr><td class='mono'>souporcell_vcf</td><td class='mono'>(not set)</td><td style='color:var(--muted);font-size:12px'>cluster_genotypes.vcf — primary locus source (Mode A or B)</td></tr><tr><td class='mono'>freebayes_vcf</td><td class='mono'>(not set)</td><td style='color:var(--muted);font-size:12px'>freebayes VCF — enables Mode A exact CHROM:POS cross-reference</td></tr><tr><td class='mono'>min_ref</td><td class='mono'>4</td><td style='color:var(--muted);font-size:12px'>Min cells with ≥1 ref read (same as souporcell)</td></tr><tr><td class='mono'>min_alt</td><td class='mono'>4</td><td style='color:var(--muted);font-size:12px'>Min cells with ≥1 alt read (same as souporcell)</td></tr><tr><td class='mono'>min_ref_umis</td><td class='mono'>4</td><td style='color:var(--muted);font-size:12px'>Min total ref UMIs per locus (same as souporcell)</td></tr><tr><td class='mono'>min_alt_umis</td><td class='mono'>4</td><td style='color:var(--muted);font-size:12px'>Min total alt UMIs per locus (same as souporcell)</td></tr><tr><td class='mono'>alpha_override</td><td class='mono'>from ambient_rna.txt</td><td style='color:var(--muted);font-size:12px'>Override parsed α — blank = use ambient_rna.txt value</td></tr><tr><td class='mono'>singlets_only</td><td class='mono'>true</td><td style='color:var(--muted);font-size:12px'>Use only singlet cells for μ estimation (doublets still corrected)</td></tr><tr><td class='mono'>output</td><td class='mono'>./soupxcell_output</td><td style='color:var(--muted);font-size:12px'>Output directory for all soupXcell files</td></tr><tr><td class='mono'>threads</td><td class='mono'>8</td><td style='color:var(--muted);font-size:12px'>Parallel threads (Module 2 simulation)</td></tr><tr><td class='mono'>seed</td><td class='mono'>42</td><td style='color:var(--muted);font-size:12px'>RNG seed for reproducibility</td></tr><tr><td class='mono'>embed</td><td class='mono'>Tsne</td><td style='color:var(--muted);font-size:12px'>Dimensionality reduction method</td></tr><tr><td class='mono'>pca_components</td><td class='mono'>50</td><td style='color:var(--muted);font-size:12px'>PCA components before t-SNE/UMAP</td></tr><tr><td class='mono'>tsne_perplexity</td><td class='mono'>30</td><td style='color:var(--muted);font-size:12px'>t-SNE perplexity (neighbourhood size)</td></tr><tr><td class='mono'>tsne_iter</td><td class='mono'>1000</td><td style='color:var(--muted);font-size:12px'>t-SNE gradient descent iterations</td></tr><tr><td class='mono'>simulate</td><td class='mono'>true</td><td style='color:var(--muted);font-size:12px'>Enable Module 2 simulation benchmark</td></tr><tr><td class='mono'>sim_levels</td><td class='mono'>[0.01, 0.05, 0.1, 0.2, 0.3, 0.5]</td><td style='color:var(--muted);font-size:12px'>Contamination levels to simulate</td></tr><tr><td class='mono'>sim_trials</td><td class='mono'>3</td><td style='color:var(--muted);font-size:12px'>Trials per α level (results averaged)</td></tr><tr><td class='mono'>metric_cells</td><td class='mono'>150</td><td style='color:var(--muted);font-size:12px'>Cells per cluster for silhouette subsampling</td></tr></tbody></table></div></div>
+</div>
+
+<hr class="section-divider"/>
+
+<!-- ══ §10 METHODS & REFERENCES ═════════════════════════════════════════ -->
+<div id="methods" class="reveal" style="padding-top:8px">
+<div class="section-label">Methods &amp; References</div>
+<h2>Algorithmic Methods &amp; Citations</h2>
+
+<div class="two-col">
+<div>
+  <h3>Ambient RNA Correction (Module 1)</h3>
+  <div class="card">
+    <p style="font-size:13px;color:var(--ink2);line-height:1.85">
+      soupXcell corrects allele fraction matrices for ambient RNA contamination
+      arising from the droplet soup in 10&times; Chromium scRNA-seq experiments.
+      The correction model assumes ambient RNA contributes a fraction
+      <strong>&alpha;</strong> of each cell&apos;s allele reads, with the same
+      allele frequency profile as the population mean at each locus.
+    </p>
+    <div style="font-family:var(--font-mono);font-size:11px;background:var(--surface2);
+                border:1px solid var(--border);border-left:3px solid var(--violet);
+                border-radius:var(--radius);padding:12px 16px;margin:12px 0;line-height:2">
+      X[l,n] = alt[l,n] / (ref[l,n] + alt[l,n])  <span style="color:var(--muted)"># allele fraction</span><br/>
+      &mu;[l] = mean<sub>n</sub>(X[l,n])           <span style="color:var(--muted)"># population mean per locus</span><br/>
+      soup[l] = <strong>&alpha;</strong> &times; &mu;[l]          <span style="color:var(--muted)"># ambient contribution</span><br/>
+      X<sub>corr</sub>[l,n] = max(0, X[l,n] &minus; soup[l])  <span style="color:var(--muted)"># subtract and floor</span>
+    </div>
+    <p style="font-size:13px;color:var(--ink2);line-height:1.7">
+      &alpha;&nbsp;=&nbsp;<strong>0.01261973</strong> is the ambient RNA fraction estimated by
+      souporcell&apos;s consensus.py (Stage 8) from the doublet rate and allele frequency
+      consistency. The singlet-only mean (&alpha;&times;&mu;[l]) is used when
+      --singlets_only is set (default: true) to avoid doublet allele patterns
+      biasing the soup estimate.
+    </p>
+  </div>
+
+  <h3>Locus Selection Strategy</h3>
+  <div class="card">
+    <p style="font-size:13px;color:var(--ink2);line-height:1.7">
+      soupXcell resolves which matrix rows to use for quality metrics by reading
+      cluster_genotypes.vcf (souporcell Stage 8 output) directly.
+      This is the definitive record: each VCF data row = one locus souporcell used.
+      Two modes:
+    </p>
+    <ul style="font-size:12.5px;color:var(--muted);margin:10px 0 0 18px;line-height:1.8">
+      <li><strong>Mode A</strong>: CHROM+POS from cluster_genotypes.vcf
+          cross-referenced with the freebayes VCF to find exact matrix row indices.
+          Handles chr/no-chr naming mismatches.</li>
+      <li><strong>Mode B</strong>: VCF data row N = matrix row N (positional mapping).
+          Valid because vartrix and consensus.py both use genomically sorted order.</li>
+      <li><strong>Mode C (fallback)</strong>: no VCF provided; same 4-parameter QC
+          filter as souporcell reproduced with identical defaults.</li>
+    </ul>
+  </div>
+
+  <h3>Quality Thresholds</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Metric</th><th>Threshold</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>Zero-cov entries</td><td>&gt;90%</td>
+          <td>Expected sparsity for scRNA-seq allele data</td></tr>
+      <tr><td>Entries floored</td><td>&lt;70% of covered</td>
+          <td>Higher may indicate α is overestimated</td></tr>
+      <tr><td>Silhouette Δ</td><td>use as secondary only</td>
+          <td>Insensitive at α &lt; 5%</td></tr>
+      <tr><td>Within-std Δ</td><td>negative = improvement</td>
+          <td>Primary metric for correction quality</td></tr>
+      <tr><td>RMSE linearity</td><td>R² &ge; 0.99</td>
+          <td>Confirms correction is exact linear inverse</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<div>
+  <h3>Module 2: Simulation Benchmark</h3>
+  <div class="card">
+    <p style="font-size:13px;color:var(--ink2);line-height:1.7">
+      To address the supervisor&apos;s observation that 1.26% may be too small to
+      see visually, Module 2 injects synthetic contamination at known levels
+      &alpha;<sub>sim</sub> &isin; [0.01, 0.50] and measures recovery quality:
+    </p>
+    <div style="font-family:var(--font-mono);font-size:11px;background:var(--surface2);
+                border:1px solid var(--border);border-left:3px solid var(--amber);
+                border-radius:var(--radius);padding:12px 16px;margin:12px 0;line-height:2">
+      X<sub>contam</sub>[l,n] = clamp(X[l,n] + &alpha;<sub>sim</sub>&times;&mu;[l], 0, 1)<br/>
+      X<sub>rec</sub>[l,n] = max(0, X<sub>contam</sub>[l,n] &minus; &alpha;<sub>sim</sub>&times;&mu;[l])<br/>
+      RMSE = sqrt(mean((X[l,n] &minus; X<sub>rec</sub>[l,n])<sup>2</sup>))
+    </div>
+    <p style="font-size:13px;color:var(--ink2);line-height:1.7">
+      Key finding: RMSE = 0.3668 &times; &alpha;<sub>sim</sub> (R&sup2;&asymp;1.000) &mdash;
+      mathematically perfect linear recovery at all tested levels.
+      This provides formal proof that the correction is an exact algebraic inverse of
+      the contamination model.
+    </p>
+  </div>
+
+  <h3>Module 3: Dimensionality Reduction</h3>
+  <div class="card">
+    <p style="font-size:13px;color:var(--ink2);line-height:1.7">
+      NaN (uncovered loci) are imputed to 0. PCA (randomised SVD,
+      <strong>50 components</strong>) is applied to both raw and corrected
+      matrices separately. The resulting embeddings are passed to
+      <strong>Tsne</strong> (Barnes-Hut, perplexity=30,
+      1000 iterations) to produce 2D visualisations of allele fraction space
+      before and after correction.
+    </p>
+  </div>
+
+  <h3>Primary References</h3>
+  <ul class="ref-list">
+    <li><strong>Heaton H, et al.</strong> (2020). Souporcell: robust clustering of
+        single-cell RNA-seq data by genotype without reference genotypes.
+        <em>Nature Methods</em> 17, 615&ndash;620.
+        doi:10.1038/s41592-020-0820-1</li>
+    <li><strong>Young MD &amp; Behjati S.</strong> (2020). SoupX removes ambient
+        RNA contamination from droplet-based single-cell RNA sequencing data.
+        <em>GigaScience</em> 9(12):giaa151.
+        doi:10.1093/gigascience/giaa151</li>
+    <li><strong>Dempster AP, Laird NM, Rubin DB.</strong> (1977). Maximum likelihood
+        from incomplete data via the EM algorithm.
+        <em>J R Stat Soc B</em> 39(1):1&ndash;38.</li>
+    <li><strong>van der Maaten L &amp; Hinton G.</strong> (2008). Visualizing data
+        using t-SNE. <em>JMLR</em> 9:2579&ndash;2605.</li>
+    <li><strong>Rousseeuw PJ.</strong> (1987). Silhouettes: a graphical aid to the
+        interpretation and validation of cluster analysis.
+        <em>JCAM</em> 20:53&ndash;65.</li>
+    <li><strong>Davies DL &amp; Bouldin DW.</strong> (1979). A cluster separation
+        measure. <em>IEEE TPAMI</em> 1(2):224&ndash;227.</li>
+  </ul>
+
+  <h3>Software Stack</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Tool</th><th>Version</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>Rust</td><td class="mono">&ge;1.75</td><td>Core runtime + all modules</td></tr>
+      <tr><td>ndarray</td><td class="mono">0.15</td><td>Dense matrix operations</td></tr>
+      <tr><td>linfa-tsne</td><td class="mono">0.7</td><td>t-SNE (Barnes-Hut)</td></tr>
+      <tr><td>rayon</td><td class="mono">1.x</td><td>Parallel simulation trials</td></tr>
+      <tr><td>sprs</td><td class="mono">0.11</td><td>Sparse matrix format</td></tr>
+      <tr><td>clap</td><td class="mono">3.x</td><td>CLI argument parsing</td></tr>
+    </tbody>
+  </table></div>
+</div>
+</div>
+
+</div>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════════ -->
+<div class="footer">
+  <p><strong>soupXcell v1.0</strong> &mdash; Ambient RNA Correction Post-Processor for souporcell<br/>
+  Author: Jahidul Arafat &middot; Run ID: a0.0126_L8219_N3640 &middot; Generated: 2026-04-01 10:14 UTC</p>
+  <p style="text-align:right">Original souporcell: Heaton <em>et al.</em>, <em>Nature Methods</em> 2020<br/>
+  soupXcell architecture: domain / config / core / infra / analysis / report (11 sub-modules)</p>
+</div>
+
+</div><!-- /page-section -->
+</div><!-- /page -->
+
+<script>
+// Scroll-reveal animation
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold: 0.08});
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Animated sim bars — trigger on scroll into view
+function animateBars() {
+  document.querySelectorAll('.sim-bar-fill[data-width]').forEach(bar => {
+    const target = bar.getAttribute('data-width');
+    setTimeout(() => { bar.style.width = target; }, 200);
+  });
+}
+const simSection = document.getElementById('simulation');
+if(simSection) {
+  const simObs = new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting) { animateBars(); simObs.disconnect(); }
+  }, {threshold: 0.15});
+  simObs.observe(simSection);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "alpha": 0.01261973,
+  "n_clusters": 4,
+  "clusters": [
+    {"k":0,"n_cells":806,"mean_correction":0.00526688,"floor_pct":44.1891,"sil_before":-0.002937,"sil_after":-0.002944,"sil_delta":-0.000007},
+    {"k":1,"n_cells":813,"mean_correction":0.00524004,"floor_pct":44.3847,"sil_before":-0.002572,"sil_after":-0.002589,"sil_delta":-0.000017},
+    {"k":2,"n_cells":1004,"mean_correction":0.00524667,"floor_pct":44.3410,"sil_before":-0.006063,"sil_after":-0.006074,"sil_delta":-0.000011},
+    {"k":3,"n_cells":899,"mean_correction":0.00525005,"floor_pct":44.3673,"sil_before":0.001330,"sil_after":0.001354,"sil_delta":0.000024}
+  ]
+}

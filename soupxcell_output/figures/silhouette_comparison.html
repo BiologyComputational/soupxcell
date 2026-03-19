@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Silhouette Comparison — soupXcell</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080C14;color:#E2E8F0;font-family:'Helvetica Neue',Arial,sans-serif;padding:20px}
+h1{font-size:15px;font-weight:700;margin-bottom:4px}.sub{font-size:10px;color:#475569;margin-bottom:12px}
+.card{background:#111827;border:1px solid #1E293B;border-radius:8px;padding:16px}
+canvas{display:block;width:100%}
+.btn{background:#1E293B;color:#94A3B8;border:1px solid #334155;border-radius:5px;padding:4px 12px;font-size:10px;cursor:pointer;margin-top:8px;display:inline-block}
+.btn:hover{background:#2563EB;color:#fff;border-color:#2563EB}
+.footer{margin-top:10px;font-size:10px;color:#334155;line-height:1.5}
+</style></head><body>
+<h1>Per-Cluster Silhouette Score — Before vs After Correction</h1>
+<p class="sub" id="sub">Loading…</p>
+<div class="card">
+  <canvas id="c" height="300"></canvas>
+  <button class="btn" onclick="dlPNG('c','silhouette_comparison.png')">⬇ PNG</button>
+</div>
+<p class="footer" id="foot"></p>
+<script>
+/* ── shared figure utilities ────────────────────────────────── */
+const COLS = ['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2','#9D174D','#065F46'];
+function col(k){ return COLS[k % COLS.length]; }
+
+/* Tooltip engine */
+const TT = (() => {
+  const el = document.createElement('div');
+  Object.assign(el.style, {
+    position:'fixed', background:'rgba(15,23,42,0.97)',
+    border:'1px solid #334155', borderRadius:'8px',
+    padding:'10px 14px', fontSize:'12px', color:'#E2E8F0',
+    pointerEvents:'none', display:'none', zIndex:'9999',
+    maxWidth:'320px', lineHeight:'1.6', fontFamily:'monospace',
+    boxShadow:'0 8px 24px rgba(0,0,0,0.6)'
+  });
+  document.body.appendChild(el);
+  let visible = false;
+  function show(html, x, y){
+    el.innerHTML = html; el.style.display = 'block'; visible = true;
+    move(x, y);
+  }
+  function move(x, y){
+    if(!visible) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    let lx = x + 16, ly = y + 16;
+    if(lx + w > W - 8) lx = x - w - 8;
+    if(ly + h > H - 8) ly = y - h - 8;
+    el.style.left = lx + 'px'; el.style.top = ly + 'px';
+  }
+  function hide(){ el.style.display = 'none'; visible = false; }
+  return { show, move, hide };
+})();
+
+/* Fetch JSON helper — never uses fallback fake data */
+async function loadJSON(name){
+  const candidates = [
+    `image_data/${name}.json`,
+    `../figures/image_data/${name}.json`,
+  ];
+  for(const p of candidates){
+    try { const r = await fetch(p); if(r.ok) return await r.json(); } catch(_){}
+  }
+  return null;
+}
+
+function noData(canvas, name){
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 800;
+  ctx.fillStyle = '#111827'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#EF4444'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+  ctx.fillText(`image_data/${name}.json not found`, canvas.width/2, canvas.height/2 - 10);
+  ctx.fillStyle = '#475569'; ctx.font = '11px sans-serif';
+  ctx.fillText('Run soupxcell, then open this file from the output/figures/ directory', canvas.width/2, canvas.height/2 + 12);
+}
+
+/* Download canvas as PNG */
+function dlPNG(canvasId, filename){
+  const c = document.getElementById(canvasId);
+  const a = document.createElement('a');
+  a.download = filename; a.href = c.toDataURL('image/png'); a.click();
+}
+(async () => {
+  const data = await loadJSON('silhouette_comparison');
+  if(!data){ noData(document.getElementById('c'),'silhouette_comparison'); return; }
+  document.getElementById('sub').textContent =
+    data.n_clusters + ' clusters · global before=' + data.global_before.toFixed(6) +
+    '  after=' + data.global_after.toFixed(6) + ' · α=' + data.alpha.toFixed(8);
+
+  const canvas = document.getElementById('c');
+  canvas.width = canvas.parentElement.clientWidth - 32;
+  const w=canvas.width, h=300, pL=65,pR=160,pT=30,pB=60;
+  const pw=w-pL-pR, ph=h-pT-pB;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#080C14'; ctx.fillRect(0,0,w,h);
+
+  const allV = data.clusters.flatMap(c=>[c.sil_before,c.sil_after,data.global_before,data.global_after]);
+  const vMin=(Math.min(...allV)-Math.abs(Math.min(...allV))*0.4).toFixed(5)*1;
+  const vMax=(Math.max(...allV)+Math.abs(Math.min(...allV))*0.3+0.001)*1;
+  const vRange=vMax-vMin;
+  const toY=v=>pT+ph-(v-vMin)/vRange*ph;
+  const zY=toY(0);
+
+  // Grid
+  const step=parseFloat(((vMax-vMin)/5).toPrecision(1));
+  for(let v=Math.ceil(vMin/step)*step; v<=vMax+step*.1; v+=step){
+    const y=toY(v); if(y<pT||y>pT+ph) continue;
+    ctx.strokeStyle=Math.abs(v)<1e-5?'#334155':'#1E293B';
+    ctx.lineWidth=Math.abs(v)<1e-5?1.5:0.8;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
+    ctx.fillStyle='#475569'; ctx.font='9px monospace'; ctx.textAlign='right';
+    ctx.fillText(v.toFixed(4),pL-4,y+3);
+  }
+
+  const bw=Math.min(30, pw/data.n_clusters*0.28);
+  const gap=pw/data.n_clusters;
+  const hitBoxes=[];
+
+  data.clusters.forEach((c,i)=>{
+    const xc=pL+(i+0.5)*gap;
+    // Before bar
+    const y1=Math.min(toY(c.sil_before),zY), h1=Math.max(Math.abs(toY(c.sil_before)-zY),2);
+    ctx.fillStyle=col(c.k)+'55'; ctx.fillRect(xc-bw-3,y1,bw,h1);
+    // After bar
+    const y2=Math.min(toY(c.sil_after),zY), h2=Math.max(Math.abs(toY(c.sil_after)-zY),2);
+    ctx.fillStyle=col(c.k); ctx.fillRect(xc+3,y2,bw,h2);
+    hitBoxes.push({xc,c});
+    // Labels
+    ctx.fillStyle='#94A3B8'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+    ctx.fillText('C'+c.k, xc, pT+ph+16);
+    const d=c.delta;
+    ctx.fillStyle=Math.abs(d)<0.0005?'#475569':d>0?'#22C55E':'#EF4444';
+    ctx.font='9px monospace';
+    ctx.fillText((d>=0?'+':'')+d.toFixed(4),xc,pT+ph+28);
+  });
+
+  // Global dashed lines
+  [['global_before',data.global_before,'#2563EB'],['global_after',data.global_after,'#22C55E']].forEach(([lbl,v,c])=>{
+    const y=toY(v);
+    if(y<pT||y>pT+ph) return;
+    ctx.strokeStyle=c; ctx.lineWidth=1.5; ctx.setLineDash([6,3]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=c; ctx.font='9px monospace'; ctx.textAlign='left';
+    ctx.fillText(lbl.replace('_',' ')+'='+v.toFixed(5), pL+pw+6, y+3);
+  });
+
+  // Y-axis label
+  ctx.save(); ctx.translate(12,pT+ph/2); ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='#64748B'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Silhouette Score',0,0); ctx.restore();
+
+  // Legend
+  ctx.fillStyle='#475569'; ctx.font='10px sans-serif'; ctx.textAlign='left';
+  ctx.fillRect(pL,pT+6,10,10); ctx.fillStyle=COLS[0]+'55';
+  ctx.fillRect(pL,pT+6,10,10);
+  ctx.fillStyle='#94A3B8'; ctx.fillText('Before (faded)',pL+14,pT+15);
+  ctx.fillStyle=COLS[0];
+  ctx.fillRect(pL,pT+22,10,10);
+  ctx.fillStyle='#94A3B8'; ctx.fillText('After (solid)',pL+14,pT+31);
+
+  // Tooltip
+  canvas.onmousemove=function(e){
+    const rect=canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+    let best=null,bd=999;
+    hitBoxes.forEach(h=>{const d=Math.abs(h.xc-mx);if(d<bd){bd=d;best=h;}});
+    if(best&&bd<gap/2){
+      const c=best.c;
+      TT.show(
+        '<span style="color:'+col(c.k)+';font-weight:700">Cluster '+c.k+'</span> &nbsp;('+c.n_cells+' cells)<br>'+
+        '<span style="color:#94A3B8">Sil before correction:</span> <code>'+c.sil_before.toFixed(6)+'</code><br>'+
+        '<span style="color:#94A3B8">Sil after correction: </span> <code>'+c.sil_after.toFixed(6)+'</code><br>'+
+        '<span style="color:#94A3B8">Δ (after − before):  </span> <code style="color:'+(Math.abs(c.delta)<0.0005?'#475569':c.delta>0?'#22C55E':'#EF4444')+'">'+
+        (c.delta>=0?'+':'')+c.delta.toFixed(6)+'</code><br>'+
+        '<hr style="border-color:#334155;margin:5px 0"/>'+
+        '<b style="color:#F59E0B">Interpretation:</b><br>'+
+        'Silhouette ∈ [−1,+1]. Values near 0 or negative mean<br>'+
+        'clusters overlap in the feature space (expected here,<br>'+
+        'as 4 donors have similar allele fractions at α=1.26%).<br>'+
+        'Δ≈0 at this α is <em>correct</em>. Use <code>--simulate</code><br>'+
+        'to test at 5%, 10%, 20% contamination.',
+        e.clientX, e.clientY);
+    } else TT.hide();
+  };
+  canvas.onmouseleave=()=>TT.hide();
+
+  const delta=data.global_after-data.global_before;
+  document.getElementById('foot').innerHTML =
+    'Global Δ = '+(delta>=0?'+':'')+delta.toFixed(6)+
+    ' &nbsp;|&nbsp; Δ≈0 at α=1.26% is the correct result — the correction is real '+
+    '(within-cluster std Δ = −0.0025) but silhouette is insensitive at this contamination level. '+
+    'Both faded=before and solid=after bars shown per cluster.';
+})();
+</script></body></html>

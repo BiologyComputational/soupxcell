@@ -1,0 +1,18 @@
+{
+  "run_alpha": 0.01261973,
+  "loci_raw": 80712,
+  "loci_qc": 8219,
+  "total_cells_clusters_tsv": 3640,
+  "total_cells_matrix": 3639,
+  "n_clusters": 4,
+  "global_sil_before": -0.002560,
+  "global_sil_after": -0.002563,
+  "mean_abs_correction": 0.00520142,
+  "pct_floored": 44.3173,
+  "clusters": [
+    {"cluster": 0, "singlets": 806, "doublets": 115, "total": 921, "sil_before": -0.002937, "sil_after": -0.002944, "mean_correction": 0.00526688},
+    {"cluster": 1, "singlets": 813, "doublets": 1, "total": 814, "sil_before": -0.002572, "sil_after": -0.002589, "mean_correction": 0.00524004},
+    {"cluster": 2, "singlets": 1004, "doublets": 1, "total": 1005, "sil_before": -0.006063, "sil_after": -0.006074, "mean_correction": 0.00524667},
+    {"cluster": 3, "singlets": 900, "doublets": 0, "total": 900, "sil_before": 0.001330, "sil_after": 0.001354, "mean_correction": 0.00525005}
+  ]
+}

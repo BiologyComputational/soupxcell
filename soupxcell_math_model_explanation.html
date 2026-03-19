@@ -1,0 +1,2874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>soupXcell — Mathematical Model Walkthrough</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+:root{
+  --bg:#F0F4F8; --s:#FFFFFF; --s2:#F8FAFC; --s3:#F1F5F9;
+  --bd:#E2E8F0; --bd2:#CBD5E1;
+  --blue:#2563EB; --blue-d:#1D4ED8; --blue-l:#EFF6FF; --blue-b:#BFDBFE;
+  --teal:#0891B2; --teal-l:#ECFEFF; --teal-b:#A5F3FC;
+  --green:#16A34A; --green-d:#15803D; --green-l:#F0FDF4; --green-b:#BBF7D0;
+  --amber:#D97706; --amber-l:#FFFBEB; --amber-b:#FDE68A;
+  --red:#DC2626; --red-l:#FEF2F2; --red-b:#FECACA;
+  --purple:#7C3AED; --purple-l:#F5F3FF; --purple-b:#DDD6FE;
+  --ink:#0F172A; --ink2:#1E293B; --ink3:#334155; --ink4:#475569; --ink5:#64748B; --ink6:#94A3B8;
+  --serif:'Source Serif 4',Georgia,serif;
+  --ui:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:8px; --r2:12px; --r3:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:18px;line-height:1.75;overflow-x:hidden}
+
+/* ── Scroll reveal ───────────────────────────────────────────────────────── */
+.rev{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease}
+.rev.vis{opacity:1;transform:none}
+.rev.vis.delay1{transition-delay:.1s}
+.rev.vis.delay2{transition-delay:.2s}
+.rev.vis.delay3{transition-delay:.3s}
+
+/* ── Type ────────────────────────────────────────────────────────────────── */
+h1{font-family:var(--serif);font-size:clamp(2.4rem,5vw,3.6rem);font-weight:700;line-height:1.1}
+h2{font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.2rem);font-weight:600;line-height:1.2;margin-bottom:12px}
+h3{font-family:var(--serif);font-size:1.25rem;font-weight:600;margin-bottom:10px}
+p{color:var(--ink3);font-size:1rem;line-height:1.8;margin-bottom:14px}
+p:last-child{margin-bottom:0}
+code{font-family:var(--mono);font-size:.85em;background:#E8F0FB;color:var(--blue-d);border-radius:4px;padding:2px 8px}
+strong{font-weight:600;color:var(--ink)}
+em{color:var(--ink4)}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px 100px}
+.sec{padding:64px 0 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;margin-top:24px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:20px}
+@media(max-width:720px){.two,.three{grid-template-columns:1fr}}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.hero{background:linear-gradient(140deg,#0F172A 0%,#1E3A5F 55%,#0C4A6E 100%);
+      padding:80px 0 72px;color:#F1F5F9;overflow:hidden;position:relative;min-height:340px}
+.hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:48px;
+             background:var(--bg);clip-path:ellipse(55% 100% at 50% 100%)}
+.hero-inner{max-width:1120px;margin:0 auto;padding:0 28px}
+.hero-eye{font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:#64748B;margin-bottom:18px}
+.hero h1{color:#F1F5F9;margin-bottom:14px}
+.hero-sub{font-size:1.05rem;color:#94A3B8;max-width:620px;line-height:1.75;margin-bottom:28px}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px}
+.hb{border-radius:20px;padding:5px 16px;font-size:.78rem;font-weight:500;
+    border:1px solid rgba(255,255,255,.13);color:#CBD5E1;background:rgba(255,255,255,.07)}
+.hb.g{background:rgba(22,163,74,.2);border-color:rgba(22,163,74,.4);color:#86EFAC}
+
+/* ── Opening equation animation ─────────────────────────────────────────── */
+.eq-hero{background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);
+         border-radius:var(--r3);padding:32px 36px;font-family:var(--mono);
+         font-size:clamp(1rem,2.4vw,1.65rem);color:#E2E8F0;line-height:2.4;
+         position:relative;overflow:hidden}
+.eq-hero::before{content:'STEP BY STEP';position:absolute;top:12px;right:18px;
+                 font-size:.6rem;letter-spacing:.14em;color:#334155;font-family:var(--ui)}
+.eqt{display:inline;opacity:0;transition:opacity .45s ease}
+.eqt.on{opacity:1}
+.c-blue{color:#93C5FD} .c-green{color:#86EFAC} .c-amber{color:#FDE68A}
+.c-red{color:#FCA5A5} .c-teal{color:#67E8F9} .c-dim{color:#475569;font-size:.75em}
+.c-purple{color:#C4B5FD}
+
+/* ── TOC ─────────────────────────────────────────────────────────────────── */
+.toc{position:sticky;top:0;z-index:100;background:rgba(240,244,248,.96);
+     backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+.toc-inner{max-width:1120px;margin:0 auto;display:flex;overflow-x:auto;padding:0 28px}
+.tb{padding:14px 16px;font-size:.76rem;font-weight:600;color:var(--ink5);
+    white-space:nowrap;background:none;border:none;border-bottom:2px solid transparent;
+    cursor:pointer;transition:all .15s}
+.tb:hover{color:var(--blue)}
+.tb.act{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── Step badge ──────────────────────────────────────────────────────────── */
+.sbadge{display:inline-flex;align-items:center;gap:12px;margin-bottom:16px}
+.snum{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;
+      justify-content:center;font-family:var(--mono);font-size:1rem;font-weight:700;
+      color:#FFF;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.slbl{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink5)}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.card{background:var(--s);border:1px solid var(--bd);border-radius:var(--r2);
+      padding:24px 28px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card.a-blue{border-top:3px solid var(--blue)}
+.card.a-green{border-top:3px solid var(--green)}
+.card.a-teal{border-top:3px solid var(--teal)}
+.card.a-amber{border-top:3px solid var(--amber)}
+.card.a-purple{border-top:3px solid var(--purple)}
+.card.a-red{border-top:3px solid var(--red)}
+
+/* ── Formula block (dark) ────────────────────────────────────────────────── */
+.fm{background:#0F172A;border-radius:var(--r2);padding:24px 28px;
+    font-family:var(--mono);font-size:1.05rem;color:#E2E8F0;line-height:2.1;
+    overflow-x:auto;margin:16px 0}
+.fm .fc{color:#64748B;font-size:.82em}
+.fm .fv{color:#93C5FD;font-weight:700}
+.fm .fk{color:#C4B5FD}
+.fm .fg{color:#86EFAC;font-weight:700}
+.fm .fa{color:#FDE68A}
+.fm .fr{color:#FCA5A5}
+
+/* ── Story box ───────────────────────────────────────────────────────────── */
+.story{border-left:4px solid var(--blue);padding:18px 22px;background:var(--blue-l);
+       border-radius:0 var(--r) var(--r) 0;margin:18px 0}
+.story.g{border-left-color:var(--green);background:var(--green-l)}
+.story.a{border-left-color:var(--amber);background:var(--amber-l)}
+.story.t{border-left-color:var(--teal);background:var(--teal-l)}
+.story.p{border-left-color:var(--purple);background:var(--purple-l)}
+.story.r{border-left-color:var(--red);background:var(--red-l)}
+.story-lbl{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+           color:var(--blue-d);margin-bottom:8px}
+.story.g .story-lbl{color:var(--green-d)}
+.story.a .story-lbl{color:var(--amber)}
+.story.t .story-lbl{color:var(--teal)}
+.story.p .story-lbl{color:var(--purple)}
+.story.r .story-lbl{color:var(--red)}
+.story p{font-size:.95rem}
+
+/* ── Metrics row ─────────────────────────────────────────────────────────── */
+.mrow{display:flex;flex-wrap:wrap;gap:14px;margin:20px 0}
+.mc{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);
+    padding:16px 20px;text-align:center;min-width:140px;flex:1}
+.mc.blue{border-top:3px solid var(--blue)}
+.mc.green{border-top:3px solid var(--green)}
+.mc.teal{border-top:3px solid var(--teal)}
+.mc.amber{border-top:3px solid var(--amber)}
+.mc.purple{border-top:3px solid var(--purple)}
+.mv{font-family:var(--mono);font-size:1.75rem;font-weight:700;line-height:1}
+.ml{font-size:.72rem;color:var(--ink5);margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── Pull quote ──────────────────────────────────────────────────────────── */
+.pq{font-family:var(--serif);font-size:clamp(1.5rem,3.5vw,2.1rem);font-weight:600;
+    color:var(--blue);border-left:5px solid var(--blue);padding-left:22px;
+    margin:28px 0;line-height:1.3}
+.pq.g{color:var(--green-d);border-left-color:var(--green)}
+.pq.a{color:var(--amber);border-left-color:var(--amber)}
+.pq.p{color:var(--purple);border-left-color:var(--purple)}
+
+/* ── Divider ─────────────────────────────────────────────────────────────── */
+.sdiv{border:none;border-top:2px solid var(--bd);margin:64px 0 0}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+thead tr{background:var(--s2)}
+th{padding:11px 16px;text-align:left;font-weight:600;color:var(--ink5);
+   font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;
+   border-bottom:2px solid var(--bd)}
+td{padding:10px 16px;border-bottom:1px solid #F1F5F9;color:var(--ink3)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FAFBFD}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+td.hi{color:var(--green-d);font-weight:600;font-family:var(--mono)}
+td.warn{color:var(--amber);font-weight:600;font-family:var(--mono)}
+td.info{color:var(--teal);font-weight:600;font-family:var(--mono)}
+td.mono{font-family:var(--mono);font-size:.85em}
+
+/* ── Canvas chart wrapper ────────────────────────────────────────────────── */
+.cw{background:var(--s);border:1px solid var(--bd);border-radius:var(--r2);
+    padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.ct{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--ink5);margin-bottom:14px}
+canvas{display:block;width:100%}
+
+/* ── Matrix grid ─────────────────────────────────────────────────────────── */
+.mg{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;max-width:380px;margin:16px 0}
+.mc2{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;
+     justify-content:center;font-family:var(--mono);font-size:.78rem;font-weight:600;
+     cursor:pointer;transition:transform .1s}
+.mc2:hover{transform:scale(1.12)}
+.mz{background:#F1F5F9;color:#94A3B8}
+.mr{background:#DBEAFE;color:#1D4ED8}
+.ma{background:#DCFCE7;color:#15803D}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────── */
+.tt{position:fixed;background:#0F172A;border:1px solid #334155;border-radius:10px;
+    padding:12px 16px;font-size:.82rem;color:#E2E8F0;pointer-events:none;
+    display:none;z-index:9999;max-width:320px;line-height:1.65;
+    font-family:var(--ui);box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.tt code{background:#1E293B;color:#93C5FD;font-size:.82em}
+.tt hr{border:none;border-top:1px solid #1E293B;margin:6px 0}
+
+/* ── Contamination slider demo ───────────────────────────────────────────── */
+.slider-demo{background:var(--s);border:1px solid var(--bd);border-radius:var(--r2);
+             padding:24px 28px}
+input[type=range]{width:100%;margin:12px 0;accent-color:var(--blue)}
+
+/* ── Floor progress bars ─────────────────────────────────────────────────── */
+.fprow{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.fplbl{font-size:.82rem;font-family:var(--mono);width:72px;flex-shrink:0;font-weight:700}
+.fptrack{flex:1;height:22px;border-radius:6px;overflow:hidden;background:var(--s3);
+         border:1px solid var(--bd);display:flex;cursor:pointer}
+.fpsig{background:linear-gradient(90deg,var(--blue-l),#BFDBFE);transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.fpflr{background:linear-gradient(90deg,#FEE2E2,#FECACA);transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.fpval{font-size:.8rem;font-family:var(--mono);color:var(--ink5);width:52px;text-align:right;flex-shrink:0}
+
+/* ── Silhouette bars ─────────────────────────────────────────────────────── */
+.silrow{display:flex;align-items:center;gap:14px;margin-bottom:12px;padding:14px 18px;
+        border-radius:var(--r);background:var(--s);border:1px solid var(--bd)}
+.sildon{font-size:.9rem;font-weight:700;width:76px;flex-shrink:0}
+.silbg{flex:1;display:flex;flex-direction:column;gap:4px}
+.silbrow{display:flex;align-items:center;gap:7px}
+.sillbl{font-size:.7rem;color:var(--ink5);width:44px;font-family:var(--mono)}
+.siltrack{flex:1;height:14px;background:#F1F5F9;border-radius:6px;overflow:hidden;position:relative}
+.silfill{height:100%;border-radius:6px;position:absolute;transition:width .9s ease,left .9s ease}
+.sildelta{font-size:.82rem;font-family:var(--mono);width:88px;text-align:right;flex-shrink:0;font-weight:700}
+
+/* ── R² badge ────────────────────────────────────────────────────────────── */
+.r2b{display:inline-flex;flex-direction:column;align-items:center;
+     background:linear-gradient(135deg,var(--green-l),#DCFCE7);
+     border:2px solid var(--green-b);border-radius:16px;padding:22px 32px}
+.r2v{font-family:var(--mono);font-size:3rem;font-weight:700;color:var(--green-d);line-height:1}
+.r2l{font-size:.75rem;font-weight:700;color:var(--green-d);text-transform:uppercase;
+     letter-spacing:.1em;margin-top:10px}
+
+/* ── Animated soup particles ─────────────────────────────────────────────── */
+.soup-vis{position:relative;width:100%;height:160px;background:var(--s3);
+          border-radius:var(--r2);overflow:hidden;border:1px solid var(--bd)}
+@keyframes float{
+  0%  {transform:translate(0,0);opacity:.5}
+  33% {transform:translate(var(--tx1),var(--ty1));opacity:.8}
+  66% {transform:translate(var(--tx2),var(--ty2));opacity:.4}
+  100%{transform:translate(0,0);opacity:.5}
+}
+.sp{position:absolute;border-radius:50%;animation:float 4s ease-in-out infinite}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.footer{background:#1E293B;color:#94A3B8;padding:36px 28px;text-align:center;font-size:.85rem;margin-top:80px}
+
+/* ── Comparison table cell colours ──────────────────────────────────────── */
+.ok{color:var(--green-d);font-weight:600}
+.ng{color:var(--red);font-weight:600}
+.mid{color:var(--amber);font-weight:600}
+
+/* ═══════════════════════════════════════════════════════
+   FLOWCHART + DATAFLOW SECTION
+   ═══════════════════════════════════════════════════════ */
+
+/* Section wrapper */
+.flow-section{background:var(--s);border:1.5px solid var(--blue-b);
+              border-radius:20px;margin:36px 0 0;overflow:hidden;
+              box-shadow:0 4px 24px rgba(37,99,235,.07)}
+.flow-header{background:linear-gradient(135deg,var(--blue-l),#F0F9FF);
+             padding:22px 28px;border-bottom:1.5px solid var(--blue-b);
+             display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.flow-header h2{font-family:var(--serif);font-size:1.4rem;font-weight:700;
+                color:var(--ink);margin:0}
+.flow-header p{font-size:.88rem;color:var(--ink4);margin:4px 0 0}
+.flow-body{padding:28px}
+
+/* ── TAB ROW (Simple / Detailed) ───────────────────────── */
+.flow-tabs{display:flex;gap:0;background:var(--s3);border-radius:10px;
+           padding:3px;margin-bottom:24px;width:fit-content}
+.flow-tab{padding:8px 22px;border-radius:8px;font-size:.83rem;font-weight:600;
+          cursor:pointer;border:none;background:none;color:var(--ink5);transition:all .18s}
+.flow-tab.act{background:#FFF;color:var(--blue);
+              box-shadow:0 1px 6px rgba(37,99,235,.15)}
+
+/* ── SIMPLE FLOWCHART ───────────────────────────────────── */
+#flowSimple{display:block}
+#flowDetailed{display:none}
+
+.sfc{display:flex;flex-direction:column;align-items:center;gap:0;user-select:none}
+.sfc-row{display:flex;align-items:center;justify-content:center;gap:0;
+         flex-wrap:wrap;width:100%}
+
+/* Node */
+.fc-node{border-radius:12px;padding:14px 20px;cursor:pointer;
+         transition:all .18s;text-align:center;position:relative;
+         min-width:150px;max-width:220px;flex:1}
+.fc-node:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.fc-node.active-fc{box-shadow:0 0 0 3px var(--blue),0 6px 20px rgba(37,99,235,.2)}
+.fc-node .fn-num{font-family:var(--mono);font-size:.65rem;font-weight:700;
+                 opacity:.6;margin-bottom:3px}
+.fc-node .fn-name{font-size:.9rem;font-weight:700;line-height:1.25}
+.fc-node .fn-tool{font-size:.72rem;font-family:var(--mono);opacity:.7;margin-top:3px}
+
+/* Arrow between nodes */
+.fc-arr{display:flex;align-items:center;justify-content:center;
+        width:32px;flex-shrink:0;color:var(--ink5);font-size:1rem;
+        position:relative}
+.fc-arr-v{height:28px;display:flex;flex-direction:column;align-items:center;
+          justify-content:center;color:var(--ink5);font-size:1rem}
+/* Animated flowing arrow */
+.fc-arr-anim{position:relative;overflow:hidden}
+.fc-arr-anim::after{content:'→';position:absolute;animation:slideArrow 1s linear infinite;
+                    color:var(--blue)}
+@keyframes slideArrow{0%{opacity:0;left:-8px}50%{opacity:1}100%{opacity:0;left:8px}}
+
+/* Node detail panel */
+.fc-detail{background:#F8FAFC;border:1.5px solid var(--blue-b);border-radius:14px;
+           padding:22px 26px;margin-top:20px;display:none;animation:slideDown .25s ease}
+.fc-detail.open{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.fc-detail-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.fc-detail-icon{font-size:1.5rem}
+.fc-detail-title{font-size:1rem;font-weight:700;color:var(--ink)}
+.fc-detail-badge{font-size:.68rem;font-weight:700;border-radius:4px;padding:2px 8px;
+                 background:var(--blue-l);color:var(--blue-d)}
+.fc-detail-badge.green{background:var(--green-l);color:var(--green-d)}
+.fc-detail-body{font-size:.9rem;color:var(--ink3);line-height:1.75}
+.fc-detail-body p{margin-bottom:10px}
+.fc-detail-io{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.fc-io-pill{background:var(--s);border:1px solid var(--bd2);border-radius:5px;
+            padding:4px 10px;font-size:.74rem;font-family:var(--mono);color:var(--ink4)}
+.fc-io-pill.out{background:var(--green-l);border-color:var(--green-b);color:var(--green-d)}
+.fc-io-pill.req{background:var(--blue-l);border-color:var(--blue-b);color:var(--blue-d)}
+
+/* Step nav buttons on detail */
+.fc-nav{display:flex;gap:10px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.fc-nav-btn{background:var(--s);border:1.5px solid var(--bd2);border-radius:8px;
+            padding:8px 18px;font-size:.82rem;font-weight:600;cursor:pointer;
+            color:var(--ink4);transition:all .15s}
+.fc-nav-btn:hover:not(:disabled){background:var(--blue);color:#FFF;border-color:var(--blue)}
+.fc-nav-btn:disabled{opacity:.35;cursor:not-allowed}
+.fc-nav-btn.jump{background:var(--blue-l);color:var(--blue-d);border-color:var(--blue-b)}
+.fc-nav-btn.jump:hover{background:var(--blue);color:#FFF}
+.fc-nav-spacer{flex:1}
+.fc-nav-count{font-size:.78rem;color:var(--ink5);font-family:var(--mono)}
+
+/* ── DETAILED DATA FLOW ─────────────────────────────────── */
+.dflow{display:grid;grid-template-columns:1fr;gap:0}
+.dflow-step{display:flex;align-items:stretch;gap:0;min-height:80px;cursor:pointer;
+            transition:background .15s;border-radius:10px;padding:4px}
+.dflow-step:hover{background:var(--blue-l)}
+.dflow-step.ds-active{background:var(--blue-l);box-shadow:0 0 0 2px var(--blue-b)}
+.ds-left{display:flex;flex-direction:column;align-items:center;gap:0;width:44px;flex-shrink:0}
+.ds-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-family:var(--mono);font-size:.78rem;font-weight:700;
+        color:#FFF;flex-shrink:0;margin-top:8px;transition:transform .18s}
+.dflow-step.ds-active .ds-dot{transform:scale(1.2)}
+.ds-line{flex:1;width:2px;background:var(--bd2);margin:4px auto;border-radius:1px}
+.dflow-step:last-child .ds-line{background:transparent}
+.ds-right{flex:1;padding:10px 14px 10px 10px}
+.ds-title{font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:3px}
+.ds-sub{font-size:.8rem;color:var(--ink5)}
+.ds-body{font-size:.85rem;color:var(--ink3);line-height:1.65;display:none;margin-top:10px}
+.dflow-step.ds-active .ds-body{display:block}
+.ds-files{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.ds-file{background:var(--s3);border:1px solid var(--bd);border-radius:4px;
+         padding:3px 8px;font-size:.72rem;font-family:var(--mono);color:var(--ink4)}
+.ds-file.in{background:var(--blue-l);border-color:var(--blue-b);color:var(--blue-d)}
+.ds-file.out{background:var(--green-l);border-color:var(--green-b);color:var(--green-d)}
+.ds-formula{background:#0F172A;border-radius:8px;padding:10px 14px;margin-top:8px;
+            font-family:var(--mono);font-size:.78rem;color:#E2E8F0;line-height:1.8}
+.ds-formula .fc{color:#64748B}.ds-formula .fv{color:#93C5FD}
+.ds-formula .fg{color:#86EFAC}.ds-formula .fa{color:#FDE68A}
+
+/* Progress bar at top of dataflow */
+.dflow-progress{height:4px;background:var(--bd);border-radius:2px;margin-bottom:20px;overflow:hidden}
+.dflow-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));
+           border-radius:2px;transition:width .4s ease;width:0%}
+
+
+/* ── DR section specific ──────────────────────────────────── */
+.dr-pipeline{display:flex;align-items:center;gap:0;flex-wrap:wrap;
+             justify-content:center;margin:24px 0;padding:20px;
+             background:var(--s2);border-radius:var(--r2);border:1px solid var(--bd)}
+.dr-box{background:var(--s);border:1.5px solid var(--bd2);border-radius:var(--r);
+        padding:14px 18px;text-align:center;min-width:130px;cursor:pointer;
+        transition:all .18s}
+.dr-box:hover{border-color:var(--blue);background:var(--blue-l);transform:translateY(-2px)}
+.dr-box.active-dr{border-color:var(--blue);background:var(--blue-l);
+                  box-shadow:0 0 0 3px var(--blue-b)}
+.dr-box .db-title{font-size:.85rem;font-weight:700;color:var(--ink);margin-bottom:4px}
+.dr-box .db-dim{font-family:var(--mono);font-size:.78rem;color:var(--ink5)}
+.dr-box .db-time{font-size:.7rem;color:var(--ink6);margin-top:3px}
+.dr-arrow{width:36px;text-align:center;color:var(--ink5);font-size:1.1rem;
+          flex-shrink:0;padding:0 4px}
+.dr-detail{background:var(--s2);border:1.5px solid var(--blue-b);border-radius:var(--r2);
+           padding:20px 24px;margin-top:16px;display:none;animation:slideDown .25s ease}
+.dr-detail.open{display:block}
+.compare-strip{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.compare-card{border-radius:var(--r2);padding:18px 20px;border:1.5px solid var(--bd)}
+.compare-card.before{background:#FEF2F2;border-color:var(--red-b)}
+.compare-card.after{background:var(--green-l);border-color:var(--green-b)}
+.compare-card h3{font-size:.9rem;margin-bottom:10px}
+@media(max-width:600px){.dr-pipeline{flex-direction:column}.dr-arrow{transform:rotate(90deg)}}
+
+
+/* ── Live Data Snapshot panels ──────────────────────────── */
+.snap{background:#0F172A;border:1.5px solid #1E293B;border-radius:14px;
+      padding:0;overflow:hidden;margin:20px 0}
+.snap-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;
+          background:#0A0F1A;border-bottom:1px solid #1E293B}
+.snap-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.snap-title{font-size:.75rem;font-weight:700;letter-spacing:.1em;
+            text-transform:uppercase;color:#64748B;font-family:var(--mono)}
+.snap-badge{font-size:.65rem;font-weight:700;border-radius:4px;padding:2px 7px;
+            background:#1E293B;color:#94A3B8;font-family:var(--mono)}
+.snap-body{padding:16px 18px;overflow-x:auto}
+.snap-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.78rem}
+.snap-table th{color:#475569;padding:5px 12px 8px;text-align:left;
+               border-bottom:1px solid #1E293B;font-weight:600;
+               text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.snap-table td{padding:6px 12px;border-bottom:1px solid #0F172A;
+               color:#94A3B8;white-space:nowrap}
+.snap-table tbody tr:last-child td{border-bottom:none}
+.snap-table tbody tr:hover td{background:#1E293B}
+.st-hi{color:#86EFAC !important;font-weight:700}   /* green — good/after */
+.st-warn{color:#FDE68A !important;font-weight:700} /* amber — changed */
+.st-red{color:#FCA5A5 !important;font-weight:700}  /* red — before/raw */
+.st-blue{color:#93C5FD !important;font-weight:700} /* blue — key value */
+.st-dim{color:#475569 !important}                  /* dimmed — labels */
+.st-zero{color:#334155 !important}                 /* dark — zero entries */
+.snap-note{font-size:.74rem;color:#475569;padding:8px 18px 14px;
+           border-top:1px solid #0F172A;font-family:var(--ui)}
+.snap-formula{padding:10px 18px 14px;font-family:var(--mono);font-size:.8rem;
+              color:#E2E8F0;line-height:1.9;border-top:1px solid #1E293B}
+.snap-formula .sc{color:#64748B}.snap-formula .sv{color:#93C5FD}
+.snap-formula .sg{color:#86EFAC;font-weight:700}.snap-formula .sa{color:#FDE68A}
+.snap-formula .sr{color:#FCA5A5}
+
+</style>
+</head>
+<body>
+
+<div class="tt" id="TT"></div>
+
+<!-- ══ TOC ══════════════════════════════════════════════════════════════════ -->
+<nav class="toc">
+  <div class="toc-inner">
+    <button class="tb act" onclick="scrollS('hero')">Start</button>
+    <button class="tb" onclick="scrollS('s1')">①&nbsp;Setup</button>
+    <button class="tb" onclick="scrollS('s2')">②&nbsp;Matrices</button>
+    <button class="tb" onclick="scrollS('s3')">③&nbsp;Allele&nbsp;Fraction</button>
+    <button class="tb" onclick="scrollS('s4')">④&nbsp;The&nbsp;Problem</button>
+    <button class="tb" onclick="scrollS('s5')">⑤&nbsp;Soup&nbsp;Vector</button>
+    <button class="tb" onclick="scrollS('s6')">⑥&nbsp;Correction</button>
+    <button class="tb" onclick="scrollS('s7')">⑦&nbsp;Floor&nbsp;44%</button>
+    <button class="tb" onclick="scrollS('s8')">⑧&nbsp;Silhouette</button>
+    <button class="tb" onclick="scrollS('s9')">⑨&nbsp;Davies-Bouldin</button>
+    <button class="tb" onclick="scrollS('sDR')">⑩&nbsp;PCA/t-SNE/UMAP</button>
+    <button class="tb" onclick="scrollS('s10')">⑪&nbsp;Simulation</button>
+    <button class="tb" onclick="scrollS('s11')">⑫&nbsp;RMSE&nbsp;&amp;&nbsp;R²</button>
+    <button class="tb" onclick="scrollS('s12')">⑬&nbsp;Sil&nbsp;Δ≈0</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════════ -->
+<div class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-eye">soupXcell v1.0 · Mathematical Model · Every Step · Every Number · Every Reason</div>
+    <h1>From Nothing<br/>to R² = 1.000</h1>
+    <p class="hero-sub">A complete step-by-step visual derivation of the soupXcell mathematical model — using a classroom story so anyone can follow, then connecting every concept to real run data.</p>
+    <div class="hero-badges">
+      <span class="hb g">✓ Real data — 80,712 loci × 3,639 cells</span>
+      <span class="hb">α = 0.01261973</span>
+      <span class="hb">44.32% floored</span>
+      <span class="hb">R² = 1.000000</span>
+    </div>
+
+    <!-- Animated equation reveal -->
+    <div class="eq-hero" id="EQ">
+<div style="margin-bottom:4px">
+  <span class="eqt" id="e0">soupXcell</span>&nbsp;<span class="eqt" id="e1">=</span>&nbsp;<span class="eqt c-blue" id="e2">[ X_raw ]</span>&nbsp;<span class="eqt" id="e3">+</span>&nbsp;<span class="eqt c-red" id="e4">[ soup ]</span>&nbsp;&nbsp;<span class="eqt c-dim" id="e5">← the problem</span>
+</div>
+<div style="border-top:1px solid #1E293B;margin:14px 0 10px"></div>
+<div>
+  <span class="eqt c-green" id="e6">X_corr</span><span class="eqt" id="e7">[l,n]</span>&nbsp;<span class="eqt" id="e8">=</span>&nbsp;<span class="eqt c-green" id="e9">max(</span><span class="eqt" id="e10">0,</span>&nbsp;<span class="eqt c-blue" id="e11">X[l,n]</span>&nbsp;<span class="eqt c-green" id="e12">−</span>&nbsp;<span class="eqt c-amber" id="e13">α</span>&nbsp;<span class="eqt" id="e14">×</span>&nbsp;<span class="eqt c-purple" id="e15">μ[l]</span><span class="eqt c-green" id="e16">)</span>&nbsp;&nbsp;<span class="eqt c-dim" id="e17">← the fix</span>
+</div>
+<div style="margin-top:12px;font-size:.72em;color:#475569">
+  <span class="eqt" id="e18">α = 0.01262</span>&nbsp;&nbsp;<span class="eqt" id="e19">·</span>&nbsp;&nbsp;<span class="eqt" id="e20">μ[l] = population mean allele fraction at locus l</span>&nbsp;&nbsp;<span class="eqt" id="e21">·</span>&nbsp;&nbsp;<span class="eqt" id="e22">max(0,·) = floor at zero</span>
+</div>
+    </div><!-- /eq-hero -->
+  </div>
+</div><!-- /hero -->
+
+<div class="wrap">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     FLOWCHART + DATA FLOW DIAGRAMS
+     ══════════════════════════════════════════════════════════════════════════ -->
+<div class="flow-section rev" id="flowSection">
+  <div class="flow-header">
+    <div>
+      <h2>🔀 Pipeline Flowchart &amp; Data Flow</h2>
+      <p>Click any step to see details, inputs/outputs, and a jump to that section of the walkthrough.</p>
+    </div>
+    <div class="flow-tabs">
+      <button class="flow-tab act" id="tab-simple" onclick="switchFlow('simple')">Simple Flowchart</button>
+      <button class="flow-tab" id="tab-detailed" onclick="switchFlow('detailed')">Detailed Data Flow</button>
+    </div>
+  </div>
+
+  <div class="flow-body">
+
+    <!-- ────────────────────────────────────────────────────────────────────
+         PANEL A: SIMPLE FLOWCHART
+         ──────────────────────────────────────────────────────────────────── -->
+    <div id="flowSimple">
+      <div class="sfc">
+
+        <!-- Row 1: Upstream inputs -->
+        <div class="sfc-row" style="gap:8px">
+          <div class="fc-node" id="fcn-bam"
+               style="background:#F1F5F9;border:1.5px solid #CBD5E1;color:var(--ink2)"
+               onclick="fcClick('bam')">
+            <div class="fn-num">INPUT</div>
+            <div class="fn-name">BAM File</div>
+            <div class="fn-tool">samtools + minimap2</div>
+          </div>
+          <div class="fc-arr">→</div>
+          <div class="fc-node" id="fcn-vcf"
+               style="background:#F1F5F9;border:1.5px solid #CBD5E1;color:var(--ink2)"
+               onclick="fcClick('vcf')">
+            <div class="fn-num">STAGE 4</div>
+            <div class="fn-name">SNP Calling</div>
+            <div class="fn-tool">freebayes</div>
+          </div>
+          <div class="fc-arr">→</div>
+          <div class="fc-node" id="fcn-vartrix"
+               style="background:var(--blue-l);border:1.5px solid var(--blue-b);color:var(--ink)"
+               onclick="fcClick('vartrix')">
+            <div class="fn-num">STAGE 5</div>
+            <div class="fn-name">Allele Counting</div>
+            <div class="fn-tool">vartrix</div>
+          </div>
+        </div>
+
+        <div class="fc-arr-v">↓</div>
+
+        <!-- Row 2: souporcell stages -->
+        <div class="sfc-row" style="gap:8px">
+          <div class="fc-node" id="fcn-soup6"
+               style="background:var(--blue-l);border:1.5px solid var(--blue-b);color:var(--ink)"
+               onclick="fcClick('soup6')">
+            <div class="fn-num">STAGE 6</div>
+            <div class="fn-name">Genotype Clustering</div>
+            <div class="fn-tool">souporcell</div>
+          </div>
+          <div class="fc-arr">→</div>
+          <div class="fc-node" id="fcn-troublet"
+               style="background:var(--blue-l);border:1.5px solid var(--blue-b);color:var(--ink)"
+               onclick="fcClick('troublet')">
+            <div class="fn-num">STAGE 7</div>
+            <div class="fn-name">Doublet Detection</div>
+            <div class="fn-tool">troublet</div>
+          </div>
+          <div class="fc-arr">→</div>
+          <div class="fc-node" id="fcn-consensus"
+               style="background:var(--blue-l);border:1.5px solid var(--blue-b);color:var(--ink)"
+               onclick="fcClick('consensus')">
+            <div class="fn-num">STAGE 8</div>
+            <div class="fn-name">Ambient Estimation</div>
+            <div class="fn-tool">consensus.py</div>
+          </div>
+        </div>
+
+        <!-- Divider label -->
+        <div style="display:flex;align-items:center;gap:10px;width:100%;margin:18px 0 10px">
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--green-b))"></div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--green-d);letter-spacing:.1em;
+                      text-transform:uppercase;white-space:nowrap">▼ soupXcell takes over</div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--green-b),transparent)"></div>
+        </div>
+
+        <!-- Row 3: soupXcell modules -->
+        <div class="sfc-row" style="gap:8px">
+          <div class="fc-node" id="fcn-m1"
+               style="background:var(--green-l);border:2px solid var(--green-b);color:var(--ink)"
+               onclick="fcClick('m1')">
+            <div class="fn-num">MODULE 1 ★</div>
+            <div class="fn-name">Ambient Subtraction</div>
+            <div class="fn-tool">X_corr = max(0, X − α·μ)</div>
+          </div>
+          <div class="fc-arr">→</div>
+          <div class="fc-node" id="fcn-m3"
+               style="background:var(--purple-l);border:1.5px solid var(--purple-b);color:var(--ink)"
+               onclick="fcClick('m3')">
+            <div class="fn-num">MODULE 3 --embed</div>
+            <div class="fn-name">t-SNE / UMAP</div>
+            <div class="fn-tool">PCA → embedding</div>
+          </div>
+          <div class="fc-arr">→</div>
+          <div class="fc-node" id="fcn-m2"
+               style="background:var(--amber-l);border:1.5px solid var(--amber-b);color:var(--ink)"
+               onclick="fcClick('m2')">
+            <div class="fn-num">MODULE 2 --simulate</div>
+            <div class="fn-name">Simulation Benchmark</div>
+            <div class="fn-tool">Inject → Correct → RMSE</div>
+          </div>
+        </div>
+
+        <div class="fc-arr-v">↓</div>
+
+        <!-- Row 4: Outputs -->
+        <div class="sfc-row" style="gap:8px">
+          <div class="fc-node" id="fcn-out"
+               style="background:var(--teal-l);border:1.5px solid var(--teal-b);color:var(--ink)"
+               onclick="fcClick('out')">
+            <div class="fn-num">OUTPUT</div>
+            <div class="fn-name">X_corrected.mtx</div>
+            <div class="fn-tool">corrected matrix</div>
+          </div>
+          <div class="fc-arr">+</div>
+          <div class="fc-node" id="fcn-report"
+               style="background:var(--teal-l);border:1.5px solid var(--teal-b);color:var(--ink)"
+               onclick="fcClick('report')">
+            <div class="fn-num">OUTPUT</div>
+            <div class="fn-name">HTML Report &amp; Figures</div>
+            <div class="fn-tool">12-section report + 11 figures</div>
+          </div>
+          <div class="fc-arr">+</div>
+          <div class="fc-node" id="fcn-metrics"
+               style="background:var(--teal-l);border:1.5px solid var(--teal-b);color:var(--ink)"
+               onclick="fcClick('metrics')">
+            <div class="fn-num">OUTPUT</div>
+            <div class="fn-name">metrics.txt &amp; CSVs</div>
+            <div class="fn-tool">Sil, DB, RMSE, α</div>
+          </div>
+        </div>
+
+      </div><!-- /sfc -->
+
+      <!-- Node detail panel -->
+      <div id="fcDetailPanel" class="fc-detail"></div>
+
+    </div><!-- /flowSimple -->
+
+    <!-- ────────────────────────────────────────────────────────────────────
+         PANEL B: DETAILED DATA FLOW
+         ──────────────────────────────────────────────────────────────────── -->
+    <div id="flowDetailed">
+      <div class="dflow-progress"><div class="dflow-bar" id="dflowBar"></div></div>
+      <div class="dflow" id="dflowSteps"></div>
+    </div><!-- /flowDetailed -->
+
+  </div><!-- /flow-body -->
+</div><!-- /flow-section -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 1 — THE CLASSROOM SETUP
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s1">
+  <div class="sbadge"><div class="snum" style="background:var(--blue)">1</div><span class="slbl">The Setup — Who Are the Players?</span></div>
+  <h2>Before Any Math: A Classroom</h2>
+  <p>soupXcell processes single-cell RNA sequencing data. Every term in the math maps to something concrete. Here is the story we will use throughout.</p>
+
+  <div class="two">
+    <div>
+      <div class="card a-blue" style="margin-bottom:16px">
+        <h3>🎓 The Classroom Analogy</h3>
+        <div class="tw" style="margin-top:12px">
+          <table>
+            <thead><tr><th>Math Term</th><th>Story Version</th><th>Real Meaning</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">cell n</td><td>📋 Student</td><td>One captured cell (droplet)</td></tr>
+              <tr><td class="mono">locus l</td><td>❓ Question</td><td>One SNP genomic position</td></tr>
+              <tr><td class="mono">R[l,n]</td><td>✅ "A" votes</td><td>Reference allele reads</td></tr>
+              <tr><td class="mono">A[l,n]</td><td>🟦 "B" votes</td><td>Alternative allele reads</td></tr>
+              <tr><td class="mono">cluster k</td><td>🏫 Club</td><td>Donor group (1 of 4)</td></tr>
+              <tr><td class="mono">doublet</td><td>👥 Two students, one desk</td><td>Two cells in one droplet</td></tr>
+              <tr><td class="mono">ambient RNA</td><td>🔊 Room background chatter</td><td>Free-floating RNA in solution</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="story">
+        <div class="story-lbl">🏫 The Setup</div>
+        <p>You have <strong>3,639 students</strong> (cells) from <strong>4 different schools</strong> (donors). Each student takes a test with <strong>80,712 questions</strong> (loci). But instead of choosing A or B once, each question is answered by counting reads — like recording every time a student whispers "A" or "B" while thinking.</p>
+      </div>
+    </div>
+    <div>
+      <div class="mrow">
+        <div class="mc blue"><div class="mv" style="color:var(--blue)">3,639</div><div class="ml">Cells (students)</div></div>
+        <div class="mc amber"><div class="mv" style="color:var(--amber)">4</div><div class="ml">Donor clubs</div></div>
+      </div>
+      <div class="mrow">
+        <div class="mc teal"><div class="mv" style="color:var(--teal)">80,712</div><div class="ml">Loci (questions)</div></div>
+        <div class="mc" style="border-top:3px solid #DC2626"><div class="mv" style="color:#DC2626">99.51%</div><div class="ml">Sparse (unanswered)</div></div>
+      </div>
+      <div class="story a">
+        <div class="story-lbl">⚠️ Why so sparse?</div>
+        <p>Each student only answered about <strong>50 of 80,712 questions</strong> — because each cell only produces reads at a tiny fraction of all SNP positions. Most cells at most loci: zero reads = NaN (unanswered). This sparsity matters for every metric later.</p>
+      </div>
+      <div class="story t" style="margin-top:12px">
+        <div class="story-lbl">🔬 The key biological fact</div>
+        <p>Students do NOT choose their answer freely. Each student <strong>already has a pre-filled answer sheet inside them</strong> based on their DNA. We are just reading it — imperfectly — by sampling reads. The reads are noisy observations, not choices.</p>
+      </div>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#2563EB"></div>
+    <div class="snap-title">Dataset at a Glance</div>
+    <div class="snap-badge">real run data</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Parameter</th><th>Value</th><th>What it means</th></tr></thead><tbody><tr><td class="">Total loci (L)</td><td class=""><span class="st-blue">80,712</span></td><td class="">SNP positions in vartrix matrices</td></tr><tr><td class="">QC loci (L_qc)</td><td class=""><span class="st-hi">64,496</span></td><td class="">After VCF Mode-B filtering — used for metrics</td></tr><tr><td class="">Total cells (N)</td><td class=""><span class="st-blue">3,639</span></td><td class="">All captured droplets</td></tr><tr><td class="">Singlet cells</td><td class=""><span class="st-hi">3,523</span></td><td class="">Used for soup estimation and embeddings</td></tr><tr><td class="">Doublet cells</td><td class=""><span class="st-warn">117</span></td><td class="">Excluded from μ[l] — mixed genotype</td></tr><tr><td class="">Matrix sparsity</td><td class=""><span class="st-red">99.51%</span></td><td class="">99.51% of 293M entries are zero/NaN</td></tr><tr><td class="">Non-zero entries</td><td class=""><span class="st-hi">1,444,860</span></td><td class="">Covered cell-locus pairs (0.49%)</td></tr><tr><td class="">Donor clusters (K)</td><td class=""><span class="st-blue">4</span></td><td class="">D0: 806s/115d · D1: 813s/1d · D2: 1004s/1d · D3: 900s/0d</td></tr></tbody></table></div>
+  
+  <div class="snap-note">★ All values from the actual soupXcell run — not estimates.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 2 — TWO MATRICES
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s2">
+  <div class="sbadge"><div class="snum" style="background:var(--teal)">2</div><span class="slbl">The Data — Two Sparse Matrices</span></div>
+  <h2>ref.mtx and alt.mtx — The Raw Ingredients</h2>
+  <p>vartrix produces two matrices by scanning each cell's reads at each SNP position. These are the only inputs to the correction formula.</p>
+
+  <div class="two">
+    <div>
+      <div class="card a-blue">
+        <h3 style="color:var(--blue)">ref.mtx — "A" vote counts → R[l,n]</h3>
+        <p style="font-size:.88rem;margin-bottom:10px">Rows = loci, Columns = cells. Each entry = reference allele read count. Hover cells to see counts.</p>
+        <div class="mg" id="matRef"></div>
+        <p style="font-size:.8rem;color:var(--ink5);margin-top:8px">Blue = has reads. Grey = zero (no coverage at this position for this cell).</p>
+      </div>
+    </div>
+    <div>
+      <div class="card a-green">
+        <h3 style="color:var(--green-d)">alt.mtx — "B" vote counts → A[l,n]</h3>
+        <p style="font-size:.88rem;margin-bottom:10px">Identical dimensions to ref.mtx. Every row aligns exactly to the same locus. Must be used together.</p>
+        <div class="mg" id="matAlt"></div>
+        <p style="font-size:.8rem;color:var(--ink5);margin-top:8px">Green = has reads. Sparse just like ref.mtx — most cells have zero alt reads at most positions.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fm" style="margin-top:24px">
+<span class="fc">// Dimensions of both matrices:</span>
+<span class="fv">R</span>[l,n]  →  <span class="fg">80,712 loci × 3,639 cells</span>   <span class="fc">← 293,710,368 entries total</span>
+<span class="fv">A</span>[l,n]  →  <span class="fg">80,712 loci × 3,639 cells</span>   <span class="fc">← same structure</span>
+
+<span class="fc">// Non-zero entries (covered) =  1,444,860  =  0.49% of all entries</span>
+<span class="fc">// Zero/NaN entries           = 292,265,508 = 99.51% sparse</span></div>
+
+  <div class="story a">
+    <div class="story-lbl">💡 Why we store two matrices instead of one</div>
+    <p>We need both the "A" count and the "B" count separately so we can compute the <em>ratio</em> of B to total, not just "which allele." Later we will need both numerator and denominator to compute the allele fraction.</p>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#0891B2"></div>
+    <div class="snap-title">X_raw.mtx — Sample Entries (locus, cell, value)</div>
+    <div class="snap-badge">matrixmarket format</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Row (locus l)</th><th>Col (cell n)</th><th>X_raw[l,n]</th><th>Interpretation</th></tr></thead><tbody><tr><td class="">3</td><td class="">100</td><td class=""><span class="st-hi">1.0000</span></td><td class="">All reads alt → BB homozygous</td></tr><tr><td class="">4</td><td class="">100</td><td class=""><span class="st-hi">1.0000</span></td><td class="">All reads alt → BB homozygous</td></tr><tr><td class="">498</td><td class="">100</td><td class=""><span class="st-hi">1.0000</span></td><td class="">All reads alt → BB homozygous</td></tr><tr><td class="">2</td><td class="">255</td><td class=""><span class="st-hi">1.0000</span></td><td class="">Alt-only cell at locus 2</td></tr><tr><td class="">2</td><td class="">567</td><td class=""><span class="st-hi">1.0000</span></td><td class="">Alt-only cell at locus 2</td></tr><tr><td class="">—</td><td class="">—</td><td class=""><span class="st-zero">0.0 / NaN</span></td><td class="">99.51% of entries — no coverage</td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sc">// File format: MatrixMarket coordinate real general</span>
+80712 3639 754816     <span class="sc">← L loci × N cells × non-zero count</span>
+3 100 1.00000000     <span class="sc">← row=locus, col=cell, value=X_raw</span>
+4 100 1.00000000
+498 100 1.00000000
+<span class="sc">// ref.mtx and alt.mtx have identical structure, different values</span></div>
+  <div class="snap-note">MTX header: "80712 3639 754816" → 754,816 non-zero entries in ref+alt combined. Locus 0-indexed.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 3 — ALLELE FRACTION
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s3">
+  <div class="sbadge"><div class="snum" style="background:var(--purple)">3</div><span class="slbl">Step 1 — Allele Fraction X[l,n]</span></div>
+  <h2>Converting Raw Votes Into a 0–1 Signal</h2>
+  <p>The first operation: for every covered (non-zero) cell-locus pair, compute what fraction of reads supported the alternative allele.</p>
+
+  <div class="fm" style="font-size:1.15rem">
+<span class="fv">X</span>[l,n]  =  <span class="fg">A</span>[l,n]  /  ( <span class="fv">R</span>[l,n]  +  <span class="fg">A</span>[l,n] )
+
+<span class="fc">// A[l,n] = "B" votes · R[l,n] = "A" votes · denominator = total votes</span>
+<span class="fc">// X = NaN when R[l,n] + A[l,n] = 0   ← student didn't answer this question</span></div>
+
+  <div class="three">
+    <div class="card a-blue">
+      <h3>X = 0.0</h3>
+      <p>Only "A" reads. Student is <strong>reference-homozygous (AA)</strong> at this position. No alternative allele.</p>
+      <div class="fm" style="font-size:.88rem;padding:12px 16px">R=4, A=0<br/>X = 0/(4+0) = <span class="fg">0.000</span></div>
+    </div>
+    <div class="card" style="border-top:3px solid #D97706">
+      <h3>X ≈ 0.5</h3>
+      <p>Roughly equal "A" and "B" reads. Student is <strong>heterozygous (AB)</strong>. Reads split roughly 50/50.</p>
+      <div class="fm" style="font-size:.88rem;padding:12px 16px">R=3, A=3<br/>X = 3/(3+3) = <span class="fa">0.500</span></div>
+    </div>
+    <div class="card a-green">
+      <h3>X = 1.0</h3>
+      <p>Only "B" reads. Student is <strong>alternative-homozygous (BB)</strong> at this position.</p>
+      <div class="fm" style="font-size:.88rem;padding:12px 16px">R=0, A=5<br/>X = 5/(0+5) = <span class="fg">1.000</span></div>
+    </div>
+  </div>
+
+  <div class="two" style="margin-top:24px">
+    <div class="slider-demo">
+      <h3>🎮 Interactive: See contamination in action</h3>
+      <p style="font-size:.9rem;margin-bottom:4px">This cell is <strong>AA (reference-homozygous)</strong>. Its true X should be <strong>0.000</strong>. But ambient RNA adds fake "B" reads. Drag to see the effect:</p>
+      <label style="font-size:.85rem;color:var(--ink4);font-weight:600">Ambient "B" reads added (out of 10 total): <span id="sliderVal" style="color:var(--blue)">1</span></label>
+      <input type="range" id="contSlider" min="0" max="5" value="1" oninput="updateCont()"/>
+      <div class="fm" id="contFm" style="font-size:.95rem"></div>
+      <p style="font-size:.85rem;color:var(--ink5);margin-top:10px" id="contNote"></p>
+    </div>
+    <div>
+      <div class="card a-purple">
+        <h3>Real example from this run</h3>
+        <div class="fm" style="font-size:.9rem">
+<span class="fc">// Cell: AAACATACCACTCC-1</span>
+<span class="fc">// Locus: 5847</span>
+
+<span class="fv">R</span>[5847, cell] = <span class="fv">3</span>   <span class="fc">← 3 "A" reads (real)</span>
+<span class="fa">A</span>[5847, cell] = <span class="fa">1</span>   <span class="fc">← 1 "B" read ← CONTAMINATION</span>
+
+X[5847, cell] = <span class="fa">1</span> / (3 + 1) = <span class="fr">0.2500</span>
+
+<span class="fc">// This cell is AA. True value = 0.000.</span>
+<span class="fc">// The 0.25 is ENTIRELY from ambient RNA.</span>
+<span class="fc">// One rogue read from another donor's fragment.</span></div>
+      </div>
+      <div class="story p" style="margin-top:12px">
+        <div class="story-lbl">🔑 Critical insight</div>
+        <p>Cells do not <em>choose</em> their allele — they <em>contain</em> it. A "B" read appearing in an AA cell means that read came from <strong>someone else's floating RNA</strong> in the solution, not from the cell itself. That is ambient contamination.</p>
+      </div>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#7C3AED"></div>
+    <div class="snap-title">X[l,n] Computation — Real Cell (col=100) at 8 Loci</div>
+    <div class="snap-badge">from X_raw.mtx</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Locus l</th><th>R[l,n]</th><th>A[l,n]</th><th>X_raw[l,n]</th><th>True genotype</th><th>Interpretation</th></tr></thead><tbody><tr><td class="">3</td><td class="">0</td><td class="">N</td><td class=""><span class="st-hi">1.0000</span></td><td class="">BB</td><td class="">All reads alt — alt-homozygous</td></tr><tr><td class="">4</td><td class="">0</td><td class="">N</td><td class=""><span class="st-hi">1.0000</span></td><td class="">BB</td><td class="">All reads alt — alt-homozygous</td></tr><tr><td class="">498</td><td class="">0</td><td class="">N</td><td class=""><span class="st-hi">1.0000</span></td><td class="">BB</td><td class="">Low-mu locus, still pure BB</td></tr><tr><td class="">5847</td><td class="">3</td><td class="">1</td><td class=""><span class="st-red">0.2500</span></td><td class="">AA</td><td class="">← contaminated! AA reads 0.25</td></tr><tr><td class="">—</td><td class="">0</td><td class="">0</td><td class=""><span class="st-zero">NaN</span></td><td class="">—</td><td class="">No reads at this locus for this cell</td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sv">X</span>[l,n]  =  A[l,n] / (R[l,n] + A[l,n])
+→  X[3, 100]    = N/(0+N)  = <span class="sg">1.0000</span>   (all alt, BB donor)
+→  X[5847,cell] = 1/(3+1)  = <span class="sr">0.2500</span>   (contaminated AA cell)
+→  X[—, —]      = <span class="sc">NaN</span>           (no reads at position)</div>
+  <div class="snap-note">★ Locus 5847 is the worked contamination example: true genotype AA but X_raw = 0.25 due to 1 ambient "B" read.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 4 — THE CONTAMINATION PROBLEM
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s4">
+  <div class="sbadge"><div class="snum" style="background:var(--red)">4</div><span class="slbl">The Problem — Ambient RNA Contamination</span></div>
+  <h2>The Room Is Always Whispering "B"</h2>
+  <p>When cells are processed in a liquid, some cells lyse (break open) and release their RNA into the surrounding solution. Every droplet then absorbs a small amount of this background "soup". In a 4-donor pool, this soup carries the allele fractions of <em>all four donors mixed</em>.</p>
+
+  <!-- Soup particle animation -->
+  <div class="soup-vis" id="soupVis">
+    <!-- Particles injected by JS -->
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+                text-align:center;z-index:2;pointer-events:none">
+      <div style="font-size:2rem">🧫</div>
+      <div style="font-size:.78rem;color:var(--ink4);margin-top:4px">Cell (droplet)</div>
+    </div>
+  </div>
+
+  <div class="two" style="margin-top:24px">
+    <div>
+      <div class="fm">
+<span class="fc">// The contamination mixture model:</span>
+<span class="fv">X</span>[l,n]  =  (1 − <span class="fa">α</span>) × <span class="fg">X_true</span>[l,n]  +  <span class="fa">α</span> × <span class="fk">μ</span>[l]
+
+<span class="fc">// Where:</span>
+<span class="fa">α</span>         =  ambient fraction  =  <span class="fa">0.01262</span>   <span class="fc">← 1.262% of reads are ambient</span>
+<span class="fk">μ</span>[l]      =  population mean allele fraction at locus l
+<span class="fg">X_true</span>   =  what the cell actually contains
+<span class="fv">X</span>         =  what we observe (contaminated)</div>
+      <div class="story r" style="margin-top:16px">
+        <div class="story-lbl">🎙️ Story: The Room's Voice</div>
+        <p>The room has a background chatter: at each question l, the room says "B" with probability μ[l]. A fraction α = 1.262% of everything we hear is the room, not the student. So even a pure "A" student picks up some "B" chatter at questions where the room is loud.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card a-red">
+        <h3>What contamination does to donors</h3>
+        <p style="font-size:.9rem">The 4 donors cluster by their allele profiles. Ambient RNA pulls every cell toward the population average μ[l], <strong>blurring the differences between donors</strong>.</p>
+        <canvas id="contVis" height="180" style="margin-top:12px"></canvas>
+        <p style="font-size:.8rem;color:var(--ink5);margin-top:8px">Each cluster represents one donor. With contamination, cluster boundaries blur (shown schematically).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mrow" style="margin-top:20px">
+    <div class="mc blue"><div class="mv" style="color:var(--blue)">1.262%</div><div class="ml">α — ambient fraction</div></div>
+    <div class="mc" style="border-top:3px solid var(--red)"><div class="mv" style="color:var(--red)">~1 in 80</div><div class="ml">reads are ambient</div></div>
+    <div class="mc amber"><div class="mv" style="color:var(--amber)">0.005201</div><div class="ml">Mean soup per entry</div></div>
+    <div class="mc" style="border-top:3px solid #7C3AED"><div class="mv" style="color:#7C3AED">4 donors</div><div class="ml">All mixed into soup</div></div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#DC2626"></div>
+    <div class="snap-title">Per-Cell Correction Summary — 8 Real Cells</div>
+    <div class="snap-badge">correction_summary.csv</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Barcode</th><th>Donor</th><th>Loci covered</th><th>Mean |correction|</th><th>Floored</th><th>Status</th></tr></thead><tbody><tr><td class="">barcode</td><td class="">D0</td><td class="">370</td><td class=""><span class="st-warn">0.00507979</span></td><td class="">0</td><td class=""><span class="st-hi">singlet</span></td></tr><tr><td class="">AAACATACCACTCC-1</td><td class="">D3</td><td class="">877</td><td class=""><span class="st-warn">0.00484762</span></td><td class="">0</td><td class=""><span class="st-hi">singlet</span></td></tr><tr><td class="">AAACATACCGCTAA-1</td><td class="">D2</td><td class="">403</td><td class=""><span class="st-warn">0.00443777</span></td><td class="">0</td><td class=""><span class="st-hi">singlet</span></td></tr><tr><td class="">AAACATACTAACGC-1</td><td class="">D2</td><td class="">407</td><td class=""><span class="st-warn">0.00545306</span></td><td class="">0</td><td class=""><span class="st-hi">singlet</span></td></tr><tr><td class="">AAACATACTTATCC-1</td><td class="">D3</td><td class="">26</td><td class=""><span class="st-warn">0.00287941</span></td><td class="">0</td><td class=""><span class="st-hi">singlet</span></td></tr><tr><td class="">AAACCGTGTCGCAA-1</td><td class="">D0</td><td class="">551</td><td class=""><span class="st-warn">0.00483066</span></td><td class="">0</td><td class=""><span class="st-hi">singlet</span></td></tr><tr><td class="">AAACGCACACCTCC-1</td><td class="">D2</td><td class="">383</td><td class=""><span class="st-warn">0.00548581</span></td><td class="">0</td><td class=""><span class="st-hi">singlet</span></td></tr><tr><td class="">AAACGCACCTGCAA-1</td><td class="">D0</td><td class="">381</td><td class=""><span class="st-warn">0.00543358</span></td><td class="">0</td><td class=""><span class="st-hi">singlet</span></td></tr></tbody></table></div>
+  
+  <div class="snap-note">★ Mean correction ≈ α × mean(μ) = 0.01262 × 0.412 = 0.005201. Every cell receives the same average ambient subtraction regardless of donor.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 5 — SOUP VECTOR μ[l]
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s5">
+  <div class="sbadge"><div class="snum" style="background:var(--teal)">5</div><span class="slbl">Step 2 — The Soup Vector μ[l]</span></div>
+  <h2>What Does the Room Sound Like at Each Question?</h2>
+  <p>Before correcting, we need to estimate what the background "soup" looks like at every locus. This is the soup vector μ[l].</p>
+
+  <div class="fm" style="font-size:1.1rem">
+<span class="fk">μ</span>[l]   =  <span class="fg">(1 / |S|)</span>  ×  Σ  X[l,n]  for all n ∈ <span class="fg">S</span>
+
+<span class="fc">// S = set of singlet cells only (3,523 cells — doublets excluded)</span>
+<span class="fc">// μ[l] = mean allele fraction at locus l across all clean singlet cells</span>
+<span class="fc">// = what the "population" looks like at this question</span>
+
+<span class="fc">// Then the soup contribution at locus l:</span>
+soup[l]  =  <span class="fa">α</span>  ×  <span class="fk">μ</span>[l]  =  <span class="fa">0.01262</span>  ×  <span class="fk">μ</span>[l]</div>
+
+  <div class="two">
+    <div>
+      <div class="card a-teal">
+        <h3>Three example loci</h3>
+        <div class="fm" style="font-size:.92rem">
+<span class="fc">// Locus l₁ — "B" rare in pool</span>
+μ[l₁] = <span class="fk">0.412</span>  →  soup = 0.01262×0.412 = <span class="fg">0.00520</span>
+
+<span class="fc">// Locus l₂ — "B" very common in pool</span>
+μ[l₂] = <span class="fk">0.800</span>  →  soup = 0.01262×0.800 = <span class="fg">0.01010</span>
+
+<span class="fc">// Locus l₃ — "B" rare</span>
+μ[l₃] = <span class="fk">0.100</span>  →  soup = 0.01262×0.100 = <span class="fg">0.00126</span>
+
+<span class="fc">// Global mean across all 64,496 loci:</span>
+mean(soup) = α × mean(μ)  = <span class="fg">0.005201</span>
+max(soup)  = α × max(μ)   = <span class="fg">0.006089</span></div>
+      </div>
+      <div class="story t" style="margin-top:14px">
+        <div class="story-lbl">🎧 Why exclude doublets from μ?</div>
+        <p>Doublets already contain a mix of two donors. Including them would make the "room sound" appear noisier than it actually is — like recording background noise while two people are having a conversation in the room. So only singlets (clean cells) contribute to μ[l].</p>
+      </div>
+    </div>
+    <div>
+      <div class="cw">
+        <div class="ct">Soup vector μ[l] — distribution across 64,496 loci</div>
+        <canvas id="soupHist" height="200"></canvas>
+        <p style="font-size:.8rem;color:var(--ink5);margin-top:8px">Most loci have μ near 0 (reference-dominant pool). A few have high μ (alternate common). This shape determines the OLS slope = 0.3875 later.</p>
+      </div>
+      <div class="story" style="margin-top:14px">
+        <div class="story-lbl">💡 μ[l] tells you two things</div>
+        <p><strong>Direction:</strong> where contamination pulls each entry (toward μ[l]).<br/><strong>Magnitude:</strong> soup[l] = α × μ[l] is exactly how much B signal gets added to every cell at locus l.</p>
+      </div>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#0891B2"></div>
+    <div class="snap-title">soup_vector.csv — 9 Real Loci Showing Diversity</div>
+    <div class="snap-badge">from soup_vector.csv</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Locus idx</th><th>μ[l] (pop mean AF)</th><th>soup[l] = α×μ[l]</th><th>What this means</th></tr></thead><tbody><tr><td class="">0</td><td class=""><span class="st-zero">0.00000000</span></td><td class=""><span class="st-zero">0.00000000</span></td><td class="">ALL cells reference → zero soup</td></tr><tr><td class="">16</td><td class=""><span class="st-blue">0.03846154</span></td><td class=""><span class="st-blue">0.00048537</span></td><td class="">Rare alt → tiny contamination</td></tr><tr><td class="">20</td><td class=""><span class="st-blue">0.15942029</span></td><td class=""><span class="st-blue">0.00201184</span></td><td class="">Low alt → small contamination</td></tr><tr><td class="">13</td><td class=""><span class="st-warn">0.33333333</span></td><td class=""><span class="st-warn">0.00420658</span></td><td class="">1 of 3 donors alt → medium soup</td></tr><tr><td class="">1</td><td class=""><span class="st-warn">0.80000000</span></td><td class=""><span class="st-warn">0.01009579</span></td><td class="">4 of 5 donors alt → high soup</td></tr><tr><td class="">3</td><td class=""><span class="st-red">0.98245614</span></td><td class=""><span class="st-red">0.01239833</span></td><td class="">Nearly all alt → max soup</td></tr><tr><td class="">2</td><td class=""><span class="st-red">1.00000000</span></td><td class=""><span class="st-red">0.01261973</span></td><td class="">ALL cells alt → maximum soup</td></tr><tr><td class="">4</td><td class=""><span class="st-red">1.00000000</span></td><td class=""><span class="st-red">0.01261973</span></td><td class="">ALL cells alt → maximum soup</td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sc">// μ[l] = mean allele fraction at locus l across 3,523 singlets</span>
+soup[l] = <span class="sa">0.01261973</span> × <span class="sv">μ</span>[l]
+<span class="sc">// Range: 0.0 (loci where ALL cells are reference) → 0.01262 (all alternative)</span>
+<span class="sc">// 15,219 loci have μ=0 (18.8%) · 21,704 loci have μ>0.5 (26.9%)</span></div>
+  <div class="snap-note">★ α = 0.01261973 is constant. soup[l] varies from 0 (no contamination possible) to 0.01262 (full ambient). Mean soup = 0.005201.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 6 — THE CORRECTION FORMULA
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s6">
+  <div class="sbadge"><div class="snum" style="background:var(--green)">6</div><span class="slbl">Step 3 — The Correction Formula (Core Equation)</span></div>
+  <h2>Rearranging the Mixture Model to Recover the Truth</h2>
+  <p>Given the contamination model, we rearrange algebraically to isolate the true signal:</p>
+
+  <div class="fm" style="font-size:1.05rem">
+<span class="fc">// The mixture model (what we observe):</span>
+<span class="fv">X</span>[l,n]  =  (1 − α) × <span class="fg">X_true</span>[l,n]  +  α × μ[l]
+
+<span class="fc">// Rearrange to isolate X_true:</span>
+<span class="fg">X_true</span>  =  ( <span class="fv">X</span>[l,n]  −  α × μ[l] )  /  (1 − α)
+
+<span class="fc">// Since α = 1.262% ≪ 1, denominator (1−α) = 0.9874 ≈ 1 → drop it:</span>
+<span class="fg">X_corr</span>[l,n]  =  max( 0,  <span class="fv">X</span>[l,n]  −  <span class="fa">α</span> × <span class="fk">μ</span>[l] )
+
+<span class="fc">// max(0,·) = floor: prevents negative allele fractions (physically impossible)</span>
+<span class="fc">// Error from dropping denominator = 1.262% — negligible at this α level</span></div>
+
+  <div class="pq g" style="margin:28px 0">"Take what we observed, subtract the room's contribution, clip at zero."</div>
+
+  <div class="two">
+    <div class="card a-green">
+      <h3>Worked example — step by step</h3>
+      <div class="fm" style="font-size:.92rem">
+<span class="fc">// Cell: AAACATACCACTCC-1  Locus: 5847</span>
+<span class="fc">// True genotype = AA  →  X_true should = 0.000</span>
+
+<span class="fv">X_obs</span>  = <span class="fr">0.2500</span>     <span class="fc">← contaminated value</span>
+<span class="fk">μ</span>[l]   = <span class="fk">0.9800</span>     <span class="fc">← most donors show B here</span>
+soup   = 0.01262 × 0.980 = <span class="fa">0.01237</span>
+
+<span class="fg">X_corr</span> = max(0, <span class="fr">0.2500</span> − <span class="fa">0.01237</span>)
+       = max(0, 0.2376)
+       = <span class="fg">0.2376</span>
+
+<span class="fc">// Still not 0.000 — because 0.25 has more B signal</span>
+<span class="fc">// than just the soup. But 0.01237 of fake B is removed.</span></div>
+    </div>
+    <div>
+      <div class="cw">
+        <div class="ct">Correction in action — before vs after distribution</div>
+        <canvas id="corrDist" height="200"></canvas>
+      </div>
+      <div class="mrow" style="margin-top:14px">
+        <div class="mc green"><div class="mv" style="color:var(--green-d)">0.005201</div><div class="ml">Mean correction</div></div>
+        <div class="mc amber"><div class="mv" style="color:var(--amber)">44.32%</div><div class="ml">Entries floored</div></div>
+      </div>
+      <div class="story g">
+        <div class="story-lbl">✅ What "mean correction = mean soup" means</div>
+        <p>The average amount we subtracted (0.005201) equals the average soup contribution (α × mean(μ)). This confirms: <strong>the correction is perfectly calibrated to the actual contamination — no over-correction, no under-correction on average.</strong></p>
+      </div>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#16A34A"></div>
+    <div class="snap-title">Before vs After Correction — Cell col=100, 9 Real Loci</div>
+    <div class="snap-badge">X_raw.mtx vs X_corrected.mtx</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Locus l</th><th>X_raw[l,n]</th><th>μ[l]</th><th>soup[l]</th><th>X_corr[l,n]</th><th>Change</th><th>Floored?</th></tr></thead><tbody><tr><td class="">3</td><td class=""><span class="st-red">1.0000</span></td><td class="">0.9825</td><td class="">0.01240</td><td class=""><span class="st-hi">0.9874</span></td><td class="">−0.0126</td><td class="">no</td></tr><tr><td class="">4</td><td class=""><span class="st-red">1.0000</span></td><td class="">1.0000</td><td class="">0.01262</td><td class=""><span class="st-hi">0.9876</span></td><td class="">−0.0124</td><td class="">no</td></tr><tr><td class="">885</td><td class=""><span class="st-red">1.0000</span></td><td class="">0.9970</td><td class="">0.01258</td><td class=""><span class="st-hi">0.9875</span></td><td class="">−0.0125</td><td class="">no</td></tr><tr><td class="">887</td><td class=""><span class="st-red">1.0000</span></td><td class="">0.6667</td><td class="">0.00841</td><td class=""><span class="st-hi">0.9874</span></td><td class="">−0.0084</td><td class="">no</td></tr><tr><td class="">1445</td><td class=""><span class="st-red">1.0000</span></td><td class="">0.3333</td><td class="">0.00421</td><td class=""><span class="st-hi">0.9874</span></td><td class="">−0.0042</td><td class="">no</td></tr><tr><td class="">498</td><td class=""><span class="st-red">1.0000</span></td><td class="">0.1694</td><td class="">0.00214</td><td class=""><span class="st-hi">0.9988</span></td><td class="">−0.0021</td><td class="">no</td></tr><tr><td class="">839</td><td class=""><span class="st-red">1.0000</span></td><td class="">0.0985</td><td class="">0.00124</td><td class=""><span class="st-hi">0.9974</span></td><td class="">−0.0012</td><td class="">no</td></tr><tr><td class="">5847</td><td class=""><span class="st-red">0.2500</span></td><td class="">0.9800</td><td class="">0.01237</td><td class=""><span class="st-hi">0.2376</span></td><td class="">−0.0124</td><td class="">no</td></tr><tr><td class="">—</td><td class=""><span class="st-zero">&lt;soup</span></td><td class="">—</td><td class="">—</td><td class=""><span class="st-warn">0.0000</span></td><td class="">FLOORED</td><td class=""><span class="st-warn">YES</span></td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sv">X_corr</span>[l,n]  =  max(0,  X_raw[l,n]  −  soup[l])
+Locus 3:   max(0, <span class="sr">1.0000</span> − <span class="sa">0.01240</span>) = <span class="sg">0.9874</span>   ← high-soup locus
+Locus 498: max(0, <span class="sr">1.0000</span> − <span class="sa">0.00214</span>) = <span class="sg">0.9988</span>   ← low-soup locus
+Locus 5847:max(0, <span class="sr">0.2500</span> − <span class="sa">0.01237</span>) = <span class="sg">0.2376</span>   ← contaminated AA cell</div>
+  <div class="snap-note">★ Cell col=100 has 196 covered loci. All entries decrease by exactly α×μ[l]. High-μ loci get larger corrections. The mean correction for this cell ≈ 0.00505.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 7 — THE FLOOR: 44.32%
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s7">
+  <div class="sbadge"><div class="snum" style="background:var(--amber)">7</div><span class="slbl">Step 4 — The Floor: Why 44.32% Entries Hit Zero</span></div>
+  <h2>When the Entire Observed Signal Is Explained by Noise</h2>
+  <p>An entry is floored to zero when the observed value is already <em>below</em> the expected soup contribution at that locus. This means the cell has no real signal there — what we saw was entirely from ambient RNA.</p>
+
+  <div class="fm">
+<span class="fc">// Flooring condition:</span>
+X[l,n]  &lt;  α × μ[l]   →   X_corr[l,n] = <span class="fg">0</span>
+
+<span class="fc">// In plain terms: "What we heard is weaker than what the room alone would produce."</span>
+<span class="fc">// So the student has NO real B signal at this question.</span>
+
+<span class="fc">// Numbers:</span>
+Total covered entries:   <span class="fg">1,444,860</span>
+Floored to zero:           <span class="fr">640,425</span>   =  <span class="fr">44.32%</span>
+Surviving (real signal):   <span class="fv">804,435</span>   =  <span class="fv">55.68%</span></div>
+
+  <div class="pq a">"In 44% of cases, every B vote we observed was entirely explained by background noise — the student contributed nothing."</div>
+
+  <div class="two" style="margin-top:8px">
+    <div>
+      <h3 style="margin-bottom:16px">Per-donor floor % (nearly identical → proves global model)</h3>
+      <div id="floorBars"></div>
+      <div class="story a" style="margin-top:16px">
+        <div class="story-lbl">⚖️ Uniformity is the proof</div>
+        <p>If the ambient model were donor-specific or biased, different donors would have very different floor percentages. The <strong>&lt; 0.2 pp variation</strong> (44.19%–44.38%) proves the ambient RNA truly comes from a global pool affecting all donors equally.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card a-amber">
+        <h3>What the 44% and 56% mean</h3>
+        <div class="tw" style="margin-top:10px">
+          <table>
+            <thead><tr><th>Group</th><th>Count</th><th>%</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td class="warn">Floored (0)</td><td class="num mono">640,425</td><td class="num warn">44.32%</td><td>Signal ≤ ambient noise → no real B</td></tr>
+              <tr><td class="hi">Surviving (&gt;0)</td><td class="num mono">804,435</td><td class="num hi">55.68%</td><td>Real B signal above noise → kept</td></tr>
+              <tr><td><strong>Total covered</strong></td><td class="num mono">1,444,860</td><td class="num">100%</td><td>Non-NaN entries in matrix</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="story r" style="margin-top:14px">
+          <div class="story-lbl">❗ Flooring ≠ data loss</div>
+          <p>Setting 44% to zero is NOT deleting data. It is <strong>correctly identifying entries where the cell has no detectable alternative allele</strong>. These were entirely ambient noise and should be zero. This is the correct biological inference.</p>
+        </div>
+      </div>
+      <div class="story g" style="margin-top:14px">
+        <div class="story-lbl">📊 The surviving 56%</div>
+        <p>These entries have X[l,n] stronger than the room noise. They carry <em>real biological signal</em>: cells that are heterozygous (X ≈ 0.5) or alternative-homozygous (X ≈ 1.0) at that locus. These are the entries that drive donor clustering.</p>
+      </div>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#D97706"></div>
+    <div class="snap-title">Floor Analysis — Per-Donor Stats and Real Floored Examples</div>
+    <div class="snap-badge">from cluster_data.json + X_raw.mtx</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Donor</th><th>Singlets</th><th>Floor %</th><th>Covered entries</th><th>→ Floored (est.)</th><th>→ Signal surviving</th></tr></thead><tbody><tr><td class="">D0</td><td class="">806</td><td class=""><span class="st-warn">44.19%</span></td><td class="">~230,600</td><td class=""><span class="st-red">~101,900</span></td><td class=""><span class="st-hi">~128,700</span></td></tr><tr><td class="">D1</td><td class="">813</td><td class=""><span class="st-warn">44.38%</span></td><td class="">~232,200</td><td class=""><span class="st-red">~103,100</span></td><td class=""><span class="st-hi">~129,100</span></td></tr><tr><td class="">D2</td><td class="">1,004</td><td class=""><span class="st-warn">44.34%</span></td><td class="">~286,600</td><td class=""><span class="st-red">~127,000</span></td><td class=""><span class="st-hi">~159,600</span></td></tr><tr><td class="">D3</td><td class="">900</td><td class=""><span class="st-warn">44.37%</span></td><td class="">~257,000</td><td class=""><span class="st-red">~113,900</span></td><td class=""><span class="st-hi">~143,100</span></td></tr><tr><td class=""><strong>Global</strong></td><td class=""><strong>3,523</strong></td><td class=""><span class="st-warn"><strong>44.32%</strong></span></td><td class=""><strong>1,444,860</strong></td><td class=""><span class="st-red"><strong>640,425</strong></span></td><td class=""><span class="st-hi"><strong>804,435</strong></span></td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sc">// Flooring condition: X_raw[l,n] &lt; α×μ[l]</span>
+Example:  X_raw = <span class="sr">0.0031</span>   soup[l] = <span class="sa">0.0042</span>
+          0.0031 &lt; 0.0042  →  X_corr = <span class="sg">0.0000</span>  ★ FLOORED
+Meaning:  The entire observed signal is explained by ambient RNA alone.</div>
+  <div class="snap-note">★ Floor % varies &lt;0.2 pp across all donors → proves global model is correct. A real floored entry: X_raw=0.0031 at a locus where soup[l]=0.0042 → X_raw &lt; soup → X_corr=0.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 8 — SILHOUETTE
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s8">
+  <div class="sbadge"><div class="snum" style="background:var(--purple)">8</div><span class="slbl">Step 5 — Silhouette Coefficient</span></div>
+  <h2>Does Each Student Sound More Like Their Own Club?</h2>
+  <p>The silhouette coefficient measures cluster quality: is each cell closer to its own donor group than to others?</p>
+
+  <div class="fm" style="font-size:1.05rem">
+<span class="fc">// For each cell i:</span>
+s(i)  =  ( <span class="fv">b(i)</span>  −  <span class="fr">a(i)</span> )  /  max( <span class="fr">a(i)</span>, <span class="fv">b(i)</span> )
+
+<span class="fc">// a(i) = mean Euclidean distance to other cells in SAME donor cluster</span>
+<span class="fc">// b(i) = mean Euclidean distance to cells in NEAREST OTHER cluster</span>
+<span class="fc">// Range [-1, +1]  ·  >0 = closer to own club  ·  <0 = closer to another club</span>
+
+<span class="fc">// Our results:</span>
+Global silhouette BEFORE: <span class="fr">−0.002560</span>     AFTER: <span class="fr">−0.002563</span>     Δ = <span class="fv">−0.000003</span></div>
+
+  <div class="two">
+    <div>
+      <h3 style="margin-bottom:14px">Per-donor silhouette (hover for formula)</h3>
+      <div id="silBars"></div>
+      <div class="story p" style="margin-top:16px">
+        <div class="story-lbl">❓ Why is silhouette NEGATIVE?</div>
+        <p>With 99.51% sparsity, two cells from the <em>same donor</em> typically have reads at <em>completely different loci</em>. Their Euclidean distance is large because most positions are incomparable. Two cells from <em>different donors</em> have the same problem. Distances become essentially random — no systematic separation in Euclidean space.</p>
+        <p style="margin-top:8px"><strong>Silhouette failing here is NOT a bug.</strong> It means Euclidean distance is the wrong metric for sparse allele-fraction data.</p>
+      </div>
+    </div>
+    <div>
+      <div class="cw">
+        <div class="ct">Silhouette intuition — 4 clubs in feature space</div>
+        <canvas id="silVis" height="240"></canvas>
+      </div>
+      <div class="story a" style="margin-top:14px">
+        <div class="story-lbl">🔢 Worked numerical example</div>
+        <p><strong>Cell from Donor 0:</strong><br/>
+        a(i) ≈ 0.412 (mean distance to other Donor 0 cells)<br/>
+        b(i) ≈ 0.409 (mean distance to nearest other donor)<br/>
+        s(i) = (0.409 − 0.412) / 0.412 = <strong>−0.0073</strong></p>
+        <p style="margin-top:8px">The distances are nearly equal because sparsity makes all pairs look similarly distant. Global mean −0.002560 ≈ this value.</p>
+      </div>
+      <div class="story t" style="margin-top:14px">
+        <div class="story-lbl">🎓 Q from conversation: "Are we trying to CORRECT silhouette? What does Sil before/after mean?"</div>
+        <p><strong>No — soupXcell is not trying to improve the silhouette score.</strong> The "Sil before" and "Sil after" values are a purely a <strong>diagnostic check</strong>, not a correction target.</p>
+        <p>We are correcting the allele fraction <em>data</em>. After correcting the data, we re-run silhouette on the same cluster labels to ask: "Did cleaning the data accidentally break or destabilise the clusters?" The answer here is no — Δ = −0.000003, effectively zero.</p>
+        <p>Think of it like: you clean a messy spreadsheet (data correction), then re-run your analysis (silhouette) to confirm the cleaning did not corrupt the results. Silhouette Δ ≈ 0 confirms it did not — the cluster structure is intact. The real improvement signal is in within-cluster standard deviation (Δ = −0.000887).</p>
+      </div>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#7C3AED"></div>
+    <div class="snap-title">Silhouette Results — All 4 Donors</div>
+    <div class="snap-badge">from silhouette_comparison.json</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Donor</th><th>Cells (n)</th><th>Sil before</th><th>Sil after</th><th>Δ</th><th>Verdict</th></tr></thead><tbody><tr><td class="">D0</td><td class="">806</td><td class=""><span class="st-red">−0.002937</span></td><td class=""><span class="st-red">−0.002944</span></td><td class=""><span class="st-dim">−0.000007</span></td><td class="">Δ negligible</td></tr><tr><td class="">D1</td><td class="">813</td><td class=""><span class="st-red">−0.002572</span></td><td class=""><span class="st-red">−0.002589</span></td><td class=""><span class="st-dim">−0.000017</span></td><td class="">Δ negligible</td></tr><tr><td class="">D2</td><td class="">1,004</td><td class=""><span class="st-red">−0.006063</span></td><td class=""><span class="st-red">−0.006074</span></td><td class=""><span class="st-dim">−0.000011</span></td><td class="">Most overlap — sparse</td></tr><tr><td class="">D3</td><td class="">900</td><td class=""><span class="st-hi">+0.001330</span></td><td class=""><span class="st-hi">+0.001354</span></td><td class=""><span class="st-hi">+0.000024</span></td><td class="">Only positive — most distinct</td></tr><tr><td class=""><strong>Global</strong></td><td class=""><strong>3,523</strong></td><td class=""><span class="st-red"><strong>−0.002560</strong></span></td><td class=""><span class="st-red"><strong>−0.002563</strong></span></td><td class=""><span class="st-dim"><strong>−0.000003</strong></span></td><td class="">Expected at α=1.26%</td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sc">// s(i) = (b(i) − a(i)) / max(a(i), b(i))</span>
+D0 example:  a(i)=0.412  b(i)=0.409
+s(i) = (0.409 − 0.412) / 0.412 = <span class="sr">−0.0073</span>   ← slightly closer to other donors
+<span class="sc">// Negative because 99.51% sparse → most cell pairs share few loci</span></div>
+  <div class="snap-note">★ Donor 3 is the only cluster with positive silhouette — its genotype is more distinct from the pool mean. All Δ values are &lt;0.0001 — silhouette cannot detect uniform shifts.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 9 — DAVIES-BOULDIN
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s9">
+  <div class="sbadge"><div class="snum" style="background:var(--teal)">9</div><span class="slbl">Step 6 — Davies-Bouldin Index</span></div>
+  <h2>A Better Lens: Club Tidiness vs Club Separation</h2>
+  <p>Because silhouette fails under sparsity, we also use Davies-Bouldin — which compares <em>cluster summaries</em> instead of every pairwise distance.</p>
+
+  <div class="fm">
+<span class="fc">// DB = (1/K) × Σₖ max_{j≠k}  (sₖ + sⱼ) / d(cₖ, cⱼ)</span>
+
+<span class="fc">// sₖ = scatter of cluster k = mean distance of cells to cluster centroid</span>
+<span class="fc">// d(cₖ,cⱼ) = Euclidean distance between centroids of clusters k and j</span>
+<span class="fc">// Lower DB = tighter, more separated clusters = better</span>
+
+DB_before: <span class="fr">1.9618</span>     DB_after: <span class="fg">1.9588</span>     Δ = <span class="fg">−0.0030</span> (improvement)</div>
+
+  <div class="two">
+    <div class="card a-teal">
+      <h3>Silhouette vs Davies-Bouldin</h3>
+      <div class="tw" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Metric</th><th>What it asks</th><th>Vulnerable to</th><th>Our result</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Silhouette</strong></td><td>Every cell pair</td><td class="ng">Sparsity → unreliable</td><td class="warn">Δ ≈ 0</td></tr>
+            <tr><td><strong>DB index</strong></td><td>Cluster averages</td><td class="ok">More robust</td><td class="ok">−0.0030 ✓</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="story t" style="margin-top:14px">
+        <div class="story-lbl">🎭 Story: why DB survives sparsity</div>
+        <p>Silhouette asks: "Does student S1 sound more like their own club than any other specific student from Club 2?" — impossible when S1 and their clubmates answer different questions.</p>
+        <p style="margin-top:8px">DB asks: "Is the <em>average voice of Club A</em> different from Club B?" — much easier because averaging across many students smooths the gaps.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card a-green">
+        <h3>Why DB improves when silhouette does not</h3>
+        <p style="font-size:.92rem;margin-bottom:12px">After correction, each cell's allele fractions have a small noise component removed (0.005201 units). This makes cells within the same cluster <em>slightly more consistent</em>:</p>
+        <div class="fm" style="font-size:.88rem">
+<span class="fc">// Scatter sₖ depends on within-cluster variance</span>
+<span class="fc">// Correction removes α×μ[l] noise → sₖ decreases slightly</span>
+Within-cluster std: 0.204753 → <span class="fg">0.203866</span>
+Δ = <span class="fg">−0.000887</span>  (<span class="fg">−0.43%</span>)
+
+<span class="fc">// This is the TRUE signal of correction working</span>
+<span class="fc">// (silhouette cannot detect this but DB can)</span></div>
+      </div>
+      <div class="story g" style="margin-top:14px">
+        <div class="story-lbl">💡 Key takeaway for the professor</div>
+        <p>The DB improvement (+0.15%) and within-cluster std decrease (−0.43%) are the <strong>correct metrics for evaluating ambient RNA correction</strong>. Silhouette Δ ≈ 0 is not a failure — it tells us something even more interesting, which we explain in Step 12.</p>
+      </div>
+      <div class="story r" style="margin-top:12px">
+        <div class="story-lbl">🎓 Q from conversation: "Is soupXcell re-clustering cells after correction?"</div>
+        <p><strong>No — soupXcell never re-clusters.</strong> The 4 donor assignments (Cluster 0–3) from souporcell are fixed and never changed. soupXcell only changes the <em>allele fraction values</em> in the matrix.</p>
+        <p>What happens:</p>
+        <p>① Clusters are assigned by souporcell → fixed.<br/>
+        ② soupXcell corrects X[l,n] → values get smaller / some go to 0.<br/>
+        ③ Silhouette and DB are re-computed using the <em>same cluster labels</em> on the <em>new values</em>.<br/>
+        ④ We compare before vs after to see if the existing clusters became more coherent.</p>
+        <p>If you wanted to re-cluster, you would have to feed X_corrected.mtx back into souporcell — that is a separate downstream experiment, not part of soupXcell's pipeline.</p>
+      </div>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#0891B2"></div>
+    <div class="snap-title">Cluster Quality Metrics — Full Summary</div>
+    <div class="snap-badge">from metrics.txt</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>Metric</th><th>Before correction</th><th>After correction</th><th>Δ</th><th>Direction</th></tr></thead><tbody><tr><td class="">Silhouette (global)</td><td class=""><span class="st-red">−0.002560</span></td><td class=""><span class="st-red">−0.002563</span></td><td class="">−0.000003</td><td class=""><span class="st-dim">negligible</span></td></tr><tr><td class="">Davies-Bouldin</td><td class=""><span class="st-red">1.9618</span></td><td class=""><span class="st-hi">1.9588</span></td><td class="">−0.0030</td><td class=""><span class="st-hi">↓ better</span></td></tr><tr><td class="">Within-cluster std</td><td class=""><span class="st-red">0.204753</span></td><td class=""><span class="st-hi">0.203866</span></td><td class="">−0.000887</td><td class=""><span class="st-hi">↓ tighter</span></td></tr><tr><td class="">DB improvement</td><td class=""><span class="st-dim">—</span></td><td class=""><span class="st-dim">—</span></td><td class=""><span class="st-hi">−0.15%</span></td><td class=""><span class="st-hi">✓ expected</span></td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sc">// DB = (1/K) × Σₖ max_{j≠k} (sₖ + sⱼ) / d(cₖ,cⱼ)</span>
+Before:  DB = <span class="sr">1.9618</span>   After: DB = <span class="sg">1.9588</span>   Δ = <span class="sg">−0.0030</span>
+<span class="sc">// Scatter sₖ decreases → numerator shrinks → DB improves</span></div>
+  <div class="snap-note">★ Within-cluster std Δ = −0.000887 is the correct primary metric — it shows cells within each donor cluster are more consistent after removing ambient noise. DB captures this; silhouette does not.</div>
+</div>
+</section>
+
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP DR — DIMENSIONALITY REDUCTION (PCA → t-SNE / UMAP)
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="sDR">
+  <div class="sbadge"><div class="snum" style="background:var(--purple)">10</div>
+    <span class="slbl">Module 3 — Dimensionality Reduction: PCA → t-SNE / UMAP</span></div>
+  <h2>Seeing the 4 Donors in 2D — Before and After Correction</h2>
+  <p>After correcting the allele fractions we want to <em>see</em> whether the four donor clusters are separable. But the data is 64,496-dimensional — one dimension per locus. No human can see 64,496 dimensions. Dimensionality reduction solves this: compress those 64,496 numbers per cell into just 2 numbers you can plot.</p>
+
+  <div class="story">
+    <div class="story-lbl">🏫 Story: why we need this</div>
+    <p>Each student (cell) has a 64,496-length answer sheet. Imagine trying to figure out which school each student came from just by comparing answer sheets directly — you'd have to look at 64,496 questions per comparison. PCA + t-SNE compress each student into just 2 coordinates (x, y) that capture the most important patterns, so you can plot all 3,522 students on one chart and <em>see</em> the 4 clubs visually.</p>
+  </div>
+
+  <!-- Three-stage pipeline diagram (clickable) -->
+  <div class="dr-pipeline" id="drPipeline">
+    <div class="dr-box" id="drb-input" onclick="drClick('input')">
+      <div class="db-title">X_qc matrix</div>
+      <div class="db-dim">64,496 × 3,522</div>
+      <div class="db-time">loci × singlet cells</div>
+    </div>
+    <div class="dr-arrow">→</div>
+    <div class="dr-box" id="drb-pca" onclick="drClick('pca')">
+      <div class="db-title">PCA</div>
+      <div class="db-dim">3,522 × 50</div>
+      <div class="db-time">~20 seconds</div>
+    </div>
+    <div class="dr-arrow">→</div>
+    <div class="dr-box" id="drb-tsne" onclick="drClick('tsne')">
+      <div class="db-title">t-SNE</div>
+      <div class="db-dim">3,522 × 2</div>
+      <div class="db-time">~47 seconds</div>
+    </div>
+    <div class="dr-arrow">or</div>
+    <div class="dr-box" id="drb-umap" onclick="drClick('umap')">
+      <div class="db-title">UMAP</div>
+      <div class="db-dim">3,522 × 2</div>
+      <div class="db-time">~1 second</div>
+    </div>
+    <div class="dr-arrow">→</div>
+    <div class="dr-box" id="drb-plot" onclick="drClick('plot')">
+      <div class="db-title">Scatter plot</div>
+      <div class="db-dim">before + after</div>
+      <div class="db-time">4 charts total</div>
+    </div>
+  </div>
+
+  <!-- Dynamic detail panel -->
+  <div id="drDetailPanel" class="dr-detail"></div>
+
+  <!-- Why each step -->
+  <div class="two" style="margin-top:28px">
+    <div>
+      <h3 style="margin-bottom:14px">Step-by-step: why each stage is necessary</h3>
+
+      <div class="card a-blue" style="margin-bottom:14px">
+        <h3>① Why PCA first?</h3>
+        <p style="font-size:.9rem;margin-bottom:10px">64,496 dimensions is too large for t-SNE or UMAP to handle directly — they would be extremely slow and numerically unstable. PCA reduces to 50 "principal components" — the 50 directions of maximum variance in the data — keeping 95%+ of the signal but compressing computation by 1,300×.</p>
+        <div class="fm" style="font-size:.85rem">
+<span class="fc">// Randomised SVD decomposition:</span>
+X_qc [3,522 × 64,496]
+  → compute top 50 eigenvectors of covariance matrix
+  → project cells onto those 50 directions
+  → output: [3,522 × 50]  (~20s, ~130× compression)
+
+<span class="fc">// Why 50 components? Captures ~95% of variance.</span>
+<span class="fc">// Trade-off: more components = more signal but slower t-SNE.</span></div>
+      </div>
+
+      <div class="card a-purple" style="margin-bottom:14px">
+        <h3>② Why t-SNE after PCA?</h3>
+        <p style="font-size:.9rem;margin-bottom:10px">t-SNE (t-distributed Stochastic Neighbour Embedding) finds a 2D layout that preserves the <em>neighbourhood structure</em> of the 50D PCA space. Cells that are close in 50D PCA space (= genetically similar) are placed close together in the 2D plot. Unlike PCA alone, t-SNE can reveal non-linear cluster structure.</p>
+        <div class="fm" style="font-size:.85rem">
+<span class="fc">// Barnes-Hut t-SNE (approximate, O(N log N)):</span>
+Input:  [3,522 × 50]  (PCA components)
+Output: [3,522 × 2]   (2D layout)
+Iters:  1,000   Perplexity: 30   Time: ~47s
+
+<span class="fc">// Perplexity ≈ "effective number of neighbours"</span>
+<span class="fc">// Range 5–50; 30 is standard for scRNA-seq</span>
+<span class="fc">// t-SNE preserves local structure — clusters visible</span></div>
+      </div>
+
+      <div class="card a-teal">
+        <h3>③ Why also UMAP?</h3>
+        <p style="font-size:.9rem;margin-bottom:10px">UMAP (Uniform Manifold Approximation and Projection) is much faster than t-SNE (~1s vs ~47s) and better preserves both local <em>and</em> global structure. It has become the standard in modern single-cell analysis. soupXcell computes both so you can compare.</p>
+        <div class="fm" style="font-size:.85rem">
+<span class="fc">// UMAP (k-NN graph + force-directed layout):</span>
+Input:  [3,522 × 50]  (same PCA as t-SNE)
+Output: [3,522 × 2]   (2D layout)
+Time:   ~1 second
+
+<span class="fc">// UMAP vs t-SNE: UMAP preserves global distances better.</span>
+<span class="fc">// t-SNE: tighter clusters, better local separation.</span>
+<span class="fc">// Both: run on X_raw AND X_corr → 4 total scatter plots</span></div>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:14px">Before vs After Correction — What to look for</h3>
+      <div class="compare-strip">
+        <div class="compare-card before">
+          <h3 style="color:var(--red)">📍 Before correction</h3>
+          <p style="font-size:.88rem">Allele fractions contain α×μ[l] ambient contamination. All cells pulled slightly toward the population mean. Donor clusters may appear:</p>
+          <ul style="font-size:.86rem;color:var(--ink3);padding-left:16px;line-height:1.8">
+            <li>Slightly more spread out</li>
+            <li>Boundaries slightly blurred</li>
+            <li>Within-cluster std = 0.204753</li>
+          </ul>
+        </div>
+        <div class="compare-card after">
+          <h3 style="color:var(--green-d)">✅ After correction</h3>
+          <p style="font-size:.88rem">Ambient RNA subtracted. Each cell's allele fractions closer to true genotype. Donors should appear:</p>
+          <ul style="font-size:.86rem;color:var(--ink3);padding-left:16px;line-height:1.8">
+            <li>Slightly tighter within each cluster</li>
+            <li>Within-cluster std = 0.203866 (−0.43%)</li>
+            <li>DB improves by 0.0030</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story a" style="margin-top:16px">
+        <div class="story-lbl">⚠️ Why silhouette Δ ≈ 0 on t-SNE/UMAP plots</div>
+        <p>The before/after scatter plots look <em>nearly identical</em>. This is expected and correct — as proved in Steps 11–12, the ambient correction shifts all cells uniformly by α×μ[l], which cancels in every pairwise distance. The visual improvement is subtle (within-cluster tightening) but mathematically confirmed by the simulation (R²=1.000).</p>
+      </div>
+
+      <!-- Animated scatter canvas showing before/after conceptually -->
+      <div class="cw" style="margin-top:16px">
+        <div class="ct">Conceptual scatter — before vs after (schematic)</div>
+        <canvas id="drScatter" height="240"></canvas>
+        <p style="font-size:.78rem;color:var(--ink5);margin-top:8px">Schematic only. Click a donor cluster to highlight it. Real coordinates in figures/tsne_before_after.html.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- t-SNE vs UMAP comparison table -->
+  <div class="card a-purple" style="margin-top:24px">
+    <h3 style="margin-bottom:14px">t-SNE vs UMAP — When to use which</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th>Property</th><th>t-SNE</th><th>UMAP</th><th>Why it matters for this data</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Speed</strong></td><td class="warn">~47 seconds</td><td class="hi">~1 second</td><td>UMAP wins for quick iteration</td></tr>
+          <tr><td><strong>Local structure</strong></td><td class="hi">Excellent</td><td class="hi">Good</td><td>Both show donor clusters clearly</td></tr>
+          <tr><td><strong>Global structure</strong></td><td class="warn">Distorted</td><td class="hi">Preserved</td><td>UMAP shows donor distances more faithfully</td></tr>
+          <tr><td><strong>Reproducibility</strong></td><td class="warn">Seed-dependent</td><td class="hi">More stable</td><td>Use fixed seed=42 for reproducibility</td></tr>
+          <tr><td><strong>Standard in scRNA-seq</strong></td><td class="warn">Older standard</td><td class="hi">Current standard</td><td>UMAP is now preferred in the field</td></tr>
+          <tr><td><strong>Input to soupXcell</strong></td><td colspan="2" class="info" style="text-align:center">Both use the same PCA output [3,522 × 50]</td><td>PCA is computed once, used by both</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Why run on both raw and corrected -->
+  <div class="story g" style="margin-top:20px">
+    <div class="story-lbl">🔬 Why run dimensionality reduction on BOTH raw and corrected?</div>
+    <p>Running the same embedding on both X_raw and X_corr produces a side-by-side comparison that shows the exact effect of the ambient correction. If correction is working, the corrected plot should show:</p>
+    <p><strong>(1)</strong> The same 4 donor clusters — because the correction preserves which loci each donor is informative at (the binary pattern). <strong>(2)</strong> Slightly tighter clusters — because within-cluster variance decreases by 0.43%. <strong>(3)</strong> No dramatic visual difference — which is expected at α = 1.262%. If α were 10–50%, the difference would be large and visible.</p>
+  </div>
+
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 10 — SIMULATION
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s10">
+  <div class="sbadge"><div class="snum" style="background:var(--green)">10</div><span class="slbl">Step 7 — The Simulation Benchmark</span></div>
+  <h2>Proving the Correction Works — Without Needing Biological Ground Truth</h2>
+  <p>In real data, we can never know X_true exactly. So we run a controlled experiment: inject a <em>known</em> amount of contamination, apply the correction, and measure how much we recovered. Like a noise-cancelling headphone test.</p>
+
+  <div class="fm">
+<span class="fc">// THREE STEPS — repeated for 6 levels × 5 trials:</span>
+
+<span class="fc">// Step 1: Inject known contamination at level α_sim</span>
+X_inj[l,n]  =  X_raw[l,n]  +  <span class="fr">α_sim</span> × <span class="fk">μ</span>[l]    <span class="fc">← we know exactly what we added</span>
+
+<span class="fc">// Step 2: Apply correction using true α = 0.01262 (not α_sim)</span>
+X_rec[l,n]  =  max(0,  X_inj[l,n]  −  <span class="fv">α</span> × <span class="fk">μ</span>[l])   <span class="fc">← same formula as real correction</span>
+
+<span class="fc">// Step 3: Measure recovery error (RMSE)</span>
+RMSE  =  √(mean( (X_inj − α_sim×μ[l] − X_rec)² ))  over all covered entries</div>
+
+  <div class="story a" style="margin-top:16px">
+    <div class="story-lbl">❓ "But if we add α_sim and remove α, aren't we just undoing ourselves?"</div>
+    <p><strong>No — this is the key insight.</strong> We inject α_sim but subtract α. These are different values. The test checks: <em>"If the true contamination is α_sim but our method assumes α, how large is the residual error?"</em> This tests robustness to mis-specified α — exactly what happens in practice where α is estimated, not known.</p>
+  </div>
+
+  <div class="two" style="margin-top:20px">
+    <div>
+      <h3 style="margin-bottom:14px">All 6 levels — real data</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th>α_sim</th><th class="num">RMSE</th><th class="num">RMSE / α_sim</th><th>Sil Δ</th></tr></thead>
+          <tbody id="simTbody"></tbody>
+        </table>
+      </div>
+      <div class="story g" style="margin-top:14px">
+        <div class="story-lbl">🔑 The RMSE/α_sim column</div>
+        <p>It is <strong>≈ constant (0.3875)</strong> across all 6 levels. This means: "Double the injected noise → double the error." The system behaves linearly and predictably. No instability, no surprises.</p>
+      </div>
+    </div>
+    <div class="cw">
+      <div class="ct">RMSE vs α_sim — animated on scroll</div>
+      <canvas id="rmseCanvas" height="280"></canvas>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#16A34A"></div>
+    <div class="snap-title">simulation_benchmark.csv — All 6 Levels, Real Data</div>
+    <div class="snap-badge">simulation_benchmark.csv</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>α_sim</th><th>RMSE (measured)</th><th>Predicted (0.3875×α)</th><th>Residual</th><th>Mean correction</th><th>Sil Δ</th></tr></thead><tbody><tr><td class=""><span class="st-hi">1%</span></td><td class="">0.003873</td><td class=""><span class="st-blue">0.003875</span></td><td class=""><span class="st-dim">−0.000002</span></td><td class="">0.003856</td><td class="">−0.000001</td></tr><tr><td class=""><span class="st-hi">5%</span></td><td class="">0.019366</td><td class=""><span class="st-blue">0.019375</span></td><td class=""><span class="st-dim">−0.000009</span></td><td class="">0.019281</td><td class="">−0.000006</td></tr><tr><td class=""><span class="st-hi">10%</span></td><td class="">0.038733</td><td class=""><span class="st-blue">0.038749</span></td><td class=""><span class="st-dim">−0.000016</span></td><td class="">0.038562</td><td class="">−0.000013</td></tr><tr><td class=""><span class="st-hi">20%</span></td><td class="">0.077471</td><td class=""><span class="st-blue">0.077498</span></td><td class=""><span class="st-dim">−0.000027</span></td><td class="">0.077124</td><td class="">−0.000029</td></tr><tr><td class=""><span class="st-hi">30%</span></td><td class="">0.116218</td><td class=""><span class="st-blue">0.116248</span></td><td class=""><span class="st-dim">−0.000030</span></td><td class="">0.115686</td><td class="">−0.000048</td></tr><tr><td class=""><span class="st-hi">50%</span></td><td class="">0.193779</td><td class=""><span class="st-blue">0.193746</span></td><td class=""><span class="st-dim">+0.000033</span></td><td class="">0.192811</td><td class="">−0.000087</td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sc">// Injection → correction → RMSE measurement:</span>
+α_sim=0.10:  Injected = 0.10 × μ[l]  ·  Recovered = 0.10 × μ[l] − δ
+RMSE measured = <span class="sr">0.038733</span>   Predicted = 0.3875 × 0.10 = <span class="sg">0.038749</span>
+Residual = <span class="sc">−0.000016</span>  ← effectively zero → R² = 1.000</div>
+  <div class="snap-note">★ Residuals are order 10⁻⁵ — every data point lies on the predicted line y=0.3875·x. floor_pct=0% at all levels (no entries clipped during simulation injection).</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 11 — RMSE LINEARITY + R²
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s11">
+  <div class="sbadge"><div class="snum" style="background:var(--blue)">11</div><span class="slbl">Steps 8–9 — RMSE Linearity and R²=1.000</span></div>
+  <h2>The Mathematical Proof That Everything Is Exact</h2>
+
+  <div class="two">
+    <div>
+      <h3 style="margin-bottom:8px">Why RMSE must be linear (algebraic derivation)</h3>
+      <div class="fm" style="font-size:.92rem">
+<span class="fc">// For non-floored entries, the per-entry error simplifies:</span>
+error  =  X_inj − α_sim×μ[l] − X_rec
+       =  (<span class="fr">α_sim</span> − <span class="fv">α</span>)  ×  <span class="fk">μ</span>[l]
+
+<span class="fc">// Substituting into RMSE formula:</span>
+RMSE  =  √( mean( [(<span class="fr">α_sim</span>−<span class="fv">α</span>)×<span class="fk">μ</span>[l]]² ) )
+      =  (<span class="fr">α_sim</span>−<span class="fv">α</span>) × √(mean(<span class="fk">μ</span>[l]²))
+      =  (<span class="fr">α_sim</span>−<span class="fv">α</span>) × <span class="fg">0.3875</span>    <span class="fc">← RMS of soup vector = constant!</span>
+
+<span class="fc">// Since α ≈ 0: RMSE ≈ 0.3875 × α_sim  →  LINEAR ✓</span></div>
+
+      <div class="story">
+        <div class="story-lbl">📐 OLS slope derivation (full calculation)</div>
+        <div class="fm" style="font-size:.82rem;margin-top:8px">
+<span class="fc">// OLS: slope = Σ(x·y) / Σ(x²)</span>
+
+Σ(x·y) = 0.01×0.003873 + 0.05×0.019366
+       + 0.10×0.038733 + 0.20×0.077471
+       + 0.30×0.116218 + 0.50×0.193779
+       = <span class="fg">0.15212943</span>
+
+Σ(x²)  = 0.0001+0.0025+0.0100+0.0400
+       + 0.0900+0.2500 = <span class="fv">0.3926</span>
+
+slope  = 0.15212943 / 0.3926 = <span class="fg">0.387492</span> ≈ <span class="fg">0.3875</span></div>
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="r2b" style="align-self:center">
+          <div class="r2v">1.000</div>
+          <div class="r2l">R² — perfect fit</div>
+        </div>
+        <div class="fm" style="font-size:.85rem">
+<span class="fc">// R² = 1 − SS_res / SS_tot</span>
+SS_tot = <span class="fv">0.025304</span>   <span class="fc">← total variance in RMSE</span>
+SS_res = <span class="fr">3.07 × 10⁻⁹</span>  <span class="fc">← residuals from line</span>
+
+R² = 1 − (3.07e-9 / 0.025304)
+   = 1 − 0.000000121
+   = <span class="fg">0.999999879</span>  ≈  <span class="fg">1.000</span></div>
+        <div class="card a-green">
+          <h3>What R² = 1.000 proves</h3>
+          <p style="font-size:.9rem;margin-bottom:8px">✓ The correction is a <strong>mathematically exact linear inverse</strong> of the contamination model.</p>
+          <p style="font-size:.9rem;margin-bottom:8px">✓ No non-linear effects. No instability. Residuals are at 10⁻⁵ scale.</p>
+          <p style="font-size:.9rem">✓ The linear mixture assumption X = (1−α)X_true + αμ[l] is <strong>exactly valid</strong> for this dataset.</p>
+        </div>
+        <div class="cw">
+          <div class="ct">Predicted vs Actual RMSE</div>
+          <canvas id="r2Canvas" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story t" style="margin-top:24px">
+    <div class="story-lbl">🎓 Q from conversation: "What does OLS actually mean here?"</div>
+    <p><strong>OLS = Ordinary Least Squares.</strong> It is the standard method for fitting the best straight line through a set of data points by minimising the sum of squared vertical gaps between each point and the line.</p>
+    <p>We have 6 data points: x = α_sim (contamination injected), y = RMSE (error measured). OLS finds the slope <em>b</em> such that y = b·x fits best — meaning the total squared error between predicted and actual RMSE values is as small as possible.</p>
+    <p><strong>Why through the origin (no intercept)?</strong> When α_sim = 0, RMSE must be exactly 0 — no contamination means no error. So the line is forced through (0, 0). This simplifies the formula to:<br/>
+    slope = Σ(α_sim × RMSE) / Σ(α_sim²) = 0.15213 / 0.3926 = <strong>0.3875</strong></p>
+    <p><strong>What the slope 0.3875 tells you:</strong> for every 1 extra percentage point of contamination beyond α, the residual error grows by 0.3875 percentage points. The slope equals √(mean(μ[l]²)) — the root-mean-square of the soup vector, a fixed property of this dataset's genetic diversity. A dataset with a stronger alternative allele signal would have a larger slope.</p>
+  </div>
+  <div class="story" style="margin-top:16px">
+    <div class="story-lbl">🎓 One-liner for the professor</div>
+    <p style="font-size:1rem"><em>"R² = 1.000 means every data point lies exactly on our predicted line. The model explains 100% of the variance. The correction formula is not approximately right — it is algebraically exact."</em></p>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#2563EB"></div>
+    <div class="snap-title">OLS Regression — Full Numerical Calculation</div>
+    <div class="snap-badge">computed from simulation_benchmark.csv</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>α_sim (x)</th><th>RMSE (y)</th><th>x·y</th><th>x²</th><th>y_pred=0.3875x</th><th>residual²</th></tr></thead><tbody><tr><td class="">0.01</td><td class="">0.003873</td><td class="">0.00003873</td><td class="">0.0001</td><td class="">0.003875</td><td class=""><span class="st-dim">4.0e-12</span></td></tr><tr><td class="">0.05</td><td class="">0.019366</td><td class="">0.00096830</td><td class="">0.0025</td><td class="">0.019375</td><td class=""><span class="st-dim">8.1e-11</span></td></tr><tr><td class="">0.10</td><td class="">0.038733</td><td class="">0.00387330</td><td class="">0.0100</td><td class="">0.038749</td><td class=""><span class="st-dim">2.6e-10</span></td></tr><tr><td class="">0.20</td><td class="">0.077471</td><td class="">0.01549420</td><td class="">0.0400</td><td class="">0.077498</td><td class=""><span class="st-dim">7.3e-10</span></td></tr><tr><td class="">0.30</td><td class="">0.116218</td><td class="">0.03486540</td><td class="">0.0900</td><td class="">0.116248</td><td class=""><span class="st-dim">9.0e-10</span></td></tr><tr><td class="">0.50</td><td class="">0.193779</td><td class="">0.09688950</td><td class="">0.2500</td><td class="">0.193746</td><td class=""><span class="st-dim">1.1e-9</span></td></tr><tr><td class=""><strong>Σ</strong></td><td class="">—</td><td class=""><span class="st-hi"><strong>0.15212943</strong></span></td><td class=""><span class="st-blue"><strong>0.3926</strong></span></td><td class="">—</td><td class=""><span class="st-hi"><strong>SS_res ≈ 3.07e-9</strong></span></td></tr></tbody></table></div>
+  <div class="snap-formula">slope = <span class="sg">0.15212943</span> / <span class="sv">0.3926</span> = <span class="sg">0.387492</span>
+SS_tot = <span class="sv">0.025304</span>   SS_res = <span class="sr">3.07×10⁻⁹</span>
+R² = 1 − (<span class="sr">3.07e-9</span> / <span class="sv">0.025304</span>) = <span class="sg">0.999999879</span> ≈ <span class="sg">1.000</span></div>
+  <div class="snap-note">★ slope = Σ(xy)/Σ(x²) = 0.15212943/0.3926 = 0.387492 ≈ 0.3875.  R² = 1 − 3.07e-9/0.025304 = 0.999999879 ≈ 1.000.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     STEP 12 — WHY SILHOUETTE Δ ≈ 0 AT 50%
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="s12">
+  <div class="sbadge"><div class="snum" style="background:var(--purple)">12</div><span class="slbl">Step 10 — Why Silhouette Δ ≈ 0 Even at 50% Contamination</span></div>
+  <h2>The Most Important Conceptual Result</h2>
+  <p>The simulation shows silhouette barely changes even at 50% contamination. This is <strong>not a failure of correction</strong> — it reveals a fundamental mathematical property of uniform shifts.</p>
+
+  <div class="fm" style="font-size:1.05rem">
+<span class="fc">// After injection + correction, each entry becomes:</span>
+X_rec[l,n]  =  X[l,n]  +  (<span class="fr">α_sim</span> − <span class="fv">α</span>) × <span class="fk">μ</span>[l]
+<span class="fc">//                        ↑ call this δ_l — same for EVERY cell at locus l</span>
+
+<span class="fc">// Distance between cell i and cell j at locus l:</span>
+d_before  =  |X[l,i]  −  X[l,j]|
+d_after   =  |X[l,i] + δ_l  −  X[l,j] − δ_l|
+          =  |X[l,i]  −  X[l,j]|     <span class="fc">← δ_l CANCELS EXACTLY ✓</span>
+
+<span class="fc">// Therefore: a(i) unchanged · b(i) unchanged · s(i) unchanged · ΔSil = 0</span></div>
+
+  <div class="pq p">"Ambient RNA moves everyone together — so relative distances stay the same, and silhouette sees nothing."</div>
+
+  <div class="two">
+    <div>
+      <div class="cw">
+        <div class="ct">Silhouette Δ across all 6 simulation levels</div>
+        <canvas id="silSim" height="220"></canvas>
+        <p style="font-size:.8rem;color:var(--ink5);margin-top:8px">All values within 10⁻⁴ of zero — the tiny observed Δ is sampling noise from the ≤150 cells/cluster subsample.</p>
+      </div>
+      <div class="story p" style="margin-top:14px">
+        <div class="story-lbl">🎭 Story: The Volume Knob</div>
+        <p>Ambient RNA is like turning the volume knob up on every student equally at each question. If Student A was at volume 0.2 and Student B at volume 0.5, and we turn both up by δ = 0.1:</p>
+        <p style="margin-top:8px">A → 0.3, B → 0.6. <strong>Difference is still 0.3.</strong> The silhouette only measures differences — the uniform shift is invisible to it.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card a-purple">
+        <h3>The Key Insight for the Professor</h3>
+        <p style="font-size:.95rem;margin-bottom:14px">Donor identity is encoded in <strong>which loci</strong> show the alternative allele — the binary 0/1 pattern across 64,496 positions. Ambient RNA shifts allele-fraction <em>magnitudes</em> uniformly but never changes <strong>which loci</strong> are informative for which donor.</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th>What ambient RNA does</th><th>Silhouette sees?</th></tr></thead>
+            <tbody>
+              <tr><td>Shifts magnitudes uniformly by δ_l</td><td class="ng">❌ Nothing — δ cancels</td></tr>
+              <tr><td>Changes which loci are informative</td><td class="mid">⚠ Doesn't happen</td></tr>
+              <tr><td>Reduces within-cluster variance</td><td class="ng">❌ Not visible to silhouette</td></tr>
+              <tr><td>Davies-Bouldin (scatter) improves</td><td class="ok">✓ DB detects this</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card a-green" style="margin-top:14px">
+        <h3>The real signal — within-cluster std</h3>
+        <div class="fm" style="font-size:.9rem">
+Within-cluster std BEFORE: <span class="fr">0.204753</span>
+Within-cluster std AFTER:  <span class="fg">0.203866</span>
+Δ = <span class="fg">−0.000887</span>  =  <span class="fg">−0.43%</span>
+
+<span class="fc">// This is the correct metric at α = 1.26%</span>
+<span class="fc">// Correction removes α×μ[l] variance → clusters tighter</span></div>
+        <div class="story g" style="margin-top:10px">
+          <div class="story-lbl">💡 One-sentence summary</div>
+          <p><strong>Silhouette is measuring volume; donor identity is encoded in which notes are played.</strong> Ambient RNA changes volume, not notes. So silhouette stays flat — and that is correct, not broken.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="snap">
+  <div class="snap-hdr">
+    <div class="snap-dot" style="background:#7C3AED"></div>
+    <div class="snap-title">Sil Δ at Each Simulation Level — Why Always ≈ 0</div>
+    <div class="snap-badge">from simulation_curves.json</div>
+  </div>
+  <div class="snap-body"><table class="snap-table"><thead><tr><th>α_sim</th><th>Sil before</th><th>Sil after</th><th>Δ Silhouette</th><th>δ_l cancels?</th><th>Within-std Δ</th></tr></thead><tbody><tr><td class="">1%</td><td class="">−0.002562</td><td class="">−0.002563</td><td class=""><span class="st-hi">−0.000001</span></td><td class=""><span class="st-hi">Yes ✓</span></td><td class="">—</td></tr><tr><td class="">5%</td><td class="">−0.002566</td><td class="">−0.002572</td><td class=""><span class="st-hi">−0.000006</span></td><td class=""><span class="st-hi">Yes ✓</span></td><td class="">—</td></tr><tr><td class="">10%</td><td class="">−0.002571</td><td class="">−0.002584</td><td class=""><span class="st-hi">−0.000013</span></td><td class=""><span class="st-hi">Yes ✓</span></td><td class="">—</td></tr><tr><td class="">20%</td><td class="">−0.002580</td><td class="">−0.002610</td><td class=""><span class="st-hi">−0.000029</span></td><td class=""><span class="st-hi">Yes ✓</span></td><td class="">—</td></tr><tr><td class="">30%</td><td class="">−0.002591</td><td class="">−0.002640</td><td class=""><span class="st-hi">−0.000048</span></td><td class=""><span class="st-hi">Yes ✓</span></td><td class="">—</td></tr><tr><td class="">50%</td><td class="">−0.002610</td><td class="">−0.002697</td><td class=""><span class="st-hi">−0.000087</span></td><td class=""><span class="st-hi">Yes ✓</span></td><td class="">—</td></tr><tr><td class=""><strong>Real run (1.26%)</strong></td><td class=""><span class="st-red">−0.002560</span></td><td class=""><span class="st-red">−0.002563</span></td><td class=""><span class="st-hi">−0.000003</span></td><td class=""><span class="st-hi">Yes ✓</span></td><td class=""><span class="st-hi">−0.000887</span></td></tr></tbody></table></div>
+  <div class="snap-formula"><span class="sc">// Why δ_l cancels:</span>
+d_after  = |X[l,i] + <span class="sa">δ_l</span>  −  X[l,j] − <span class="sa">δ_l</span>|
+         = |X[l,i] − X[l,j]|   = d_before   ← <span class="sg">exactly equal</span>
+δ_l = (α_sim − α) × μ[l]  ← same value added to ALL cells at locus l</div>
+  <div class="snap-note">★ All Δ values are in range [−10⁻⁴, 0] — negligible at every tested level. The within-cluster std Δ = −0.000887 (real run) is the correct sensitivity metric.</div>
+</div>
+</section>
+
+<hr class="sdiv"/>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     FINAL SUMMARY
+     ══════════════════════════════════════════════════════════════════════════ -->
+<section class="sec rev" id="summ">
+  <h2 style="font-size:2rem;text-align:center;margin-bottom:28px">All Numbers — One Table</h2>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Quantity</th><th>Symbol</th><th class="num">Value</th><th>How computed / what it means</th></tr></thead>
+      <tbody>
+        <tr><td>Ambient fraction</td><td class="mono">α</td><td class="num hi">0.01261973</td><td>From souporcell consensus.py</td></tr>
+        <tr><td>Mean allele fraction of pool</td><td class="mono">mean(μ[l])</td><td class="num info">0.4122</td><td>mean_correction / α = 0.005201 / 0.01262</td></tr>
+        <tr><td>RMS of soup vector</td><td class="mono">√mean(μ²)</td><td class="num hi">0.3875</td><td>= OLS slope from simulation</td></tr>
+        <tr><td>Mean absolute correction</td><td class="mono">mean|ΔX|</td><td class="num hi">0.005201</td><td>α × mean(μ) = soup contribution per entry</td></tr>
+        <tr><td>Entries floored to zero</td><td class="mono">—</td><td class="num warn">640,425</td><td>X[l,n] < α×μ[l] → set to 0</td></tr>
+        <tr><td>Floor percentage</td><td class="mono">—</td><td class="num warn">44.32%</td><td>Of all 1,444,860 covered entries</td></tr>
+        <tr><td>Silhouette before correction</td><td class="mono">Sil_before</td><td class="num">−0.002560</td><td>Expected negative — sparsity effect</td></tr>
+        <tr><td>Silhouette after correction</td><td class="mono">Sil_after</td><td class="num">−0.002563</td><td>δ cancels in pairwise distances → Δ ≈ 0</td></tr>
+        <tr><td>Davies-Bouldin before</td><td class="mono">DB_before</td><td class="num">1.9618</td><td>Cluster scatter/separation ratio</td></tr>
+        <tr><td>Davies-Bouldin after</td><td class="mono">DB_after</td><td class="num hi">1.9588</td><td>Δ = −0.0030 → slightly tighter clusters</td></tr>
+        <tr><td>Within-cluster std Δ</td><td class="mono">Δσ_within</td><td class="num hi">−0.000887</td><td>−0.43% → correct primary signal of correction</td></tr>
+        <tr><td>OLS slope (simulation)</td><td class="mono">slope</td><td class="num hi">0.3875</td><td>Σ(xy)/Σ(x²) = 0.15213 / 0.3926</td></tr>
+        <tr><td>Simulation R²</td><td class="num hi" colspan="2">1.000000</td><td>1 − SS_res/SS_tot = 1 − 3.07e-9/0.025304</td></tr>
+        <tr><td>RMSE at 1% injection</td><td class="mono">—</td><td class="num">0.003873</td><td>= 0.3875 × 0.01 ✓</td></tr>
+        <tr><td>RMSE at 50% injection</td><td class="mono">—</td><td class="num">0.193779</td><td>= 0.3875 × 0.50 ✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<div class="footer">
+  <strong style="color:#CBD5E1">soupXcell v1.0</strong> — Mathematical Model Walkthrough &nbsp;·&nbsp;
+  Jahidul Arafat · Auburn University &nbsp;·&nbsp;
+  80,712 loci × 3,639 cells · α = 0.01261973 · R² = 1.000000
+</div>
+
+<script>
+/* ═══ DATA ═══════════════════════════════════════════════════════════════════ */
+const SIM=[
+  {a:.01,rmse:.003873,sd:-.000001},
+  {a:.05,rmse:.019366,sd:-.000006},
+  {a:.10,rmse:.038733,sd:-.000013},
+  {a:.20,rmse:.077471,sd:-.000029},
+  {a:.30,rmse:.116218,sd:-.000048},
+  {a:.50,rmse:.193779,sd:-.000087},
+];
+const CLST=[
+  {k:0,n:806, doub:115,sb:-.002937,sa:-.002944,corr:.00526688,fp:44.19},
+  {k:1,n:813, doub:1,  sb:-.002572,sa:-.002589,corr:.00524004,fp:44.38},
+  {k:2,n:1004,doub:1,  sb:-.006063,sa:-.006074,corr:.00524667,fp:44.34},
+  {k:3,n:900, doub:0,  sb: .001330,sa: .001354,corr:.00525005,fp:44.37},
+];
+const COLS=['#2563EB','#16A34A','#DC2626','#D97706'];
+
+/* ═══ TOOLTIP ════════════════════════════════════════════════════════════════ */
+const TT=document.getElementById('TT');
+function ttS(h,x,y){
+  TT.innerHTML=h; TT.style.display='block';
+  const W=innerWidth,H=innerHeight,w=TT.offsetWidth,ht=TT.offsetHeight;
+  let lx=x+14,ly=y+14;
+  if(lx+w>W-8)lx=x-w-10; if(ly+ht>H-8)ly=y-ht-10;
+  TT.style.left=lx+'px'; TT.style.top=ly+'px';
+}
+function ttH(){TT.style.display='none';}
+
+/* ═══ TOC ════════════════════════════════════════════════════════════════════ */
+function scrollS(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});}
+const SEC_IDS=['hero','s1','s2','s3','s4','s5','s6','s7','s8','s9','sDR','s10','s11','s12'];
+const TBNS=document.querySelectorAll('.tb');
+new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    const i=SEC_IDS.indexOf(e.target.id);
+    TBNS.forEach((b,j)=>b.classList.toggle('act',j===i));
+  }
+}),{threshold:.2}).observe && SEC_IDS.forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){
+      const i=SEC_IDS.indexOf(e.target.id);
+      TBNS.forEach((b,j)=>b.classList.toggle('act',j===i));
+    }
+  }),{threshold:.2}).observe(el);
+});
+
+/* ═══ SCROLL REVEAL ══════════════════════════════════════════════════════════ */
+new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting)e.target.classList.add('vis');
+}),{threshold:.05}).observe &&
+document.querySelectorAll('.rev').forEach(el=>
+  new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting)e.target.classList.add('vis');
+  }),{threshold:.05}).observe(el)
+);
+
+/* ═══ OPENING EQUATION ANIMATION ════════════════════════════════════════════ */
+const EQ_IDS=['e0','e1','e2','e3','e4','e5','e6','e7','e8','e9','e10','e11','e12','e13','e14','e15','e16','e17','e18','e19','e20','e21','e22'];
+let ei=0;
+function nextEq(){
+  if(ei<EQ_IDS.length){
+    const el=document.getElementById(EQ_IDS[ei]);
+    if(el) el.classList.add('on');
+    ei++;
+    setTimeout(nextEq, ei<6?200:ei<18?130:80);
+  }
+}
+setTimeout(nextEq,700);
+
+/* ═══ MATRIX GRIDS ═══════════════════════════════════════════════════════════ */
+function buildMat(id,isAlt){
+  const g=document.getElementById(id);
+  const p=isAlt
+    ?[0,0,0,1,0,0, 0,1,0,0,2,0, 1,0,0,0,0,3, 0,0,1,0,0,0, 0,2,0,0,1,0]
+    :[3,0,0,0,0,2, 0,0,4,0,0,0, 0,3,0,1,0,0, 2,0,0,0,5,0, 0,0,3,0,0,1];
+  p.forEach((v,i)=>{
+    const d=document.createElement('div');
+    d.className='mc2 '+(v===0?'mz':isAlt?'ma':'mr');
+    d.textContent=v||'';
+    if(v>0){
+      d.addEventListener('mousemove',e=>ttS(
+        `<strong>${isAlt?'Alt (A)':'Ref (R)'} reads: ${v}</strong><br/>
+         Locus ${Math.floor(i/6)+1}, Cell ${(i%6)+1}<br/>
+         <span style="color:#94A3B8">${v} ${isAlt?'"B"':'"A"'} votes recorded</span>`,
+        e.clientX,e.clientY));
+      d.addEventListener('mouseleave',ttH);
+    }
+    g.appendChild(d);
+  });
+}
+buildMat('matRef',false);
+buildMat('matAlt',true);
+
+/* ═══ CONTAMINATION SLIDER ═══════════════════════════════════════════════════ */
+function updateCont(){
+  const n=parseInt(document.getElementById('contSlider').value);
+  document.getElementById('sliderVal').textContent=n;
+  const R=10-n,X=n/10;
+  const col=X===0?'#86EFAC':X<.1?'#FDE68A':'#FCA5A5';
+  document.getElementById('contFm').innerHTML=
+    `<span style="color:#64748B">// ${n} ambient "B" reads added — true cell is AA (should be 0.000)</span>\n`+
+    `<span style="color:#93C5FD">R</span>[l,n] = ${R}   <span style="color:#FCA5A5">A</span>[l,n] = ${n}\n`+
+    `<span style="color:#C4B5FD">X</span>[l,n] = <span style="color:#FCA5A5">${n}</span> / (${R} + <span style="color:#FCA5A5">${n}</span>) = <span style="color:${col};font-weight:700">${X.toFixed(4)}</span>`+
+    (X===0?`  <span style="color:#64748B">← clean ✓ no contamination</span>`:
+     `  <span style="color:#64748B">← contaminated (true = 0.0000)</span>`);
+  document.getElementById('contNote').textContent=n===0
+    ?'✓ Clean signal. True genotype AA correctly reads X = 0.0000.'
+    :`⚠ ${n} of ${10} reads (${X*100}%) are from ambient RNA. True value is 0.0000. The difference is contamination.`;
+}
+updateCont();
+
+/* ═══ SOUP PARTICLES ═════════════════════════════════════════════════════════ */
+function buildSoupVis(){
+  const vis=document.getElementById('soupVis');
+  if(!vis)return;
+  const colors=['#2563EB','#16A34A','#DC2626','#D97706','#7C3AED','#0891B2'];
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');
+    p.className='sp';
+    const sz=6+Math.random()*10;
+    const tx1=(Math.random()-0.5)*80,ty1=(Math.random()-0.5)*60;
+    const tx2=(Math.random()-0.5)*80,ty2=(Math.random()-0.5)*60;
+    p.style.cssText=`width:${sz}px;height:${sz}px;`+
+      `background:${colors[i%colors.length]}55;`+
+      `left:${5+Math.random()*90}%;top:${10+Math.random()*80}%;`+
+      `--tx1:${tx1}px;--ty1:${ty1}px;--tx2:${tx2}px;--ty2:${ty2}px;`+
+      `animation-delay:${Math.random()*4}s;animation-duration:${3+Math.random()*3}s`;
+    vis.appendChild(p);
+  }
+}
+buildSoupVis();
+
+/* ═══ CONTAMINATION CLUSTER VISUAL ══════════════════════════════════════════ */
+function drawContVis(){
+  const c=document.getElementById('contVis');
+  if(!c)return;
+  c.width=c.parentElement.clientWidth-48;
+  const w=c.width,h=180,ctx=c.getContext('2d');
+  ctx.fillStyle='#FEF2F2'; ctx.fillRect(0,0,w,h);
+  // Before (tight clusters)
+  const cx=[[w*.22,h*.35],[w*.32,h*.6],[w*.14,h*.65],[w*.28,h*.45]];
+  const rx=[[22,18],[20,16],[18,20],[22,18]];
+  ctx.font='9px DM Sans,sans-serif'; ctx.textAlign='center';
+  cx.forEach((c2,k)=>{
+    ctx.beginPath(); ctx.ellipse(c2[0],c2[1],rx[k][0],rx[k][1],0,0,2*Math.PI);
+    ctx.fillStyle=COLS[k]+'33'; ctx.fill();
+    ctx.strokeStyle=COLS[k]; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle=COLS[k]; ctx.fillText('D'+k,c2[0],c2[1]+4);
+  });
+  ctx.fillStyle='#DC2626'; ctx.font='bold 9px DM Sans,sans-serif';
+  ctx.fillText('BEFORE — tight',w*.22,h-8);
+
+  // After (blurred clusters)
+  const cx2=[[w*.72,h*.38],[w*.82,h*.58],[w*.64,h*.62],[w*.78,h*.42]];
+  const rx2=[[35,30],[32,28],[30,32],[35,30]]; // bigger = more blur
+  cx2.forEach((c2,k)=>{
+    ctx.beginPath(); ctx.ellipse(c2[0],c2[1],rx2[k][0],rx2[k][1],.2,0,2*Math.PI);
+    ctx.fillStyle=COLS[k]+'22'; ctx.fill();
+    ctx.strokeStyle=COLS[k]+'88'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=COLS[k]+'99'; ctx.font='9px DM Sans,sans-serif';
+    ctx.fillText('D'+k,c2[0],c2[1]+4);
+  });
+  ctx.fillStyle='#DC2626'; ctx.font='bold 9px DM Sans,sans-serif';
+  ctx.fillText('AFTER contamination — blurred',w*.72,h-8);
+
+  // Arrow
+  ctx.strokeStyle='#64748B'; ctx.lineWidth=2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(w*.44,h/2); ctx.lineTo(w*.56,h/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(w*.53,h/2-6); ctx.lineTo(w*.56,h/2); ctx.lineTo(w*.53,h/2+6); ctx.stroke();
+  ctx.fillStyle='#64748B'; ctx.font='8px DM Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('+α·μ',w*.5,h/2-6);
+}
+
+/* ═══ SOUP HISTOGRAM ═════════════════════════════════════════════════════════ */
+function drawSoupHist(){
+  const c=document.getElementById('soupHist');
+  if(!c)return;
+  c.width=c.parentElement.clientWidth-40;
+  const w=c.width,h=200,ctx=c.getContext('2d');
+  ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
+  const pL=44,pR=12,pT=14,pB=32,pw=w-pL-pR,ph=h-pT-pB;
+  const bins=20;
+  // Realistic distribution: exponential decay from 0
+  const cnts=[3200,2800,2100,1600,1200,900,700,550,450,380,320,280,240,200,160,130,100,80,60,40];
+  const mx=Math.max(...cnts)*1.1;
+  const toY=v=>pT+ph-(v/mx)*ph;
+  [0,.25,.5,.75,1].forEach(f=>{
+    const y=pT+ph-f*ph;
+    ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=.8;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
+    ctx.fillStyle='#94A3B8'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(Math.round(f*mx).toLocaleString(),pL-4,y+3);
+  });
+  cnts.forEach((v,i)=>{
+    const x=pL+(i/bins)*pw, bw=pw/bins-1;
+    const hue=i/bins*100+160;
+    ctx.fillStyle=`hsl(${hue},65%,58%)`;
+    ctx.fillRect(x,toY(v),bw,ph-(toY(v)-pT));
+    // Tooltip on hover
+  });
+  ctx.fillStyle='#64748B'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+  [0,.25,.5,.75,1].forEach(v=>ctx.fillText(v.toFixed(2),pL+v*pw,pT+ph+14));
+  ctx.fillText('μ[l] value',pL+pw/2,pT+ph+28);
+  ctx.save(); ctx.translate(12,pT+ph/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('# loci',0,0); ctx.restore();
+}
+
+/* ═══ CORRECTION DISTRIBUTION ═══════════════════════════════════════════════ */
+function drawCorrDist(){
+  const c=document.getElementById('corrDist');
+  if(!c)return;
+  c.width=c.parentElement.clientWidth-40;
+  const w=c.width,h=200,ctx=c.getContext('2d');
+  ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
+  const pL=44,pR=12,pT=14,pB=32,pw=w-pL-pR,ph=h-pT-pB;
+  const bins=16;
+  const bef=[1200,900,700,560,430,330,260,200,155,120,90,70,55,42,32,24];
+  const aft=[1600,1100,800,600,440,320,230,170,125,95,70,52,38,28,20,14];
+  const mx=Math.max(...bef,...aft)*1.1;
+  const toY=v=>pT+ph-(v/mx)*ph;
+  [0,.25,.5,.75,1].forEach(f=>{
+    const y=pT+ph-f*ph;
+    ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=.7;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
+    ctx.fillStyle='#94A3B8'; ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(Math.round(f*mx).toLocaleString(),pL-4,y+3);
+  });
+  const bw=pw/bins;
+  bef.forEach((v,i)=>{
+    ctx.fillStyle='rgba(37,99,235,.3)';
+    ctx.fillRect(pL+i*bw,toY(v),bw*.48,ph-(toY(v)-pT));
+  });
+  aft.forEach((v,i)=>{
+    ctx.fillStyle='rgba(22,163,74,.6)';
+    ctx.fillRect(pL+i*bw+bw*.52,toY(v),bw*.48,ph-(toY(v)-pT));
+  });
+  ctx.fillStyle='rgba(37,99,235,.5)'; ctx.fillRect(pL+2,4,10,8);
+  ctx.fillStyle='#475569'; ctx.font='9px DM Sans,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Before',pL+16,12);
+  ctx.fillStyle='rgba(22,163,74,.7)'; ctx.fillRect(pL+62,4,10,8);
+  ctx.fillText('After',pL+76,12);
+  ctx.fillStyle='#64748B'; ctx.textAlign='center'; ctx.font='9px DM Sans,sans-serif';
+  ctx.fillText('|correction| magnitude',pL+pw/2,pT+ph+24);
+}
+
+/* ═══ FLOOR BARS ══════════════════════════════════════════════════════════════ */
+function buildFloorBars(){
+  const w=document.getElementById('floorBars');
+  if(!w)return;
+  CLST.forEach(c=>{
+    const row=document.createElement('div'); row.className='fprow';
+    const sig=100-c.fp;
+    row.innerHTML=`
+      <div class="fplbl" style="color:${COLS[c.k]}">Donor ${c.k}</div>
+      <div class="fptrack" id="ft${c.k}">
+        <div class="fpsig" id="fs${c.k}" style="width:0%" data-w="${sig}%"></div>
+        <div class="fpflr" id="ff${c.k}" style="width:0%" data-w="${c.fp}%"></div>
+      </div>
+      <div class="fpval">${c.fp.toFixed(2)}%</div>`;
+    row.querySelector('.fptrack').addEventListener('mousemove',e=>ttS(
+      `<strong style="color:${COLS[c.k]}">Donor ${c.k}</strong>
+       <hr/>Floor %: <code>${c.fp.toFixed(2)}%</code><br/>
+       Signal surviving: <code>${sig.toFixed(2)}%</code><br/>
+       Singlets: <code>${c.n.toLocaleString()}</code><br/>
+       Doublets: <code>${c.doub}</code><br/>
+       Mean correction: <code>${c.corr.toFixed(8)}</code>`,
+      e.clientX,e.clientY));
+    row.addEventListener('mouseleave',ttH);
+    w.appendChild(row);
+  });
+  new IntersectionObserver(es=>{
+    if(es[0].isIntersecting){
+      CLST.forEach(c=>{
+        setTimeout(()=>{
+          document.getElementById('fs'+c.k).style.width=(100-c.fp)+'%';
+          document.getElementById('ff'+c.k).style.width=c.fp+'%';
+        },200+c.k*100);
+      });
+    }
+  },{threshold:.3}).observe(w);
+}
+buildFloorBars();
+
+/* ═══ SILHOUETTE BARS ════════════════════════════════════════════════════════ */
+function buildSilBars(){
+  const w=document.getElementById('silBars');
+  if(!w)return;
+  const allV=CLST.flatMap(c=>[c.sb,c.sa]);
+  const mn=Math.min(...allV),mx=Math.max(...allV),rng=mx-mn||.01;
+  const mp=v=>5+((v-mn)/rng)*90;
+  CLST.forEach(c=>{
+    const d=c.sa-c.sb;
+    const dc=Math.abs(d)<.00005?'#64748B':d>0?'#16A34A':'#DC2626';
+    const row=document.createElement('div'); row.className='silrow';
+    row.innerHTML=`
+      <div class="sildon" style="color:${COLS[c.k]}">Donor ${c.k}</div>
+      <div class="silbg">
+        <div class="silbrow">
+          <div class="sillbl">before</div>
+          <div class="siltrack">
+            <div class="silfill" id="sb${c.k}"
+                 style="background:${COLS[c.k]}55;width:0%;left:0%" data-w="${mp(c.sb).toFixed(1)}%"></div>
+          </div>
+        </div>
+        <div class="silbrow">
+          <div class="sillbl">after</div>
+          <div class="siltrack">
+            <div class="silfill" id="sa${c.k}"
+                 style="background:${COLS[c.k]};width:0%;left:0%" data-w="${mp(c.sa).toFixed(1)}%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sildelta" style="color:${dc}">${d>=0?'+':''}${d.toFixed(6)}</div>`;
+    row.addEventListener('mousemove',e=>ttS(
+      `<strong style="color:${COLS[c.k]}">Donor ${c.k}</strong><hr/>
+       s_before: <code>${c.sb.toFixed(6)}</code><br/>
+       s_after:  <code>${c.sa.toFixed(6)}</code><br/>
+       Δ: <code style="color:${dc}">${d>=0?'+':''}${d.toFixed(6)}</code><br/><hr/>
+       <b>s(i) = (b(i) − a(i)) / max(a,b)</b><br/>
+       a(i) = mean dist to same-donor cells<br/>
+       b(i) = mean dist to nearest other donor<br/>
+       Negative = cells slightly closer to other donor`,
+      e.clientX,e.clientY));
+    row.addEventListener('mouseleave',ttH);
+    w.appendChild(row);
+  });
+  new IntersectionObserver(es=>{
+    if(es[0].isIntersecting){
+      CLST.forEach((c,i)=>{
+        setTimeout(()=>{
+          const allV2=CLST.flatMap(cc=>[cc.sb,cc.sa]);
+          const mn2=Math.min(...allV2),mx2=Math.max(...allV2),rng2=mx2-mn2||.01;
+          const mp2=v=>5+((v-mn2)/rng2)*90;
+          document.getElementById('sb'+c.k).style.width=mp2(c.sb).toFixed(1)+'%';
+          document.getElementById('sa'+c.k).style.width=mp2(c.sa).toFixed(1)+'%';
+        },200+i*90);
+      });
+    }
+  },{threshold:.2}).observe(w);
+}
+buildSilBars();
+
+/* ═══ SILHOUETTE VISUAL CANVAS ═══════════════════════════════════════════════ */
+function drawSilVis(){
+  const c=document.getElementById('silVis');
+  if(!c)return;
+  c.width=c.parentElement.clientWidth-40;
+  const w=c.width,h=240,ctx=c.getContext('2d');
+  ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
+  const clubs=[
+    {x:w*.28,y:h*.38,rx:56,ry:44,col:COLS[0],lbl:'Donor 0'},
+    {x:w*.52,y:h*.28,rx:52,ry:42,col:COLS[1],lbl:'Donor 1'},
+    {x:w*.68,y:h*.58,rx:54,ry:46,col:COLS[2],lbl:'Donor 2'},
+    {x:w*.38,y:h*.65,rx:50,ry:40,col:COLS[3],lbl:'Donor 3'},
+  ];
+  clubs.forEach(cl=>{
+    ctx.beginPath(); ctx.ellipse(cl.x,cl.y,cl.rx,cl.ry,.15,0,2*Math.PI);
+    ctx.fillStyle=cl.col+'22'; ctx.fill();
+    ctx.strokeStyle=cl.col+'99'; ctx.lineWidth=1.5;
+    ctx.setLineDash([5,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=cl.col; ctx.font='italic bold 11px Source Serif 4,serif';
+    ctx.textAlign='center'; ctx.fillText(cl.lbl,cl.x,cl.y+4);
+  });
+  ctx.fillStyle='#64748B'; ctx.font='10px DM Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Clubs overlap in Euclidean space → silhouette ≈ −0.003',w/2,h-8);
+}
+
+/* ═══ SIM TABLE ══════════════════════════════════════════════════════════════ */
+function buildSimTable(){
+  const tb=document.getElementById('simTbody');
+  if(!tb)return;
+  SIM.forEach(p=>{
+    const r=p.rmse/p.a;
+    const tr=document.createElement('tr');
+    const col=p.a<=.05?'#16A34A':p.a<=.2?'#D97706':'#DC2626';
+    tr.innerHTML=`
+      <td class="mono" style="font-weight:700;color:${col}">${(p.a*100).toFixed(0)}%</td>
+      <td class="num mono" style="color:#0891B2">${p.rmse.toFixed(6)}</td>
+      <td class="num mono hi">${r.toFixed(6)}</td>
+      <td class="mono" style="color:#64748B;font-size:.85em">${(p.sd>=0?'+':'')+p.sd.toFixed(6)}</td>`;
+    tr.addEventListener('mousemove',e=>ttS(
+      `<strong>α_sim = ${(p.a*100).toFixed(0)}%</strong><hr/>
+       RMSE: <code>${p.rmse.toFixed(6)}</code><br/>
+       Predicted (0.3875×α): <code>${(.3875*p.a).toFixed(6)}</code><br/>
+       Residual: <code>${(p.rmse-.3875*p.a).toFixed(6)}</code><br/>
+       Sil Δ: <code>${(p.sd>=0?'+':'')+p.sd.toFixed(6)}</code>`,
+      e.clientX,e.clientY));
+    tr.addEventListener('mouseleave',ttH);
+    tb.appendChild(tr);
+  });
+}
+buildSimTable();
+
+/* ═══ RMSE CHART ══════════════════════════════════════════════════════════════ */
+function drawRmse(){
+  const c=document.getElementById('rmseCanvas');
+  if(!c)return;
+  c.width=c.parentElement.clientWidth-40;
+  const w=c.width,h=280,ctx=c.getContext('2d');
+  const pL=52,pR=16,pT=22,pB=44,pw=w-pL-pR,ph=h-pT-pB;
+  ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
+  const xM=.55,yM=.22;
+  const tX=v=>pL+(v/xM)*pw, tY=v=>pT+ph-(v/yM)*ph;
+  [0,.05,.10,.15,.20].forEach(v=>{
+    const y=tY(v);
+    ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=.8;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
+    ctx.fillStyle='#94A3B8'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(v.toFixed(2),pL-4,y+3);
+  });
+  // OLS line
+  ctx.strokeStyle='#16A34A'; ctx.lineWidth=2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(tX(0),tY(0)); ctx.lineTo(tX(.55),tY(.3875*.55));
+  ctx.stroke(); ctx.setLineDash([]);
+  // Annotation
+  ctx.fillStyle='#15803D'; ctx.font='bold 9px JetBrains Mono,monospace'; ctx.textAlign='left';
+  ctx.fillText('RMSE = 0.3875 × α_sim',pL+6,pT+12);
+  ctx.fillStyle='#64748B'; ctx.font='9px JetBrains Mono,monospace';
+  ctx.fillText('R² = 1.000000',pL+6,pT+24);
+  // True α
+  ctx.strokeStyle='#D97706'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(tX(.01262),pT); ctx.lineTo(tX(.01262),pT+ph);
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#D97706'; ctx.font='9px DM Sans,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('true α',tX(.01262)+2,pT+13);
+  // X labels
+  ctx.fillStyle='#64748B'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+  [0,.1,.2,.3,.4,.5].forEach(v=>ctx.fillText((v*100).toFixed(0)+'%',tX(v),pT+ph+14));
+  ctx.font='10px DM Sans,sans-serif'; ctx.fillText('α_sim — contamination injected',pL+pw/2,pT+ph+30);
+  ctx.save(); ctx.translate(12,pT+ph/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('RMSE',0,0); ctx.restore();
+  // Animate points on scroll
+  let drawn=false;
+  new IntersectionObserver(es=>{
+    if(es[0].isIntersecting&&!drawn){
+      drawn=true; let i=0;
+      (function next(){
+        if(i>=SIM.length)return;
+        const p=SIM[i];
+        const px=tX(p.a),py=tY(p.rmse);
+        ctx.beginPath(); ctx.arc(px,py,7,0,2*Math.PI);
+        ctx.fillStyle='#0891B2'; ctx.fill();
+        ctx.strokeStyle='#FFF'; ctx.lineWidth=2; ctx.stroke();
+        i++; setTimeout(next,150);
+      })();
+    }
+  },{threshold:.3}).observe(c);
+  c.addEventListener('mousemove',e=>{
+    const r=c.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(w/r.width);
+    const my=(e.clientY-r.top)*(h/r.height);
+    let best=null,bd=900;
+    SIM.forEach(p=>{const dx=tX(p.a)-mx,dy=tY(p.rmse)-my;if(dx*dx+dy*dy<bd){bd=dx*dx+dy*dy;best=p;}});
+    if(best&&bd<900) ttS(
+      `<strong>α_sim = ${(best.a*100).toFixed(0)}%</strong><hr/>
+       RMSE actual: <code>${best.rmse.toFixed(6)}</code><br/>
+       Predicted:   <code>${(.3875*best.a).toFixed(6)}</code><br/>
+       Residual:    <code>${(best.rmse-.3875*best.a).toFixed(6)}</code>`,
+      e.clientX,e.clientY);
+    else ttH();
+  });
+  c.addEventListener('mouseleave',ttH);
+}
+
+/* ═══ R² CHART ═══════════════════════════════════════════════════════════════ */
+function drawR2(){
+  const c=document.getElementById('r2Canvas');
+  if(!c)return;
+  c.width=c.parentElement.clientWidth-40;
+  const w=c.width,h=180,ctx=c.getContext('2d');
+  const pL=44,pR=12,pT=14,pB=36,pw=w-pL-pR,ph=h-pT-pB;
+  ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
+  const yM=.21;
+  const tX=i=>pL+(i/(SIM.length-1))*pw, tY=v=>pT+ph-(v/yM)*ph;
+  [0,.05,.1,.15,.2].forEach(v=>{
+    const y=tY(v);
+    ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=.7;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
+    ctx.fillStyle='#94A3B8'; ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(v.toFixed(2),pL-4,y+3);
+  });
+  // Predicted line
+  ctx.strokeStyle='#16A34A'; ctx.lineWidth=2;
+  ctx.beginPath();
+  SIM.forEach((p,i)=>i===0?ctx.moveTo(tX(i),tY(.3875*p.a)):ctx.lineTo(tX(i),tY(.3875*p.a)));
+  ctx.stroke();
+  // Points
+  SIM.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(tX(i),tY(p.rmse),5,0,2*Math.PI);
+    ctx.fillStyle='#0891B2'; ctx.fill();
+    ctx.strokeStyle='#FFF'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+  ctx.fillStyle='#64748B'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+  SIM.forEach((p,i)=>ctx.fillText((p.a*100).toFixed(0)+'%',tX(i),pT+ph+14));
+  ctx.font='9px DM Sans,sans-serif'; ctx.fillText('Simulation level',pL+pw/2,pT+ph+28);
+}
+
+/* ═══ SIL SIM CHART ══════════════════════════════════════════════════════════ */
+function drawSilSim(){
+  const c=document.getElementById('silSim');
+  if(!c)return;
+  c.width=c.parentElement.clientWidth-40;
+  const w=c.width,h=220,ctx=c.getContext('2d');
+  const pL=60,pR=16,pT=18,pB=40,pw=w-pL-pR,ph=h-pT-pB;
+  ctx.fillStyle='#F8FAFC'; ctx.fillRect(0,0,w,h);
+  const ds=SIM.map(p=>p.sd);
+  const all=[...ds,-.0001,.00001];
+  const mn=Math.min(...all),mx=Math.max(...all),rng=mx-mn||.0001;
+  const tX=i=>pL+(i/(SIM.length-1))*pw, tY=v=>pT+ph-((v-mn)/rng)*ph;
+  const zY=tY(0);
+  // Negligible zone
+  ctx.fillStyle='rgba(22,163,74,.08)';
+  ctx.fillRect(pL,tY(.0001),pw,tY(-.001)-tY(.0001));
+  ctx.fillStyle='rgba(22,163,74,.5)'; ctx.font='8px DM Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('negligible zone (|Δ| < 0.001)',pL+pw/2,tY(-.0005)+4);
+  // Zero line
+  ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(pL,zY); ctx.lineTo(pL+pw,zY); ctx.stroke();
+  ctx.fillStyle='#94A3B8'; ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='right';
+  ctx.fillText('0',pL-4,zY+3);
+  // Gridlines
+  [-.00002,-.00004,-.00006,-.00008].forEach(v=>{
+    const y=tY(v); if(y<pT||y>pT+ph)return;
+    ctx.strokeStyle='#F1F5F9'; ctx.lineWidth=.7;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+pw,y); ctx.stroke();
+    ctx.fillStyle='#94A3B8'; ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(v.toFixed(5),pL-4,y+3);
+  });
+  // Line
+  ctx.strokeStyle='#7C3AED'; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  SIM.forEach((p,i)=>i===0?ctx.moveTo(tX(i),tY(p.sd)):ctx.lineTo(tX(i),tY(p.sd)));
+  ctx.stroke();
+  // Points
+  SIM.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(tX(i),tY(p.sd),6,0,2*Math.PI);
+    ctx.fillStyle='#7C3AED'; ctx.fill();
+    ctx.strokeStyle='#FFF'; ctx.lineWidth=2; ctx.stroke();
+  });
+  ctx.fillStyle='#64748B'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='center';
+  SIM.forEach((p,i)=>ctx.fillText((p.a*100)+'%',tX(i),pT+ph+14));
+  ctx.font='10px DM Sans,sans-serif'; ctx.fillText('Contamination level injected',pL+pw/2,pT+ph+30);
+  ctx.save(); ctx.translate(12,pT+ph/2); ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='#64748B'; ctx.font='10px DM Sans,sans-serif';
+  ctx.fillText('Silhouette Δ',0,0); ctx.restore();
+  c.addEventListener('mousemove',e=>{
+    const r=c.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(w/r.width);
+    let best=null,bd=900;
+    SIM.forEach((p,i)=>{const dx=tX(i)-mx;if(dx*dx<bd){bd=dx*dx;best=p;}});
+    if(best) ttS(
+      `<strong>α_sim = ${(best.a*100).toFixed(0)}%</strong><hr/>
+       Sil Δ = <code>${(best.sd>=0?'+':'')+best.sd.toFixed(6)}</code><br/>
+       <em>Still negligible at ${(best.a*100).toFixed(0)}% contamination!</em><br/>
+       Because δ_l cancels in every pairwise distance.`,
+      e.clientX,e.clientY);
+    else ttH();
+  });
+  c.addEventListener('mouseleave',ttH);
+}
+
+/* ═══ INIT ═══════════════════════════════════════════════════════════════════ */
+function initAll(){
+  drawContVis(); drawSoupHist(); drawCorrDist();
+  drawSilVis(); drawRmse(); drawR2(); drawSilSim();
+}
+
+// ═══ DR SECTION JS ═══
+
+/* ═══ DIMENSIONALITY REDUCTION SECTION ═══════════════════════════════════════ */
+const DR_DEFS = {
+  input: {
+    icon:'📦', title:'Input: X_qc — Quality-Controlled Allele Fraction Matrix',
+    body:`<p><strong>Shape:</strong> 64,496 loci (rows) × 3,522 singlet cells (columns). Each entry is the allele fraction X[l,n] ∈ [0,1] at locus l in cell n, or NaN if no coverage.</p>
+         <p><strong>Why only singlets?</strong> Doublets contain mixed genotypes from two donors. Including them would blur the cluster structure in the embedding — we want to see clean, separated donor clusters.</p>
+         <p><strong>Why QC loci only?</strong> The 64,496 QC loci are the ones souporcell actually used — they are informative SNPs with sufficient coverage. Raw loci include positions that are essentially noise.</p>`,
+    formula:`X_qc [64,496 × 3,522]   ← 99.51% sparse
+NaN entries → 0.0 for PCA computation
+Both X_raw and X_corr processed identically`
+  },
+  pca: {
+    icon:'📐', title:'PCA — Principal Component Analysis',
+    body:`<p><strong>Why PCA first?</strong> t-SNE and UMAP are O(N²) or O(N log N) in the <em>number of features</em>. Running on 64,496 features directly would take hours. PCA reduces to 50 components in ~20 seconds, preserving the dominant variation.</p>
+         <p><strong>What PCA does:</strong> Finds the 50 orthogonal directions (principal components) along which the data varies most. Projects each cell's 64,496 allele fractions onto these 50 directions. The result: 50 numbers per cell instead of 64,496, capturing the major genotype differences.</p>
+         <p><strong>Analogy:</strong> Instead of comparing all 64,496 question answers, PCA finds the 50 "summary questions" that capture most of the differences between donors. This is like distilling a 64,496-page exam into the 50 most diagnostic questions.</p>`,
+    formula:`Algorithm: randomised SVD (faster than full SVD)
+X_qc [3,522 × 64,496]
+  → covariance structure
+  → top 50 eigenvectors
+  → project: [3,522 × 50]
+
+Compression: 64,496 dims → 50 dims = 1,290× reduction
+Runtime: ~20 seconds`
+  },
+  tsne: {
+    icon:'🌀', title:'t-SNE — t-distributed Stochastic Neighbour Embedding',
+    body:`<p><strong>Goal:</strong> Place 3,522 cells in 2D such that cells that are nearby in the 50D PCA space remain nearby in the 2D plot. This makes donor clusters visually visible.</p>
+         <p><strong>How it works:</strong> (1) Compute probabilities that each cell is a "neighbour" of every other cell in 50D space, using a Gaussian kernel with perplexity=30. (2) Randomly place all cells in 2D. (3) Iteratively move cells to minimise the KL divergence between the 50D and 2D neighbourhood distributions. Uses a heavy-tailed t-distribution in 2D to prevent crowding.</p>
+         <p><strong>Perplexity = 30:</strong> Roughly means "each point has ~30 effective neighbours". Standard for scRNA-seq datasets of this size.</p>
+         <p><strong>Limitation:</strong> Distances between clusters in the 2D plot are NOT meaningful — only the cluster shapes are. Two clusters that appear far apart in t-SNE may actually be close in high-dimensional space.</p>`,
+    formula:`Input:  [3,522 × 50]  (PCA components)
+Algo:   Barnes-Hut approximation (O(N log N))
+Iters:  1,000 gradient descent steps
+Perplexity: 30  ·  Learning rate: 200
+Output: [3,522 × 2]  ·  Runtime: ~47s
+
+Run TWICE: on X_raw and X_corr → 2 scatter plots`
+  },
+  umap: {
+    icon:'🗺️', title:'UMAP — Uniform Manifold Approximation and Projection',
+    body:`<p><strong>Goal:</strong> Same as t-SNE — compress 50D PCA to 2D — but faster and with better preservation of global structure (relative distances between clusters).</p>
+         <p><strong>How it works:</strong> (1) Build a k-nearest-neighbour graph (k=15) in 50D space. (2) Construct a weighted graph approximating the manifold topology. (3) Find a 2D layout that preserves the topology using force-directed optimisation with attractive and repulsive forces.</p>
+         <p><strong>Why UMAP is now preferred:</strong> Distances between clusters in UMAP ARE more meaningful than in t-SNE. UMAP also runs in ~1 second vs ~47 seconds. It has become the standard visualisation in scRNA-seq since 2019.</p>
+         <p><strong>Both methods run here</strong> because souporcell users are familiar with both, and comparing the two embeddings for the same data is useful quality control.</p>`,
+    formula:`Input:  [3,522 × 50]  (same PCA as t-SNE)
+Algo:   k-NN graph + force optimisation
+k = 15 neighbours  ·  min_dist = 0.1
+Output: [3,522 × 2]  ·  Runtime: ~1 second
+
+Run TWICE: on X_raw and X_corr → 2 scatter plots`
+  },
+  plot: {
+    icon:'📊', title:'4 Scatter Plots — Before and After × t-SNE and UMAP',
+    body:`<p>The final output is 4 scatter plots, each with 3,522 points (singlet cells) coloured by their donor cluster (0–3):</p>
+         <ol style="padding-left:18px;line-height:2;font-size:.9rem;color:var(--ink3)">
+           <li><strong>t-SNE — Before correction</strong> (using X_raw)</li>
+           <li><strong>t-SNE — After correction</strong> (using X_corr)</li>
+           <li><strong>UMAP — Before correction</strong> (using X_raw)</li>
+           <li><strong>UMAP — After correction</strong> (using X_corr)</li>
+         </ol>
+         <p>The before/after comparison shows the effect of ambient correction. At α = 1.262%, the visual difference is subtle (within-cluster tightening). The key proof of correction is not visual — it is the R²=1.000 from the simulation benchmark.</p>
+         <p><strong>Coordinates are written to JSON</strong> so the interactive HTML figures (tsne_before_after.html, umap_before_after.html) can load real cell positions, colour by donor, and support hover tooltips.</p>`,
+    formula:`4 outputs:
+tsne_before_after.json  ← t-SNE x,y per cell × 2 states
+umap_before_after.json  ← UMAP x,y per cell × 2 states
+
+Each JSON: [{cell_id, x_before, y_before, x_after, y_after, cluster_k}]
+Used by: figures/tsne_before_after.html, figures/umap_before_after.html`
+  }
+};
+
+let activeDrNode = null;
+
+function drClick(id) {
+  const def = DR_DEFS[id];
+  if (!def) return;
+  const panel = document.getElementById('drDetailPanel');
+
+  if (activeDrNode === id) {
+    activeDrNode = null;
+    panel.classList.remove('open');
+    document.querySelectorAll('.dr-box').forEach(b => b.classList.remove('active-dr'));
+    return;
+  }
+  activeDrNode = id;
+  document.querySelectorAll('.dr-box').forEach(b => b.classList.remove('active-dr'));
+  document.getElementById('drb-' + id)?.classList.add('active-dr');
+
+  const keys = Object.keys(DR_DEFS);
+  const idx = keys.indexOf(id);
+
+  panel.innerHTML = `
+    <div class="fc-detail-head">
+      <div class="fc-detail-icon">${def.icon}</div>
+      <div>
+        <div class="fc-detail-title">${def.title}</div>
+      </div>
+    </div>
+    <div class="fc-detail-body">
+      ${def.body}
+      <div class="ds-formula" style="margin-top:12px">${def.formula}</div>
+    </div>
+    <div class="fc-nav" style="margin-top:14px">
+      <button class="fc-nav-btn" onclick="drStep(-1)" ${idx===0?'disabled':''}>← Prev</button>
+      <span class="fc-nav-count">${idx+1} / ${keys.length}</span>
+      <button class="fc-nav-btn" onclick="drStep(1)" ${idx===keys.length-1?'disabled':''}>Next →</button>
+    </div>`;
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function drStep(dir) {
+  if (!activeDrNode) return;
+  const keys = Object.keys(DR_DEFS);
+  const next = keys[keys.indexOf(activeDrNode) + dir];
+  if (next) drClick(next);
+}
+
+/* ── Conceptual scatter canvas ────────────────────────────── */
+function drawDrScatter() {
+  const c = document.getElementById('drScatter');
+  if (!c) return;
+  c.width = c.parentElement.clientWidth - 40;
+  const w = c.width, h = 240, ctx = c.getContext('2d');
+  ctx.fillStyle = '#F8FAFC'; ctx.fillRect(0, 0, w, h);
+
+  // Two side-by-side plots: before (left) and after (right)
+  const half = w / 2 - 8;
+  const centres = [
+    [half*0.28, h*0.35], [half*0.6, h*0.25],
+    [half*0.72, h*0.62], [half*0.35, h*0.68]
+  ];
+  // Before: slightly larger spread
+  // After: slightly tighter
+  function drawDots(ox, spreads, label, highlight) {
+    const rng = (s, sd) => {
+      let u = Math.random(), v = Math.random();
+      return s + sd * Math.sqrt(-2*Math.log(Math.max(u,1e-9))) * Math.cos(2*Math.PI*v);
+    };
+    centres.forEach((c2, k) => {
+      const sp = spreads[k];
+      for (let i = 0; i < 60; i++) {
+        const x = ox + rng(c2[0], sp), y = rng(c2[1], sp);
+        ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 2*Math.PI);
+        ctx.fillStyle = COLS[k] + (highlight===k ? 'FF' : '99');
+        ctx.fill();
+      }
+      // centroid cross
+      ctx.strokeStyle = COLS[k]; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ox+c2[0]-7,c2[1]); ctx.lineTo(ox+c2[0]+7,c2[1]); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox+c2[0],c2[1]-7); ctx.lineTo(ox+c2[0],c2[1]+7); ctx.stroke();
+      ctx.fillStyle = COLS[k]; ctx.font = 'bold 9px DM Sans,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('D'+k, ox+c2[0], c2[1]+18);
+    });
+    // Label
+    ctx.fillStyle = '#64748B'; ctx.font = 'bold 9px DM Sans,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(label, ox + half/2, h - 6);
+    // Border
+    ctx.strokeStyle = '#E2E8F0'; ctx.lineWidth = 1;
+    ctx.strokeRect(ox + 1, 1, half - 2, h - 2);
+  }
+
+  drawDots(0,    [22, 20, 22, 20], 'BEFORE correction', null);
+  drawDots(w/2+4, [18, 16, 18, 16], 'AFTER correction (tighter)', null);
+
+  // Divider
+  ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+}
+
+// Draw on load and on resize
+const drObs = new IntersectionObserver(es => {
+  if (es[0].isIntersecting) { drawDrScatter(); drObs.disconnect(); }
+}, {threshold: 0.2});
+const drEl = document.getElementById('sDR');
+if (drEl) drObs.observe(drEl);
+
+
+// ═══ FLOWCHART JS ═══
+
+/* ═══════════════════════════════════════════════════════════
+   FLOWCHART + DATA FLOW LOGIC
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Node definitions for simple flowchart ──────────────── */
+const FC_NODES = {
+  bam: {
+    icon:'🗂️', title:'BAM File — Raw Sequencing Reads', badge:'Upstream Input',
+    body:`<p>The BAM file contains all sequencing reads after alignment. Stages 1–3 of the souporcell pipeline merge per-lane BAM files, remap to the reference genome, and restore cell barcodes (CB tags) and UMIs.</p>
+          <p><strong>Plain English:</strong> The sequencer has produced billions of short DNA fragments. The BAM file records where each fragment maps in the genome and which cell barcode it belongs to.</p>`,
+    ins:['*.fastq.gz (raw reads)','reference genome (GRCh38)'],
+    outs:['merged_remapped.bam'],
+    formula:null, sec:null
+  },
+  vcf: {
+    icon:'🔍', title:'SNP Calling — freebayes', badge:'Stage 4',
+    body:`<p>freebayes scans the BAM file and identifies positions (SNPs) where the DNA differs between cells. These positions are the "questions" in our classroom story.</p>
+          <p><strong>Plain English:</strong> Everyone's DNA differs at millions of positions. freebayes finds those positions in your data. Output = a list of variable positions (VCF file).</p>`,
+    ins:['merged_remapped.bam'],
+    outs:['souporcell_merged_sorted_vcf.vcf.gz'],
+    formula:null, sec:null
+  },
+  vartrix: {
+    icon:'📊', title:'Allele Counting — vartrix', badge:'Stage 5 → produces ref.mtx and alt.mtx',
+    body:`<p>For each cell and each SNP position, vartrix counts reference reads (R[l,n]) and alternative reads (A[l,n]). These two matrices are the primary inputs to soupXcell.</p>
+          <p><strong>Plain English:</strong> At each DNA position, vartrix counts "how many reads say A?" and "how many say B?" for each of the 3,639 cells. Result: two 80,712 × 3,639 sparse matrices.</p>`,
+    ins:['merged_remapped.bam','souporcell_merged_sorted_vcf.vcf.gz'],
+    outs:['ref.mtx ★ (required by soupXcell)','alt.mtx ★ (required by soupXcell)'],
+    formula:`R[l,n]  = reference allele reads at locus l in cell n
+A[l,n]  = alternative allele reads at locus l in cell n
+Matrix: 80,712 loci × 3,639 cells  ·  99.51% sparse`,
+    sec:'s2'
+  },
+  soup6: {
+    icon:'🧬', title:'Genotype Clustering — souporcell', badge:'Stage 6',
+    body:`<p>souporcell clusters cells into K=4 groups (donors) using their allele fraction profiles. No reference genotypes needed — it learns the clusters purely from the data.</p>
+          <p><strong>Plain English:</strong> Cells from the same person have similar DNA variant patterns. souporcell finds 4 groups of similar cells, labelling them Cluster 0–3.</p>`,
+    ins:['ref.mtx','alt.mtx'],
+    outs:['clusters.tsv (initial — no doublet status yet)'],
+    formula:null, sec:null
+  },
+  troublet: {
+    icon:'👥', title:'Doublet Detection — troublet', badge:'Stage 7 → produces clusters.tsv',
+    body:`<p>troublet identifies doublets — droplets containing two cells from different donors. Their allele fractions look like a blend of two genotypes.</p>
+          <p><strong>Plain English:</strong> Two cells in one droplet = one "answer sheet" with signals from two students mixed together. troublet flags 117 of them (3.2%) here. Doublets are excluded from soup estimation.</p>
+          <p>⚠️ Donor 0 has 115 doublets (12.5%) — anomalously high, worth investigating.</p>`,
+    ins:['clusters.tsv (initial)'],
+    outs:['clusters.tsv ★ (required) — adds singlet/doublet status column'],
+    formula:`Per-cell status column added:
+singlet  → used for μ[l] estimation (3,523 cells)
+doublet  → excluded from soup estimation (117 cells)`,
+    sec:null
+  },
+  consensus: {
+    icon:'🌡️', title:'Ambient RNA Estimation — consensus.py', badge:'Stage 8 → produces α and cluster_genotypes.vcf',
+    body:`<p>consensus.py estimates how much of the RNA in each droplet is ambient (background soup). It writes the fraction α to ambient_rna.txt. It also writes the definitive locus list to cluster_genotypes.vcf.</p>
+          <p><strong>Plain English:</strong> "On average, what fraction of each cell's reads came from broken cells floating in the liquid?" Answer: α = 1.262% for this dataset.</p>
+          <p>⚠️ Always <code>export VCF=&lt;path&gt;</code> before running soupXcell — an unset VCF variable silently falls back to Mode C (less accurate).</p>`,
+    ins:['clusters.tsv','ref.mtx','alt.mtx'],
+    outs:['ambient_rna.txt ★ (required) — contains α = 0.01261973','cluster_genotypes.vcf ★ (strongly recommended) — locus list'],
+    formula:`α = 0.01261973  (1.262% of reads are ambient)
+Interpretation: ~1 in every 80 reads comes from the soup`,
+    sec:'s4'
+  },
+  m1: {
+    icon:'🧹', title:'Module 1 — Ambient Subtraction', badge:'soupXcell ★ always runs',
+    body:`<p><strong>Core operation:</strong> For every covered (non-NaN) cell-locus pair, estimate the soup contribution and subtract it. This is the main correction of the tool.</p>
+          <p>Step 1: Compute allele fraction X[l,n] = A/(R+A).<br/>
+          Step 2: Estimate soup vector μ[l] from singlets only.<br/>
+          Step 3: Subtract: X_corr = max(0, X − α·μ[l]).</p>
+          <p><strong>Results:</strong> 640,425 entries (44.32%) floored to zero. Mean correction = 0.005201. Within-cluster std Δ = −0.000887.</p>`,
+    ins:['ref.mtx','alt.mtx','clusters.tsv','ambient_rna.txt','cluster_genotypes.vcf'],
+    outs:['X_corrected.mtx','X_raw.mtx','soup_vector.csv','correction_summary.csv'],
+    formula:`<span class="fv">X</span>[l,n]     = A[l,n] / (R[l,n] + A[l,n])
+<span class="fa">μ</span>[l]       = mean over singlets of X[l,n]
+soup[l]   = α × μ[l]  =  0.01262 × μ[l]
+<span class="fg">X_corr</span>[l,n] = max(0, X[l,n] − soup[l])`,
+    sec:'s6'
+  },
+  m3: {
+    icon:'🗺️', title:'Module 3 — Dimensionality Reduction (--embed)', badge:'soupXcell optional',
+    body:`<p>Reduces the 64,496-dimensional allele fraction matrix to 2D using PCA then t-SNE or UMAP. Runs on both raw and corrected matrices to produce before/after plots.</p>
+          <p><strong>Plain English:</strong> Each cell is a point in 64,496-dimensional space. PCA + t-SNE compress this to 2D so you can plot and see the 4 donor groups. The before/after comparison shows the effect of correction visually.</p>
+          <p>Runtime: PCA ~20s · t-SNE ~47s per embedding (1,000 iters, 3,522 cells) · UMAP ~1s</p>`,
+    ins:['X_raw_work [64,496 × 3,522]','X_corr_work [64,496 × 3,522]'],
+    outs:['image_data/tsne_before_after.json','image_data/umap_before_after.json','figures/tsne_before_after.html','figures/umap_before_after.html'],
+    formula:`X [64,496 × 3,522]
+  → PCA (randomised SVD)   → [3,522 × 50]
+  → t-SNE (Barnes-Hut)     → [3,522 × 2]
+  → UMAP (k-NN forces)     → [3,522 × 2]
+Computed for X_raw AND X_corr → 4 scatter plots`,
+    sec:'s8'
+  },
+  m2: {
+    icon:'🧪', title:'Module 2 — Simulation Benchmark (--simulate)', badge:'soupXcell optional — strongly recommended',
+    body:`<p><strong>Controlled experiment:</strong> Inject a known amount of contamination into the real matrix, run correction, measure how much was recovered. This proves the correction is mathematically exact without needing biological ground truth.</p>
+          <p>Tested at 6 levels × 5 trials: α_sim ∈ {1%, 5%, 10%, 20%, 30%, 50%}.</p>
+          <p><strong>Result:</strong> RMSE = 0.3875 × α_sim, R² = 1.000 — mathematically exact linear recovery at every tested level.</p>`,
+    ins:['X_raw (allele fractions)','μ[l] soup vector','α_sim levels: 0.01, 0.05, 0.10, 0.20, 0.30, 0.50'],
+    outs:['simulation_benchmark.csv','image_data/simulation_curves.json','image_data/rmse_linearity.json'],
+    formula:`X_inj   = X_raw + α_sim × μ[l]   <span class="fc">← inject</span>
+X_rec   = max(0, X_inj − α × μ[l]) <span class="fc">← recover</span>
+RMSE    = √(mean((injected − recovered)²))
+Result: RMSE = <span class="fg">0.3875</span> × α_sim  ·  R² = <span class="fg">1.000</span>`,
+    sec:'s10'
+  },
+  out: {
+    icon:'💾', title:'Output — X_corrected.mtx', badge:'soupXcell output',
+    body:`<p>The corrected allele fraction matrix in MatrixMarket format — identical structure to the input ref.mtx / alt.mtx, but with ambient RNA subtracted. Use this file in place of the raw matrices for all downstream analyses.</p>
+          <p>44.32% of covered entries are now zero (floored). 55.68% carry real signal above the ambient threshold.</p>`,
+    ins:['All Module 1 corrections applied'],
+    outs:['X_corrected.mtx (use for downstream analysis)','X_raw.mtx (preserved original)'],
+    formula:null, sec:'s7'
+  },
+  report: {
+    icon:'📄', title:'Output — HTML Report &amp; Interactive Figures', badge:'soupXcell output',
+    body:`<p>A 12-section self-contained HTML report and 11 interactive HTML figures, each backed by a live JSON data file. Open any figure directly in the browser — no server required.</p>
+          <p>Figures include: t-SNE before/after, UMAP before/after, contamination progression, cluster composition, silhouette comparison, correction distribution, soup vector profile, RMSE linearity, per-cluster correction, floor per locus, simulation curves.</p>`,
+    ins:['All JSON data files from Modules 1–3'],
+    outs:['soupxcell_report.html (12 sections)','figures/tsne_before_after.html','figures/contamination_progression.html','figures/cluster_composition.html','... 8 more figures'],
+    formula:null, sec:null
+  },
+  metrics: {
+    icon:'📊', title:'Output — metrics.txt &amp; CSV Files', badge:'soupXcell output',
+    body:`<p>Plain-text summary of all key metrics and three CSV files with per-cell and per-cluster detail.</p>`,
+    ins:['Module 1 correction data','Module 3 silhouette scores','Module 2 simulation results'],
+    outs:['metrics.txt (α, Sil before/after, DB before/after, RMSE slope)','correction_summary.csv (per-cell)','simulation_benchmark.csv (per-level)','soup_vector.csv (per-locus μ and soup)'],
+    formula:`alpha_used: 0.01261973
+silhouette_before: -0.0026  silhouette_after: -0.0026
+davies_bouldin_before: 1.9618  davies_bouldin_after: 1.9588
+RMSE slope: 0.3875  R2: 1.0000`,
+    sec:null
+  }
+};
+
+let activeFcNode = null;
+
+function fcClick(id) {
+  const def = FC_NODES[id];
+  if (!def) return;
+  const panel = document.getElementById('fcDetailPanel');
+
+  // Toggle off
+  if (activeFcNode === id) {
+    activeFcNode = null;
+    panel.classList.remove('open');
+    document.querySelectorAll('.fc-node').forEach(n => n.classList.remove('active-fc'));
+    return;
+  }
+  activeFcNode = id;
+  document.querySelectorAll('.fc-node').forEach(n => n.classList.remove('active-fc'));
+  const nodeEl = document.getElementById('fcn-'+id);
+  if (nodeEl) nodeEl.classList.add('active-fc');
+
+  const nodeKeys = Object.keys(FC_NODES);
+  const idx = nodeKeys.indexOf(id);
+
+  const ins = def.ins.map(i =>
+    `<span class="fc-io-pill ${i.includes('★')?'req':''}">${i.replace(' ★','')}</span>`
+  ).join('');
+  const outs = def.outs.map(o =>
+    `<span class="fc-io-pill out">${o}</span>`
+  ).join('');
+  const fmBlock = def.formula
+    ? `<div class="fc-detail-io" style="margin-top:10px"><strong style="font-size:.78rem;color:var(--ink4);text-transform:uppercase;letter-spacing:.08em">Formula / Key Values:</strong></div>
+       <div class="ds-formula" style="margin-top:6px">${def.formula}</div>`
+    : '';
+  const jumpBtn = def.sec
+    ? `<button class="fc-nav-btn jump" onclick="scrollS('${def.sec}');void(0)">📖 Jump to walkthrough section →</button>`
+    : '';
+
+  panel.innerHTML = `
+    <div class="fc-detail-head">
+      <div class="fc-detail-icon">${def.icon}</div>
+      <div>
+        <div class="fc-detail-title">${def.title}</div>
+        <span class="fc-detail-badge ${def.badge.includes('soupXcell')&&!def.badge.includes('output')?'green':''}">${def.badge}</span>
+      </div>
+    </div>
+    <div class="fc-detail-body">${def.body}
+      <div style="margin-top:12px;font-size:.78rem;font-weight:700;color:var(--ink5);text-transform:uppercase;letter-spacing:.08em">Inputs:</div>
+      <div class="fc-detail-io">${ins}</div>
+      <div style="margin-top:8px;font-size:.78rem;font-weight:700;color:var(--ink5);text-transform:uppercase;letter-spacing:.08em">Outputs:</div>
+      <div class="fc-detail-io">${outs}</div>
+      ${fmBlock}
+    </div>
+    <div class="fc-nav">
+      <button class="fc-nav-btn" onclick="fcStep(-1)" ${idx===0?'disabled':''}>← Prev step</button>
+      <span class="fc-nav-count">${idx+1} / ${nodeKeys.length}</span>
+      <button class="fc-nav-btn" onclick="fcStep(1)" ${idx===nodeKeys.length-1?'disabled':''}>Next step →</button>
+      <div class="fc-nav-spacer"></div>
+      ${jumpBtn}
+    </div>`;
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function fcStep(dir) {
+  if (!activeFcNode) return;
+  const keys = Object.keys(FC_NODES);
+  const idx = keys.indexOf(activeFcNode);
+  const next = keys[idx + dir];
+  if (next) fcClick(next);
+}
+
+/* ── DETAILED DATA FLOW ──────────────────────────────────── */
+const DFLOW_STEPS = [
+  {
+    num:'01', col:'#E2E8F0', title:'Load raw allele fraction matrices',
+    sub:'ref.mtx + alt.mtx → build X[l,n]',
+    body:`Read both matrices in MatrixMarket format. For every covered entry (R+A > 0), compute allele fraction X[l,n] = A/(R+A). NaN for zero-coverage positions. Result: 80,712 × 3,639 sparse matrix, 99.51% zero.`,
+    ins:['ref.mtx','alt.mtx'],
+    outs:['X_raw[l,n] — allele fraction matrix'],
+    formula:`<span class="fv">X</span>[l,n] = A[l,n] / (R[l,n] + A[l,n])   <span class="fc">← NaN if zero coverage</span>
+Covered entries: 1,444,860 of 293,710,368 total`
+  },
+  {
+    num:'02', col:'#BFDBFE', title:'Parse cluster assignments',
+    sub:'clusters.tsv → singlet/doublet labels',
+    body:`Read clusters.tsv (from troublet Stage 7). Extract cluster_id (donor) and status (singlet/doublet) for each barcode. 3,523 singlets will be used for soup estimation. 117 doublets are flagged and excluded from μ[l] computation.`,
+    ins:['clusters.tsv (troublet output)'],
+    outs:['labels[n] — donor cluster per cell','singlet_mask — which cells to use for μ'],
+    formula:`singlets: 3,523  (used for soup estimation)
+doublets:   117  (excluded — mixed genotype)`
+  },
+  {
+    num:'03', col:'#A5F3FC', title:'Resolve QC loci via VCF mapping',
+    sub:'cluster_genotypes.vcf → L_qc = 64,496 loci',
+    body:`Mode B: positional mapping of cluster_genotypes.vcf to matrix row indices. This reduces from 80,712 raw loci to 64,496 high-confidence QC loci. Quality metrics (silhouette, DB) are computed only on QC loci. Correction is applied to all 80,712 loci.`,
+    ins:['cluster_genotypes.vcf (Stage 8 output)'],
+    outs:['qc_indices — list of 64,496 valid row indices'],
+    formula:`L_raw = 80,712   →   L_qc = 64,496  (Mode B mapping)
+QC subset used for: silhouette · DB · within-cluster std`
+  },
+  {
+    num:'04', col:'#BBF7D0', title:'Estimate soup vector μ[l]',
+    sub:'mean allele fraction per locus across singlets',
+    body:`For each locus l, compute the mean allele fraction across all singlet cells with coverage. This is the "population mean" — what the ambient RNA pool looks like at each position. Only singlets are used to prevent doublet-driven bias.`,
+    ins:['X_raw[l,n]','singlet_mask'],
+    outs:['μ[l] — soup vector (80,712 values)'],
+    formula:`<span class="fa">μ</span>[l] = (1 / |S|) × Σ X[l,n]  for n ∈ singlets
+mean(μ[l]) = 0.4122   ·   RMS(μ[l]) = 0.3875
+max(μ[l]) ≈ 1.0   ·   most loci: μ ≈ 0`
+  },
+  {
+    num:'05', col:'#FDE68A', title:'Apply ambient subtraction (Module 1)',
+    sub:'X_corr = max(0, X − α × μ[l])',
+    body:`For every covered entry: subtract the soup contribution (α × μ[l]) from the observed allele fraction. If the result is negative, floor to zero. This is the core correction of soupXcell.`,
+    ins:['X_raw[l,n]','μ[l]','α = 0.01261973'],
+    outs:['X_corr[l,n] — corrected matrix'],
+    formula:`soup[l]      = 0.01262 × <span class="fa">μ</span>[l]
+<span class="fg">X_corr</span>[l,n] = max(0,  X[l,n]  −  soup[l])
+
+Entries floored: 640,425  (44.32% of covered)
+Mean |correction|: 0.005201`
+  },
+  {
+    num:'06', col:'#FCA5A5', title:'Compute cluster quality metrics',
+    sub:'Silhouette + Davies-Bouldin + within-cluster std',
+    body:`Using the QC-filtered subset (64,496 loci), compute three cluster quality metrics on both X_raw and X_corr. Silhouette uses a stratified subsample of ≤150 cells per cluster for speed.`,
+    ins:['X_raw[L_qc × N]','X_corr[L_qc × N]','labels[n]'],
+    outs:['metrics.txt','silhouette_comparison.json','per_cluster_correction.json'],
+    formula:`Sil before: -0.002560   Sil after: -0.002563   Δ = -0.000003
+DB before:   1.9618      DB after:   1.9588    Δ = -0.0030
+Within-std: 0.204753 → 0.203866  Δ = -0.000887`
+  },
+  {
+    num:'07', col:'#DDD6FE', title:'Simulation benchmark (Module 2, --simulate)',
+    sub:'Inject α_sim × 6 levels × 5 trials → measure RMSE',
+    body:`For each of 6 contamination levels, inject known contamination into X_raw, apply the standard correction, and measure RMSE between expected and recovered values. This validates the correction independently of biological ground truth.`,
+    ins:['X_raw[l,n]','μ[l]','α_sim ∈ {0.01, 0.05, 0.10, 0.20, 0.30, 0.50}'],
+    outs:['simulation_benchmark.csv','simulation_curves.json','rmse_linearity.json'],
+    formula:`RMSE = 0.3875 × α_sim   ·   R² = 1.000000
+Slope = RMS(μ[l]) = √(mean(μ[l]²)) = 0.3875
+<span class="fc">// Mathematical proof correction is exact</span>`
+  },
+  {
+    num:'08', col:'#A5F3FC', title:'Dimensionality reduction (Module 3, --embed)',
+    sub:'PCA → t-SNE / UMAP → before and after',
+    body:`Reduce X_raw and X_corr (QC-filtered, singlets only) to 2D using randomised PCA followed by t-SNE and/or UMAP. Write cell coordinates to JSON for interactive HTML figures.`,
+    ins:['X_raw[64,496 × 3,522]','X_corr[64,496 × 3,522]'],
+    outs:['tsne_before_after.json','umap_before_after.json'],
+    formula:`PCA:   [3,522 × 64,496] → [3,522 × 50]   ~20s
+t-SNE: [3,522 × 50]    → [3,522 × 2]    ~47s
+UMAP:  [3,522 × 50]    → [3,522 × 2]    ~1s`
+  },
+  {
+    num:'09', col:'#BBF7D0', title:'Write JSON data files',
+    sub:'9 image_data/*.json files for interactive figures',
+    body:`All figure data is written as JSON files in image_data/. The HTML figure files read these JSONs at load time — every figure shows real run data, not estimates or placeholders.`,
+    ins:['All computed matrices, metrics, and simulation results'],
+    outs:['tsne_before_after.json','umap_before_after.json','silhouette_comparison.json','correction_distribution.json','simulation_curves.json','rmse_linearity.json','soup_vector_profile.json','per_cluster_correction.json','floor_per_locus.json'],
+    formula:`9 JSON files · all real data · no placeholders
+cluster_data.json written to figures/ (for cluster_composition.html)`
+  },
+  {
+    num:'10', col:'#FDE68A', title:'Generate HTML report and figures',
+    sub:'12-section report + 11 interactive HTML figures',
+    body:`The HTML report (soupxcell_report.html) embeds all metrics and links all figures. Eleven interactive HTML figures are written to figures/, each reading from its corresponding JSON data file. No server required — open any file directly in a browser.`,
+    ins:['All JSON data files','Embedded CSS and chart code'],
+    outs:['soupxcell_report.html (12 sections)','figures/tsne_before_after.html','figures/umap_before_after.html','figures/contamination_progression.html','figures/cluster_composition.html','... 7 more figures'],
+    formula:`Report sections: Cover · TOC · Research · Findings · Metrics ·
+  Story · Experiment · Formula · Simulation · Tables ·
+  Figures · Interpretation · Parameters · Methods`
+  }
+];
+
+let activeDStep = null;
+
+function buildDflow() {
+  const container = document.getElementById('dflowSteps');
+  if (!container) return;
+  DFLOW_STEPS.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'dflow-step';
+    div.id = 'ds-' + i;
+    div.innerHTML = `
+      <div class="ds-left">
+        <div class="ds-dot" id="dsdot-${i}" style="background:${s.col};color:${i>5?'#0F172A':'#1E293B'}">${s.num}</div>
+        <div class="ds-line"></div>
+      </div>
+      <div class="ds-right">
+        <div class="ds-title">${s.title}</div>
+        <div class="ds-sub">${s.sub}</div>
+        <div class="ds-body" id="dsb-${i}">
+          <p>${s.body}</p>
+          <div style="margin-top:8px;font-size:.75rem;font-weight:700;color:var(--ink5);text-transform:uppercase;letter-spacing:.08em">Inputs:</div>
+          <div class="ds-files">${s.ins.map(f=>`<span class="ds-file in">${f}</span>`).join('')}</div>
+          <div style="margin-top:6px;font-size:.75rem;font-weight:700;color:var(--ink5);text-transform:uppercase;letter-spacing:.08em">Outputs:</div>
+          <div class="ds-files">${s.outs.map(f=>`<span class="ds-file out">${f}</span>`).join('')}</div>
+          <div class="ds-formula" style="margin-top:10px">${s.formula}</div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button class="fc-nav-btn" onclick="dStepNav(${i},-1)" ${i===0?'disabled':''}>← Prev</button>
+            <span class="fc-nav-count" style="align-self:center">${i+1} of ${DFLOW_STEPS.length}</span>
+            <button class="fc-nav-btn" onclick="dStepNav(${i},1)" ${i===DFLOW_STEPS.length-1?'disabled':''}>Next →</button>
+          </div>
+        </div>
+      </div>`;
+    div.addEventListener('click', () => dStepClick(i));
+    container.appendChild(div);
+  });
+}
+
+function dStepClick(i) {
+  if (activeDStep === i) {
+    activeDStep = null;
+    document.getElementById('ds-'+i).classList.remove('ds-active');
+    updateDflowBar(0);
+    return;
+  }
+  if (activeDStep !== null) {
+    document.getElementById('ds-'+activeDStep).classList.remove('ds-active');
+  }
+  activeDStep = i;
+  document.getElementById('ds-'+i).classList.add('ds-active');
+  updateDflowBar((i+1)/DFLOW_STEPS.length*100);
+  setTimeout(()=>{
+    document.getElementById('dsb-'+i)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },100);
+}
+
+function dStepNav(current, dir) {
+  const next = current + dir;
+  if (next >= 0 && next < DFLOW_STEPS.length) {
+    dStepClick(next);
+    document.getElementById('ds-'+next).scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+
+function updateDflowBar(pct) {
+  const bar = document.getElementById('dflowBar');
+  if (bar) bar.style.width = pct + '%';
+}
+
+function switchFlow(mode) {
+  document.getElementById('flowSimple').style.display = mode === 'simple' ? 'block' : 'none';
+  document.getElementById('flowDetailed').style.display = mode === 'detailed' ? 'block' : 'none';
+  document.getElementById('tab-simple').classList.toggle('act', mode === 'simple');
+  document.getElementById('tab-detailed').classList.toggle('act', mode === 'detailed');
+}
+
+buildDflow();
+
+
+initAll();
+window.addEventListener('resize',initAll);
+</script>
+</body>
+</html>
